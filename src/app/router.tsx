@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { LoginPage } from '../features/auth/LoginPage'
+import { DocumentUploadPage } from '../features/documents/DocumentUploadPage'
 import { NotificationsPage } from '../features/notifications/NotificationsPage'
 import { RagPage } from '../features/rag/RagPage'
 import { AccessDeniedPage } from '../pages/AccessDeniedPage'
@@ -23,7 +24,6 @@ const managerPlaceholderRoutes = [
 ]
 
 const hrPlaceholderRoutes = [
-  { path: 'hr/documents/upload', title: '문서 업로드', description: '사내 지식 문서를 안전하게 등록하는 기능을 준비하고 있습니다.' },
   { path: 'hr/documents/processing', title: '문서 처리 현황', description: '업로드한 문서의 처리 상태를 확인하는 기능을 준비하고 있습니다.' },
   { path: 'hr/courses', title: '교육 과정', description: '교육 과정을 만들고 운영하는 기능을 준비하고 있습니다.' },
   { path: 'hr/onboarding', title: '온보딩 관리', description: '신입 구성원의 온보딩 절차를 관리하는 기능을 준비하고 있습니다.' },
@@ -60,6 +60,12 @@ export const router = createBrowserRouter([
           ...mapPlaceholderRoutes(commonPlaceholderRoutes),
           { path: 'rag', element: <RagPage /> },
           { path: 'notifications', element: <NotificationsPage /> },
+          {
+            element: <RoleRoute allow={['HR_MANAGER', 'SYSTEM_ADMIN']} />,
+            children: [
+              { path: 'hr/documents/upload', element: <DocumentUploadPage /> },
+            ],
+          },
           {
             element: <RoleRoute allow={['MANAGER']} />,
             children: mapPlaceholderRoutes(managerPlaceholderRoutes),
