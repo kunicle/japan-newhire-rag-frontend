@@ -1,0 +1,114 @@
+.field {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.label {
+  color: var(--color-text-primary);
+  font-size: var(--font-size-button);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-compact);
+}
+
+.required {
+  margin-inline-start: var(--space-1);
+  color: var(--color-danger);
+}
+
+.control {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-secondary);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.control:hover {
+  border-color: var(--color-text-tertiary);
+}
+
+.control:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 var(--focus-ring-width) var(--focus-ring-color);
+}
+
+.control:has(.input:disabled) {
+  cursor: not-allowed;
+  background-color: var(--color-background);
+  opacity: 0.7;
+}
+
+.sm {
+  min-height: calc(var(--space-8) + var(--space-1));
+  padding-inline: var(--space-3);
+}
+
+.md {
+  min-height: calc(var(--space-8) + var(--space-3));
+  padding-inline: var(--space-4);
+}
+
+.error {
+  border-color: var(--color-danger);
+}
+
+.error:focus-within {
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 var(--focus-ring-width)
+    color-mix(in srgb, var(--color-danger) 30%, transparent);
+}
+
+.input {
+  min-width: 0;
+  width: 100%;
+  padding: 0;
+  color: var(--color-text-primary);
+  background: transparent;
+  border: 0;
+  outline: 0;
+}
+
+.input::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.input:disabled {
+  cursor: not-allowed;
+}
+
+.adornment {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  color: var(--color-text-secondary);
+}
+
+.adornment > svg {
+  width: 1em;
+  height: 1em;
+}
+
+.helperText,
+.errorMessage {
+  margin: 0;
+  font-size: var(--font-size-secondary);
+  line-height: var(--line-height-compact);
+}
+
+.helperText {
+  color: var(--color-text-secondary);
+}
+
+.errorMessage {
+  color: var(--color-danger);
+  font-weight: var(--font-weight-medium);
+}

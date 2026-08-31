@@ -1,0 +1,118 @@
+.button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-small);
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-button);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-compact);
+  white-space: nowrap;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.primary {
+  color: var(--color-surface);
+  background-color: var(--color-primary);
+}
+
+.primary:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+}
+
+.secondary {
+  color: var(--color-text-primary);
+  background-color: var(--color-surface);
+  border-color: var(--color-border);
+}
+
+.secondary:hover:not(:disabled) {
+  color: var(--color-primary-hover);
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-soft);
+}
+
+.ghost {
+  color: var(--color-secondary);
+  background-color: transparent;
+}
+
+.ghost:hover:not(:disabled) {
+  color: var(--color-primary-hover);
+  background-color: var(--color-primary-soft);
+}
+
+.danger {
+  color: var(--color-surface);
+  background-color: var(--color-danger);
+}
+
+.danger:hover:not(:disabled) {
+  background-color: color-mix(in srgb, var(--color-danger) 88%, var(--color-text-primary));
+}
+
+.sm {
+  min-height: var(--space-8);
+  padding: var(--space-1) var(--space-3);
+}
+
+.md {
+  min-height: calc(var(--space-8) + var(--space-2));
+  padding: var(--space-2) var(--space-4);
+}
+
+.lg {
+  min-height: var(--space-12);
+  padding: var(--space-3) var(--space-6);
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.hiddenContent {
+  opacity: 0;
+}
+
+.loadingIndicator {
+  position: absolute;
+  inset: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.icon > svg {
+  width: 1em;
+  height: 1em;
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
+}

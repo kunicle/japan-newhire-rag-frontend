@@ -1,0 +1,49 @@
+.emptyState {
+  display: flex;
+  min-height: calc(var(--space-16) * 4);
+  padding: var(--space-8);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  color: var(--color-text-primary);
+  text-align: center;
+}
+
+.icon {
+  display: inline-flex;
+  width: var(--space-12);
+  height: var(--space-12);
+  align-items: center;
+  justify-content: center;
+  color: var(--color-secondary);
+  background-color: var(--color-primary-soft);
+  border-radius: var(--radius-medium);
+}
+
+.icon > svg {
+  width: var(--space-6);
+  height: var(--space-6);
+}
+
+.content {
+  max-width: calc(var(--space-16) * 8);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--font-size-section-title);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-section-title);
+}
+
+.description {
+  margin: var(--space-2) 0 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+}
+
+.action {
+  margin-top: var(--space-2);
+}
