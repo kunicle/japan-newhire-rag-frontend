@@ -16,6 +16,11 @@ describe('mapDocumentErrorMessage', () => {
     [400, '문서 카테고리가 없습니다.'],
     [400, '비활성 문서 카테고리는 사용할 수 없습니다.'],
     [409, '이미 공개된 버전입니다.'],
+    [400, 'ALL 범위에는 접근 조건을 설정할 수 없습니다.'],
+    [400, 'RESTRICTED 범위에는 conditionOperator가 필요합니다.'],
+    [400, 'RESTRICTED 범위에는 접근 조건이 필요합니다.'],
+    [404, '존재하지 않는 역할입니다.'],
+    [404, '존재하지 않는 직급입니다.'],
   ])('passes through an exact safe message: %s %s', (status, message) => {
     expect(mapDocumentErrorMessage(new AppError(status, 'INVALID', message), FALLBACK))
       .toBe(message)
@@ -33,6 +38,20 @@ describe('mapDocumentErrorMessage', () => {
       new AppError(409, 'CONFLICT', 'internal state details'),
       FALLBACK,
     )).toBe('현재 상태에서는 요청을 처리할 수 없습니다.')
+  })
+
+  it('does not expose an arbitrary 404 message', () => {
+    expect(mapDocumentErrorMessage(
+      new AppError(404, 'NOT_FOUND', 'internal lookup details'),
+      FALLBACK,
+    )).toBe('요청한 정보를 찾을 수 없습니다.')
+  })
+
+  it('requires an exact safe 404 match', () => {
+    expect(mapDocumentErrorMessage(
+      new AppError(404, 'NOT_FOUND', '존재하지 않는 역할입니다. internal detail'),
+      FALLBACK,
+    )).toBe('요청한 정보를 찾을 수 없습니다.')
   })
 
   it.each([

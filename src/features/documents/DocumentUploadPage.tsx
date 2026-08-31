@@ -4,10 +4,11 @@ import { Button, Card, EmptyState, Input, Skeleton } from '../../shared/ui'
 import {
   fetchDocumentCategories,
   publishDocumentVersion,
-  updateDocumentAccessRule,
   uploadDocument,
 } from './documentApi'
+import { DocumentAccessRuleForm } from './DocumentAccessRuleForm'
 import { mapDocumentErrorMessage } from './documentErrors'
+import type { AccessRuleFormSnapshot } from './accessRuleFormHelpers'
 import type {
   DocumentAccessRuleResult,
   DocumentCategory,
@@ -19,8 +20,6 @@ import styles from './DocumentUploadPage.module.css'
 const CATEGORY_ERROR_MESSAGE = '문서 카테고리를 불러오지 못했습니다.'
 const UPLOAD_ERROR_MESSAGE = '문서를 업로드하지 못했습니다. 잠시 후 다시 시도해 주세요.'
 const PUBLISH_ERROR_MESSAGE = '문서를 발행하지 못했습니다. 잠시 후 다시 시도해 주세요.'
-const ACCESS_RULE_ERROR_MESSAGE =
-  '접근 범위를 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.'
 const MAX_FILE_SIZE = 5 * 1024 * 1024
 
 export function DocumentUploadPage() {
@@ -35,11 +34,12 @@ export function DocumentUploadPage() {
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [uploadResult, setUploadResult] = useState<DocumentUploadResult | null>(null)
-  const [accessScopeAllConfirmed, setAccessScopeAllConfirmed] = useState(false)
-  const [savingAccessRule, setSavingAccessRule] = useState(false)
-  const [accessRuleError, setAccessRuleError] = useState<string | null>(null)
   const [accessRuleResult, setAccessRuleResult] =
     useState<DocumentAccessRuleResult | null>(null)
+  const [submittedAccessConfiguration, setSubmittedAccessConfiguration] =
+    useState<AccessRuleFormSnapshot | null>(null)
+  const [accessRuleSummaryLines, setAccessRuleSummaryLines] = useState<string[]>([])
+  const [editingAccessRule, setEditingAccessRule] = useState(false)
   const [publishing, setPublishing] = useState(false)
   const [publishError, setPublishError] = useState<string | null>(null)
   const [publishResult, setPublishResult] =
@@ -47,7 +47,6 @@ export function DocumentUploadPage() {
   const latestCategoryFetchIdRef = useRef(0)
   const mountedRef = useRef(false)
   const uploadingRef = useRef(false)
-  const savingAccessRuleRef = useRef(false)
   const publishingRef = useRef(false)
 
   async function loadCategories() {
@@ -165,43 +164,6 @@ export function DocumentUploadPage() {
     }
   }
 
-  async function handleSaveAccessRule() {
-    if (
-      savingAccessRuleRef.current ||
-      !uploadResult ||
-      !accessScopeAllConfirmed
-    ) {
-      return
-    }
-
-    savingAccessRuleRef.current = true
-    setSavingAccessRule(true)
-    setAccessRuleError(null)
-
-    try {
-      const result = await updateDocumentAccessRule(
-        uploadResult.documentId,
-        uploadResult.documentVersionId,
-        {
-          accessScope: 'ALL',
-          conditionOperator: null,
-          roles: [],
-          departmentIds: [],
-          minimumJobGradeId: null,
-          newEmployeeOnly: false,
-        },
-      )
-      setAccessRuleResult(result)
-    } catch (error) {
-      setAccessRuleError(
-        mapDocumentErrorMessage(error, ACCESS_RULE_ERROR_MESSAGE),
-      )
-    } finally {
-      savingAccessRuleRef.current = false
-      setSavingAccessRule(false)
-    }
-  }
-
   let content
 
   if (categoriesLoading) {
@@ -234,45 +196,23 @@ export function DocumentUploadPage() {
         />
       </Card>
     )
-  } else if (uploadResult && !accessRuleResult) {
+  } else if (uploadResult && (!accessRuleResult || editingAccessRule)) {
     content = (
       <Card className={styles.resultCard}>
         <h2 className={styles.resultTitle}>업로드가 완료되었습니다.</h2>
         <p className={styles.resultStatus}>아직 비공개</p>
-        <fieldset className={styles.accessFieldset}>
-          <legend className={styles.accessLegend}>접근 범위</legend>
-          <div className={styles.checkboxRow}>
-            <input
-              id="document-access-all"
-              type="checkbox"
-              checked={accessScopeAllConfirmed}
-              onChange={(event) =>
-                setAccessScopeAllConfirmed(event.target.checked)
-              }
-              disabled={savingAccessRule}
-            />
-            <label htmlFor="document-access-all">
-              이 문서를 전체 직원에게 공개하는 데 동의합니다.
-            </label>
-          </div>
-        </fieldset>
-        {accessRuleError && (
-          <p className={styles.errorMessage} role="alert">{accessRuleError}</p>
-        )}
-        {savingAccessRule && (
-          <p className={styles.statusMessage} role="status">
-            접근 범위를 저장하고 있습니다...
-          </p>
-        )}
-        <div className={styles.resultActions}>
-          <Button
-            onClick={() => void handleSaveAccessRule()}
-            loading={savingAccessRule}
-            disabled={savingAccessRule || !accessScopeAllConfirmed}
-          >
-            접근 범위 저장
-          </Button>
-        </div>
+        <DocumentAccessRuleForm
+          documentId={uploadResult.documentId}
+          documentVersionId={uploadResult.documentVersionId}
+          initialConfiguration={editingAccessRule ? submittedAccessConfiguration : null}
+          onSaved={(result, configuration, summaryLines) => {
+            setAccessRuleResult(result)
+            setSubmittedAccessConfiguration(configuration)
+            setAccessRuleSummaryLines(summaryLines)
+            setEditingAccessRule(false)
+          }}
+          onCancel={accessRuleResult ? () => setEditingAccessRule(false) : undefined}
+        />
       </Card>
     )
   } else if (uploadResult) {
@@ -289,9 +229,9 @@ export function DocumentUploadPage() {
             ? 'RAG 질문에서 발행된 문서를 활용할 수 있습니다.'
             : '문서를 RAG 검색 대상으로 사용하려면 발행해 주세요.'}
         </p>
-        {!publishResult && (
-          <p className={styles.resultDescription}>접근 범위: 전체 직원</p>
-        )}
+        <ul className={styles.summaryList} aria-label="저장된 접근 범위">
+          {accessRuleSummaryLines.map((line) => <li key={line}>{line}</li>)}
+        </ul>
         {publishError && (
           <p className={styles.errorMessage} role="alert">{publishError}</p>
         )}
@@ -301,13 +241,19 @@ export function DocumentUploadPage() {
               RAG에서 질문하기
             </Link>
           ) : (
-            <Button
-              onClick={() => void handlePublish()}
-              loading={publishing}
-              disabled={publishing}
-            >
-              발행하기
-            </Button>
+            <>
+              <Button variant="secondary" disabled={publishing}
+                onClick={() => setEditingAccessRule(true)}>
+                접근 범위 변경
+              </Button>
+              <Button
+                onClick={() => void handlePublish()}
+                loading={publishing}
+                disabled={publishing}
+              >
+                발행하기
+              </Button>
+            </>
           )}
         </div>
         {publishing && <p className={styles.statusMessage} role="status">문서를 발행하고 있습니다...</p>}

@@ -1,3 +1,5 @@
+import type { RoleType } from '../auth/types'
+
 export interface DocumentCategory {
   documentCategoryId: number
   categoryCode: string
@@ -27,7 +29,7 @@ export type ConditionOperator = 'AND' | 'OR'
 export interface DocumentAccessRuleRequest {
   accessScope: AccessScope
   conditionOperator: ConditionOperator | null
-  roles: string[]
+  roles: RoleType[]
   departmentIds: number[]
   minimumJobGradeId: number | null
   newEmployeeOnly: boolean

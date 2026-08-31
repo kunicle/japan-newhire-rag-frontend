@@ -48,37 +48,6 @@
   gap: var(--space-2);
 }
 
-.accessFieldset {
-  min-width: 0;
-  margin: 0;
-  padding: var(--space-4);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-small);
-}
-
-.accessLegend {
-  padding-inline: var(--space-1);
-  color: var(--color-text-primary);
-  font-weight: var(--font-weight-semibold);
-}
-
-.checkboxRow {
-  display: flex;
-  min-width: 0;
-  align-items: flex-start;
-  gap: var(--space-2);
-}
-
-.checkboxRow input {
-  flex: 0 0 auto;
-  margin-block-start: var(--space-1);
-}
-
-.checkboxRow label {
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-
 .label {
   color: var(--color-text-primary);
   font-size: var(--font-size-button);
@@ -148,6 +117,19 @@
 .resultActions {
   display: flex;
   justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.summaryList {
+  min-width: 0;
+  margin: 0;
+  padding-inline-start: var(--space-6);
+  color: var(--color-text-secondary);
+}
+
+.summaryList li {
+  overflow-wrap: anywhere;
 }
 
 .resultTitle {
