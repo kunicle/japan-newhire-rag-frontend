@@ -1,9 +1,25 @@
 import { request } from '../../shared/api/httpClient'
 import type {
+  DocumentAccessRuleRequest,
+  DocumentAccessRuleResult,
   DocumentCategory,
   DocumentPublicationResult,
   DocumentUploadResult,
 } from './types'
+
+export function updateDocumentAccessRule(
+  documentId: number,
+  documentVersionId: number,
+  body: DocumentAccessRuleRequest,
+): Promise<DocumentAccessRuleResult> {
+  return request<DocumentAccessRuleResult>(
+    `/documents/${documentId}/versions/${documentVersionId}/access-rule`,
+    {
+      method: 'PUT',
+      body: JSON.stringify(body),
+    },
+  )
+}
 
 export function fetchDocumentCategories(): Promise<DocumentCategory[]> {
   return request<DocumentCategory[]>('/documents/categories')

@@ -3,6 +3,7 @@ import { request } from '../../shared/api/httpClient'
 import {
   fetchDocumentCategories,
   publishDocumentVersion,
+  updateDocumentAccessRule,
   uploadDocument,
 } from './documentApi'
 
@@ -70,6 +71,28 @@ describe('documentApi', () => {
     expect(requestMock).toHaveBeenCalledWith(
       '/documents/12/versions/34/publish',
       { method: 'PATCH' },
+    )
+  })
+
+  it('replaces the exact document access rule with the ALL payload', async () => {
+    requestMock.mockResolvedValueOnce({})
+    const body = {
+      accessScope: 'ALL' as const,
+      conditionOperator: null,
+      roles: [],
+      departmentIds: [],
+      minimumJobGradeId: null,
+      newEmployeeOnly: false,
+    }
+
+    await updateDocumentAccessRule(5, 9, body)
+
+    expect(requestMock).toHaveBeenCalledWith(
+      '/documents/5/versions/9/access-rule',
+      {
+        method: 'PUT',
+        body: JSON.stringify(body),
+      },
     )
   })
 })
