@@ -1,0 +1,108 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  min-height: var(--space-16);
+  padding-inline: var(--space-6);
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  background-color: var(--color-surface);
+  border-block-end: 1px solid var(--color-border);
+}
+
+.leading,
+.actions,
+.profile {
+  display: flex;
+  align-items: center;
+}
+
+.leading {
+  min-width: 0;
+  gap: var(--space-3);
+}
+
+.actions {
+  gap: var(--space-2);
+}
+
+.title {
+  margin: 0;
+  overflow: hidden;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-section-title);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-section-title);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.breadcrumbs {
+  display: flex;
+  margin: 0 0 var(--space-1);
+  padding: 0;
+  gap: var(--space-1);
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-caption);
+  list-style: none;
+}
+
+.iconButton {
+  display: inline-flex;
+  width: calc(var(--space-8) + var(--space-2));
+  height: calc(var(--space-8) + var(--space-2));
+  padding: 0;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-secondary);
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-small);
+}
+
+.iconButton:hover {
+  color: var(--color-primary-hover);
+  background-color: var(--color-primary-soft);
+}
+
+.profile {
+  gap: var(--space-2);
+}
+
+.avatar {
+  display: inline-flex;
+  width: var(--space-8);
+  height: var(--space-8);
+  align-items: center;
+  justify-content: center;
+  color: var(--color-secondary);
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+}
+
+.profileText {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+@media (min-width: 1280px) {
+  .leading > .iconButton {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .header {
+    min-height: calc(var(--space-12) + var(--space-2));
+    padding-inline: var(--space-3);
+  }
+
+  .profileText {
+    display: none;
+  }
+}

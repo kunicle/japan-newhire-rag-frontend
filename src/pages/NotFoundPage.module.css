@@ -1,0 +1,27 @@
+.page {
+  max-width: calc(var(--space-16) * 10);
+}
+
+.code {
+  margin: 0 0 var(--space-2);
+  color: var(--color-primary);
+  font-size: var(--font-size-numeric);
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.title {
+  margin: 0 0 var(--space-2);
+  font-size: var(--font-size-page-title);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-page-title);
+}
+
+.description {
+  margin: 0 0 var(--space-6);
+  color: var(--color-text-secondary);
+}
+
+.link {
+  font-weight: var(--font-weight-semibold);
+}
