@@ -1,6 +1,7 @@
-import { Bell, Menu, UserRound, X, type LucideIcon } from 'lucide-react'
+import { Bell, LogOut, Menu, UserRound, X, type LucideIcon } from 'lucide-react'
 import type { MouseEvent } from 'react'
 import { Link } from 'react-router-dom'
+import { useAuth } from '../../../features/auth/AuthContext'
 import styles from './Header.module.css'
 
 export interface BreadcrumbItem {
@@ -20,6 +21,7 @@ export function Header({
   drawerOpen,
   onMenuToggle,
 }: HeaderProps) {
+  const { user, logout } = useAuth()
   const MenuIcon: LucideIcon = drawerOpen ? X : Menu
 
   return (
@@ -50,12 +52,28 @@ export function Header({
         <Link className={styles.iconButton} to="/notifications" aria-label="알림">
           <Bell size={20} aria-hidden="true" />
         </Link>
-        <div className={styles.profile} aria-label="내 프로필">
-          <span className={styles.avatar}>
-            <UserRound size={18} aria-hidden="true" />
-          </span>
-          <span className={styles.profileText}>내 프로필</span>
-        </div>
+        {user && (
+          <div
+            className={styles.profile}
+            role="group"
+            aria-label={`${user.employeeName}, ${user.departmentName}`}
+          >
+            <span className={styles.avatar} aria-hidden="true">
+              <UserRound size={18} aria-hidden="true" />
+            </span>
+            <span className={styles.profileText}>{user.employeeName}</span>
+            <button
+              type="button"
+              className={styles.logoutButton}
+              aria-label="로그아웃"
+              onClick={() => {
+                void logout()
+              }}
+            >
+              <LogOut size={16} aria-hidden="true" />
+            </button>
+          </div>
+        )}
       </div>
     </header>
   )

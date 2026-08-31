@@ -1,11 +1,11 @@
-import { UserRound } from 'lucide-react'
+import { LogOut, UserRound } from 'lucide-react'
 import { filterByRoles, navigationGroups } from '../../../app/navigation'
-import { useCurrentRoles } from '../../../features/auth/AuthContext'
+import { useAuth } from '../../../features/auth/AuthContext'
 import { NavItem } from './NavItem'
 import styles from './Sidebar.module.css'
 
 export function Sidebar() {
-  const { roles } = useCurrentRoles()
+  const { user, roles, logout } = useAuth()
   const visibleGroups = filterByRoles(navigationGroups, roles)
 
   return (
@@ -23,11 +23,27 @@ export function Sidebar() {
           </div>
         ))}
       </nav>
-      <div className={styles.profile} aria-label="내 프로필">
-        <span className={styles.avatar}>
-          <UserRound size={20} aria-hidden="true" />
-        </span>
-      </div>
+      {user && (
+        <div className={styles.profile}>
+          <span className={styles.avatar} aria-hidden="true">
+            <UserRound size={20} aria-hidden="true" />
+          </span>
+          <span className={styles.identity}>
+            <span className={styles.name}>{user.employeeName}</span>
+            <span className={styles.department}>{user.departmentName}</span>
+          </span>
+          <button
+            type="button"
+            className={styles.logoutButton}
+            aria-label="로그아웃"
+            onClick={() => {
+              void logout()
+            }}
+          >
+            <LogOut size={18} aria-hidden="true" />
+          </button>
+        </div>
+      )}
     </aside>
   )
 }

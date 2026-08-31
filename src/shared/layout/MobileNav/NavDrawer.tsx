@@ -1,7 +1,7 @@
-import { X } from 'lucide-react'
+import { LogOut, UserRound, X } from 'lucide-react'
 import { useEffect, useRef, type RefObject } from 'react'
 import { filterByRoles, navigationGroups } from '../../../app/navigation'
-import { useCurrentRoles } from '../../../features/auth/AuthContext'
+import { useAuth } from '../../../features/auth/AuthContext'
 import { NavItem } from '../Sidebar/NavItem'
 import styles from './NavDrawer.module.css'
 
@@ -19,7 +19,7 @@ export function NavDrawer({
   onClose,
   returnFocusRef,
 }: NavDrawerProps) {
-  const { roles } = useCurrentRoles()
+  const { user, roles, logout } = useAuth()
   const visibleGroups = filterByRoles(navigationGroups, roles)
   const drawerRef = useRef<HTMLDivElement>(null)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
@@ -102,6 +102,27 @@ export function NavDrawer({
             </div>
           ))}
         </nav>
+        {user && (
+          <div className={styles.profile}>
+            <span className={styles.avatar} aria-hidden="true">
+              <UserRound size={20} aria-hidden="true" />
+            </span>
+            <span className={styles.identity}>
+              <span className={styles.name}>{user.employeeName}</span>
+              <span className={styles.department}>{user.departmentName}</span>
+            </span>
+            <button
+              type="button"
+              className={styles.logoutButton}
+              aria-label="로그아웃"
+              onClick={() => {
+                void logout()
+              }}
+            >
+              <LogOut size={18} aria-hidden="true" />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )

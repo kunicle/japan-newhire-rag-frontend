@@ -90,8 +90,37 @@
   font-weight: var(--font-weight-medium);
 }
 
+.logoutButton {
+  display: inline-flex;
+  width: calc(var(--space-8) + var(--space-2));
+  height: calc(var(--space-8) + var(--space-2));
+  padding: 0;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-secondary);
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-small);
+  cursor: pointer;
+}
+
+.logoutButton:hover {
+  color: var(--color-primary-hover);
+  background-color: var(--color-primary-soft);
+}
+
+.logoutButton:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
 @media (min-width: 1280px) {
   .leading > .iconButton {
+    display: none;
+  }
+
+  .profile {
     display: none;
   }
 }
