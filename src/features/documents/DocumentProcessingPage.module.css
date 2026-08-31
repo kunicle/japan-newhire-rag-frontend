@@ -1,0 +1,135 @@
+.page {
+  width: 100%;
+  max-width: 42rem;
+  margin-inline: auto;
+  min-width: 0;
+}
+
+.header {
+  display: flex;
+  min-width: 0;
+  margin-block-end: var(--space-6);
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.headerText {
+  min-width: 0;
+}
+
+.title {
+  margin: 0 0 var(--space-2);
+  font-size: var(--font-size-page-title);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-page-title);
+}
+
+.description {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+.content,
+.skeletonList,
+.jobList {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.jobList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.jobItem {
+  min-width: 0;
+  padding: var(--space-4);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-medium);
+  box-shadow: var(--shadow-subtle);
+}
+
+.itemHeader,
+.itemFooter {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.itemTitle {
+  min-width: 0;
+  margin: 0;
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-body);
+}
+
+.timestamp {
+  display: block;
+  margin-block-start: var(--space-3);
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-caption);
+}
+
+.failureMessage {
+  margin: var(--space-3) 0;
+  color: var(--color-text-secondary);
+}
+
+.itemFooter:empty {
+  display: none;
+}
+
+.superseded {
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-secondary);
+}
+
+.listError {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.errorMessage {
+  margin: var(--space-3) 0 0;
+  color: var(--color-danger);
+  font-size: var(--font-size-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+.listError .errorMessage {
+  margin: 0;
+}
+
+.title,
+.description,
+.itemTitle,
+.timestamp,
+.failureMessage,
+.superseded,
+.errorMessage {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 479px) {
+  .header {
+    flex-direction: column;
+  }
+
+  .header > button,
+  .listError > button,
+  .itemFooter > button {
+    width: 100%;
+  }
+}
