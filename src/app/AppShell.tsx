@@ -4,7 +4,6 @@ import { Header } from '../shared/layout/Header/Header'
 import { BottomNav } from '../shared/layout/MobileNav/BottomNav'
 import { NavDrawer } from '../shared/layout/MobileNav/NavDrawer'
 import { Sidebar } from '../shared/layout/Sidebar/Sidebar'
-import { DevRoleSwitcher } from './DevRoleSwitcher'
 import { navigationGroups } from './navigation'
 import styles from './AppShell.module.css'
 
@@ -48,7 +47,6 @@ export function AppShell() {
         onClose={closeDrawer}
         returnFocusRef={drawerTriggerRef}
       />
-      {import.meta.env.DEV && <DevRoleSwitcher />}
     </div>
   )
 }

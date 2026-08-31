@@ -12,12 +12,7 @@ import {
   UserCog,
   type LucideIcon,
 } from 'lucide-react'
-
-export type RoleType =
-  | 'EMPLOYEE'
-  | 'MANAGER'
-  | 'HR_MANAGER'
-  | 'SYSTEM_ADMIN'
+import type { RoleType } from '../features/auth/types'
 
 export interface NavItem {
   label: string

@@ -1,0 +1,64 @@
+.page {
+  display: grid;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: var(--space-6);
+  place-items: center;
+  background-color: var(--color-background);
+}
+
+.content {
+  width: 100%;
+  max-width: 24rem;
+}
+
+.header {
+  margin-block-end: var(--space-8);
+}
+
+.brand {
+  margin: 0 0 var(--space-6);
+  color: var(--color-primary);
+  font-weight: var(--font-weight-bold);
+}
+
+.title {
+  margin: 0 0 var(--space-2);
+  font-size: var(--font-size-page-title);
+  line-height: var(--line-height-page-title);
+}
+
+.description {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.passwordToggle {
+  display: inline-flex;
+  padding: var(--space-1);
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-small);
+  cursor: pointer;
+}
+
+.passwordToggle:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.formError {
+  margin: 0;
+  color: var(--color-danger);
+  font-size: var(--font-size-secondary);
+  font-weight: var(--font-weight-medium);
+}

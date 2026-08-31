@@ -1,6 +1,6 @@
 import { UserRound } from 'lucide-react'
 import { filterByRoles, navigationGroups } from '../../../app/navigation'
-import { useCurrentRoles } from '../../../app/TemporaryRoleContext'
+import { useCurrentRoles } from '../../../features/auth/AuthContext'
 import { NavItem } from './NavItem'
 import styles from './Sidebar.module.css'
 

@@ -2,7 +2,7 @@ import { Bell, Home, ListChecks, Menu, MessageCircleQuestion } from 'lucide-reac
 import type { MouseEvent } from 'react'
 import { NavLink } from 'react-router-dom'
 import { filterByRoles, navigationGroups } from '../../../app/navigation'
-import { useCurrentRoles } from '../../../app/TemporaryRoleContext'
+import { useCurrentRoles } from '../../../features/auth/AuthContext'
 import { cx } from '../../ui/lib/cx'
 import styles from './BottomNav.module.css'
 

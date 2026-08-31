@@ -3,12 +3,12 @@ import { createRoot } from 'react-dom/client'
 import { RouterProvider } from 'react-router-dom'
 import './index.css'
 import { router } from './app/router'
-import { TemporaryRoleProvider } from './app/TemporaryRoleContext'
+import { AuthProvider } from './features/auth/AuthContext'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <TemporaryRoleProvider>
+    <AuthProvider>
       <RouterProvider router={router} />
-    </TemporaryRoleProvider>
+    </AuthProvider>
   </StrictMode>,
 )

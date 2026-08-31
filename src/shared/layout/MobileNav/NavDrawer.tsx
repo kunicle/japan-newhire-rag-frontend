@@ -1,7 +1,7 @@
 import { X } from 'lucide-react'
 import { useEffect, useRef, type RefObject } from 'react'
 import { filterByRoles, navigationGroups } from '../../../app/navigation'
-import { useCurrentRoles } from '../../../app/TemporaryRoleContext'
+import { useCurrentRoles } from '../../../features/auth/AuthContext'
 import { NavItem } from '../Sidebar/NavItem'
 import styles from './NavDrawer.module.css'
 
