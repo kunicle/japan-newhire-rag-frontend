@@ -5,6 +5,8 @@ import { DocumentUploadPage } from '../features/documents/DocumentUploadPage'
 import { DocumentProcessingPage } from '../features/documents/DocumentProcessingPage'
 import { DocumentManagementPage } from '../features/documents/DocumentManagementPage'
 import { DocumentManagementDetailPage } from '../features/documents/DocumentManagementDetailPage'
+import { MyEducationDetailPage } from '../features/education/MyEducationDetailPage'
+import { MyEducationPage } from '../features/education/MyEducationPage'
 import { NotificationsPage } from '../features/notifications/NotificationsPage'
 import { RagPage } from '../features/rag/RagPage'
 import { AccessDeniedPage } from '../pages/AccessDeniedPage'
@@ -17,7 +19,6 @@ import { RoleRoute } from './RoleRoute'
 
 const commonPlaceholderRoutes = [
   { path: 'me/onboarding', title: '온보딩', description: '입사 후 필요한 절차와 진행 상황을 확인하는 기능을 준비하고 있습니다.' },
-  { path: 'me/education', title: '교육', description: '배정된 교육 과정과 학습 현황을 확인하는 기능을 준비하고 있습니다.' },
   { path: 'me/evaluations', title: '평가', description: '평가 일정과 제출 항목을 관리하는 기능을 준비하고 있습니다.' },
 ]
 
@@ -61,6 +62,8 @@ export const router = createBrowserRouter([
           { index: true, element: <Navigate to="/home" replace /> },
           { path: 'home', element: <HomePage /> },
           ...mapPlaceholderRoutes(commonPlaceholderRoutes),
+          { path: 'me/education', element: <MyEducationPage /> },
+          { path: 'me/education/:enrollmentId', element: <MyEducationDetailPage /> },
           { path: 'rag', element: <RagPage /> },
           { path: 'notifications', element: <NotificationsPage /> },
           {

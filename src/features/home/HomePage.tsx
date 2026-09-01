@@ -1,5 +1,6 @@
 import {
   Bell,
+  BookOpen,
   FileClock,
   Files,
   FileUp,
@@ -25,6 +26,12 @@ const SHORTCUT_CONFIG: Record<HomeShortcutId, {
     path: '/rag',
     icon: MessageCircleQuestion,
     description: '권한이 있는 사내 문서를 기반으로 질문하고 근거와 함께 답변을 확인합니다.',
+  },
+  education: {
+    title: '내 교육',
+    path: '/me/education',
+    icon: BookOpen,
+    description: '배정된 교육 과정을 확인하고 학습을 진행합니다.',
   },
   documents: {
     title: '문서 관리',

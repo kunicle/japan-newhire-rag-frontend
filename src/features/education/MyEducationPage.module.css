@@ -1,0 +1,22 @@
+.page { width: 100%; max-width: 64rem; margin-inline: auto; min-width: 0; }
+.header { min-width: 0; margin-block-end: var(--space-6); }
+.title { margin: 0 0 var(--space-2); font-size: var(--font-size-page-title); font-weight: var(--font-weight-bold); line-height: var(--line-height-page-title); }
+.description { margin: 0; color: var(--color-text-secondary); }
+.skeletonList, .errorState { display: flex; min-width: 0; flex-direction: column; gap: var(--space-4); }
+.errorState { align-items: flex-start; }
+.error { margin: 0; color: var(--color-danger); font-weight: var(--font-weight-medium); }
+.courseGrid { display: grid; min-width: 0; margin: 0; padding: 0; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--space-4); list-style: none; }
+.courseItem, .courseCard { min-width: 0; height: 100%; }
+.courseCard { overflow: hidden; box-shadow: var(--shadow-subtle); }
+.courseLink { display: flex; height: 100%; min-width: 0; padding: var(--space-6); flex-direction: column; align-items: flex-start; gap: var(--space-3); color: var(--color-text-primary); text-decoration: none; }
+.courseLink:hover { color: var(--color-text-primary); background-color: var(--color-primary-soft); }
+.courseLink:focus-visible { outline-offset: calc(-1 * var(--focus-ring-width)); }
+.courseHeader, .progressText { display: flex; width: 100%; min-width: 0; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3); }
+.courseTitle { min-width: 0; margin: 0; font-size: var(--font-size-section-title); line-height: var(--line-height-section-title); }
+.progressText { color: var(--color-text-secondary); font-size: var(--font-size-secondary); }
+.progressTrack { width: 100%; height: var(--space-2); overflow: hidden; background-color: var(--color-border); border-radius: var(--radius-small); }
+.progressFill { height: 100%; background-color: var(--color-primary); border-radius: inherit; }
+.dueDate { margin-block-start: auto; color: var(--color-text-tertiary); font-size: var(--font-size-caption); }
+.pagination { display: flex; min-width: 0; margin-block-start: var(--space-6); align-items: center; justify-content: center; flex-wrap: wrap; gap: var(--space-4); }
+.title, .description, .error, .courseTitle, .progressText, .dueDate, .pagination { overflow-wrap: anywhere; }
+@media (max-width: 479px) { .courseGrid { grid-template-columns: minmax(0, 1fr); } .errorState > * { width: 100%; } .pagination { justify-content: space-between; } }

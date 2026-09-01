@@ -3,6 +3,7 @@ import type { RoleType } from '../auth/types'
 
 export type HomeShortcutId =
   | 'rag'
+  | 'education'
   | 'documents'
   | 'upload'
   | 'processing'
@@ -11,7 +12,7 @@ export type HomeShortcutId =
 export function getHomeShortcutIds(
   roles: RoleType[],
 ): HomeShortcutId[] {
-  const ids: HomeShortcutId[] = ['rag']
+  const ids: HomeShortcutId[] = ['rag', 'education']
 
   if (hasAnyRole(roles, ['HR_MANAGER', 'SYSTEM_ADMIN'])) {
     ids.push('documents', 'upload')

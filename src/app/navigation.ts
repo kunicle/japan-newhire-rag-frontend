@@ -1,4 +1,5 @@
 import {
+  BookOpen,
   FileClock,
   Files,
   FileUp,
@@ -27,6 +28,10 @@ export const navigationGroups: NavGroup[] = [
   {
     label: '업무 지원',
     items: [{ label: 'AI 질문', path: '/rag', icon: MessageCircleQuestion }],
+  },
+  {
+    label: '내 업무',
+    items: [{ label: '교육', path: '/me/education', icon: BookOpen }],
   },
   {
     label: '문서 운영',
