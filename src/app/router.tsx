@@ -9,6 +9,9 @@ import { MyEducationDetailPage } from '../features/education/MyEducationDetailPa
 import { MyEducationPage } from '../features/education/MyEducationPage'
 import { ManagerEducationPage } from '../features/education/ManagerEducationPage'
 import { ManagerEmployeeEducationPage } from '../features/education/ManagerEmployeeEducationPage'
+import { HrCourseCreatePage } from '../features/education/HrCourseCreatePage'
+import { HrCourseDetailPage } from '../features/education/HrCourseDetailPage'
+import { HrCourseListPage } from '../features/education/HrCourseListPage'
 import { NotificationsPage } from '../features/notifications/NotificationsPage'
 import { RagPage } from '../features/rag/RagPage'
 import { AccessDeniedPage } from '../pages/AccessDeniedPage'
@@ -29,7 +32,6 @@ const managerPlaceholderRoutes = [
 ]
 
 const hrPlaceholderRoutes = [
-  { path: 'hr/courses', title: '교육 과정', description: '교육 과정을 만들고 운영하는 기능을 준비하고 있습니다.' },
   { path: 'hr/onboarding', title: '온보딩 관리', description: '신입 구성원의 온보딩 절차를 관리하는 기능을 준비하고 있습니다.' },
   { path: 'hr/evaluations', title: '평가 관리', description: '평가 항목과 일정을 운영하는 기능을 준비하고 있습니다.' },
   { path: 'hr/organization', title: '조직 관리', description: '조직 구조와 구성원 정보를 관리하는 기능을 준비하고 있습니다.' },
@@ -87,6 +89,9 @@ export const router = createBrowserRouter([
             element: <RoleRoute allow={['HR_MANAGER']} />,
             children: [
               { path: 'hr/documents/processing', element: <DocumentProcessingPage /> },
+              { path: 'hr/courses', element: <HrCourseListPage /> },
+              { path: 'hr/courses/new', element: <HrCourseCreatePage /> },
+              { path: 'hr/courses/:courseId', element: <HrCourseDetailPage /> },
               ...mapPlaceholderRoutes(hrPlaceholderRoutes),
             ],
           },

@@ -1,0 +1,21 @@
+.page { width: 100%; max-width: 64rem; margin-inline: auto; min-width: 0; }
+.header { display: flex; min-width: 0; margin-block-end: var(--space-6); align-items: flex-start; justify-content: space-between; gap: var(--space-4); }
+.header > div { min-width: 0; }
+.title { margin: 0 0 var(--space-2); font-size: var(--font-size-page-title); line-height: var(--line-height-page-title); }
+.description, .dates { margin: 0; color: var(--color-text-secondary); }
+.primaryLink { display: inline-flex; min-height: calc(var(--space-8) + var(--space-2)); padding: var(--space-2) var(--space-4); align-items: center; justify-content: center; flex: 0 0 auto; color: var(--color-surface); background: var(--color-primary); border-radius: var(--radius-small); font-weight: var(--font-weight-semibold); text-decoration: none; }
+.primaryLink:hover { color: var(--color-surface); background: var(--color-primary-hover); }
+.skeletons, .errorState, .emptyState { display: flex; min-width: 0; flex-direction: column; align-items: flex-start; gap: var(--space-4); }
+.error { margin: 0; color: var(--color-danger); font-weight: var(--font-weight-medium); }
+.grid { display: grid; min-width: 0; margin: 0; padding: 0; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--space-4); list-style: none; }
+.grid li, .card { min-width: 0; height: 100%; }
+.card { overflow: hidden; box-shadow: var(--shadow-subtle); }
+.cardLink { display: flex; height: 100%; min-width: 0; padding: var(--space-6); flex-direction: column; align-items: flex-start; gap: var(--space-3); color: var(--color-text-primary); text-decoration: none; }
+.cardLink:hover { color: var(--color-text-primary); background: var(--color-primary-soft); }
+.cardLink:focus-visible { outline-offset: calc(-1 * var(--focus-ring-width)); }
+.cardHeader { display: flex; width: 100%; min-width: 0; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3); }
+.cardTitle { min-width: 0; margin: 0; font-size: var(--font-size-section-title); overflow-wrap: anywhere; }
+.dates { margin-block-start: auto; overflow-wrap: anywhere; }
+.pagination { display: flex; min-width: 0; margin-block-start: var(--space-6); align-items: center; justify-content: center; flex-wrap: wrap; gap: var(--space-4); }
+.title, .description, .error, .pagination { overflow-wrap: anywhere; }
+@media (max-width: 479px) { .header { flex-direction: column; } .header > .primaryLink, .errorState > *, .emptyState > .primaryLink { width: 100%; } .grid { grid-template-columns: minmax(0, 1fr); } .pagination { justify-content: space-between; } }

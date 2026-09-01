@@ -26,6 +26,7 @@ describe('getHomeShortcutIds', () => {
       'documents',
       'upload',
       'processing',
+      'courseManagement',
       'notifications',
     ])
   })
@@ -47,6 +48,7 @@ describe('getHomeShortcutIds', () => {
       'documents',
       'upload',
       'processing',
+      'courseManagement',
       'notifications',
     ])
   })
@@ -59,6 +61,7 @@ describe('getHomeShortcutIds', () => {
       'documents',
       'upload',
       'processing',
+      'courseManagement',
       'notifications',
     ])
   })

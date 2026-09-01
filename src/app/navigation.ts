@@ -3,6 +3,7 @@ import {
   FileClock,
   Files,
   FileUp,
+  GraduationCap,
   Home,
   MessageCircleQuestion,
   Users,
@@ -56,6 +57,7 @@ export const navigationGroups: NavGroup[] = [
         path: '/hr/documents/processing',
         icon: FileClock,
       },
+      { label: '교육 과정 관리', path: '/hr/courses', icon: GraduationCap },
     ],
   },
 ]

@@ -4,6 +4,7 @@ import {
   FileClock,
   Files,
   FileUp,
+  GraduationCap,
   MessageCircleQuestion,
   Users,
   type LucideIcon,
@@ -57,6 +58,12 @@ const SHORTCUT_CONFIG: Record<HomeShortcutId, {
     path: '/hr/documents/processing',
     icon: FileClock,
     description: '업로드한 문서의 임베딩 처리 상태를 확인합니다.',
+  },
+  courseManagement: {
+    title: '교육 과정 관리',
+    path: '/hr/courses',
+    icon: GraduationCap,
+    description: '교육 과정과 학습 모듈을 만들고 관리합니다.',
   },
   notifications: {
     title: '알림',
