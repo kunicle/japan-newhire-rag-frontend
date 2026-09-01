@@ -4,6 +4,7 @@ import {
   enrollmentStatusBadgeVariant,
   enrollmentStatusLabel,
   mapEducationErrorMessage,
+  mapManagerEducationErrorMessage,
   moduleStatusBadgeVariant,
   moduleStatusLabel,
 } from './educationHelpers'
@@ -62,5 +63,35 @@ describe('educationHelpers', () => {
 
   it('uses fallback for a non-AppError', () => {
     expect(mapEducationErrorMessage(new Error('raw'), 'fallback')).toBe('fallback')
+  })
+
+  it('maps manager 403 without exposing the backend message', () => {
+    expect(mapManagerEducationErrorMessage(
+      new AppError(403, 'FORBIDDEN', 'raw backend message'),
+      'fallback',
+    )).toBe('관리 권한이 없거나 해당 직원의 교육 정보를 조회할 수 없습니다.')
+  })
+
+  it.each([
+    [400, '요청 정보를 확인해 주세요.'],
+    [404, '요청한 교육 정보를 찾을 수 없습니다.'],
+    [409, '현재 상태에서는 처리할 수 없습니다.'],
+  ])('delegates manager status %s to the education mapper', (status, expected) => {
+    expect(mapManagerEducationErrorMessage(
+      new AppError(status, 'ERROR', 'raw backend message'),
+      'fallback',
+    )).toBe(expected)
+  })
+
+  it('uses fallback for a manager 500 AppError', () => {
+    expect(mapManagerEducationErrorMessage(
+      new AppError(500, 'ERROR', 'raw backend message'),
+      'fallback',
+    )).toBe('fallback')
+  })
+
+  it('uses fallback for a manager non-AppError', () => {
+    expect(mapManagerEducationErrorMessage(new Error('raw'), 'fallback'))
+      .toBe('fallback')
   })
 })

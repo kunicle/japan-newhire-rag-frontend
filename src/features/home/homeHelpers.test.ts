@@ -14,6 +14,7 @@ describe('getHomeShortcutIds', () => {
     expect(getHomeShortcutIds(['MANAGER'])).toEqual([
       'rag',
       'education',
+      'managerEducation',
       'notifications',
     ])
   })
@@ -43,6 +44,18 @@ describe('getHomeShortcutIds', () => {
     expect(getHomeShortcutIds(['HR_MANAGER', 'SYSTEM_ADMIN'])).toEqual([
       'rag',
       'education',
+      'documents',
+      'upload',
+      'processing',
+      'notifications',
+    ])
+  })
+
+  it('returns manager and HR shortcuts together without duplicates', () => {
+    expect(getHomeShortcutIds(['MANAGER', 'HR_MANAGER'])).toEqual([
+      'rag',
+      'education',
+      'managerEducation',
       'documents',
       'upload',
       'processing',

@@ -67,3 +67,27 @@ export interface LearningProgressUpdateResult {
   progressRate: number
   enrollmentStatus: EnrollmentStatus
 }
+
+export interface ManagerEducationItem {
+  employeeId: number
+  employeeName: string
+  departmentId: number
+  departmentName: string
+  enrollmentId: number
+  courseId: number
+  courseName: string
+  progressRate: number
+  status: EnrollmentStatus
+  dueDate: string
+  overdue: boolean
+}
+
+export interface ManagerEducationPage {
+  content: ManagerEducationItem[]
+  page: number
+  size: number
+  totalElements: number
+  totalPages: number
+  first: boolean
+  last: boolean
+}

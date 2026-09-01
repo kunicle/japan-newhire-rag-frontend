@@ -7,6 +7,8 @@ import { DocumentManagementPage } from '../features/documents/DocumentManagement
 import { DocumentManagementDetailPage } from '../features/documents/DocumentManagementDetailPage'
 import { MyEducationDetailPage } from '../features/education/MyEducationDetailPage'
 import { MyEducationPage } from '../features/education/MyEducationPage'
+import { ManagerEducationPage } from '../features/education/ManagerEducationPage'
+import { ManagerEmployeeEducationPage } from '../features/education/ManagerEmployeeEducationPage'
 import { NotificationsPage } from '../features/notifications/NotificationsPage'
 import { RagPage } from '../features/rag/RagPage'
 import { AccessDeniedPage } from '../pages/AccessDeniedPage'
@@ -23,7 +25,6 @@ const commonPlaceholderRoutes = [
 ]
 
 const managerPlaceholderRoutes = [
-  { path: 'manager/education', title: '팀 교육', description: '팀원의 교육 진행 상황을 확인하는 기능을 준비하고 있습니다.' },
   { path: 'manager/evaluations', title: '팀 평가', description: '팀원 평가를 검토하고 관리하는 기능을 준비하고 있습니다.' },
 ]
 
@@ -76,7 +77,11 @@ export const router = createBrowserRouter([
           },
           {
             element: <RoleRoute allow={['MANAGER']} />,
-            children: mapPlaceholderRoutes(managerPlaceholderRoutes),
+            children: [
+              { path: 'manager/education', element: <ManagerEducationPage /> },
+              { path: 'manager/education/:employeeId', element: <ManagerEmployeeEducationPage /> },
+              ...mapPlaceholderRoutes(managerPlaceholderRoutes),
+            ],
           },
           {
             element: <RoleRoute allow={['HR_MANAGER']} />,

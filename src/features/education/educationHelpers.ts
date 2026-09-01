@@ -51,6 +51,17 @@ export function mapEducationErrorMessage(
   return fallback
 }
 
+export function mapManagerEducationErrorMessage(
+  error: unknown,
+  fallback: string,
+): string {
+  if (error instanceof AppError && error.status === 403) {
+    return '관리 권한이 없거나 해당 직원의 교육 정보를 조회할 수 없습니다.'
+  }
+
+  return mapEducationErrorMessage(error, fallback)
+}
+
 export function formatProgressRate(value: number): string {
   return `${value}%`
 }

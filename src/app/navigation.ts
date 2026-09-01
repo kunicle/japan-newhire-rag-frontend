@@ -5,6 +5,7 @@ import {
   FileUp,
   Home,
   MessageCircleQuestion,
+  Users,
   type LucideIcon,
 } from 'lucide-react'
 import type { RoleType } from '../features/auth/types'
@@ -32,6 +33,11 @@ export const navigationGroups: NavGroup[] = [
   {
     label: '내 업무',
     items: [{ label: '교육', path: '/me/education', icon: BookOpen }],
+  },
+  {
+    label: '팀 관리',
+    requiredRoles: ['MANAGER'],
+    items: [{ label: '팀 교육 현황', path: '/manager/education', icon: Users }],
   },
   {
     label: '문서 운영',

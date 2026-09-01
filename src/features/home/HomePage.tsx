@@ -5,6 +5,7 @@ import {
   Files,
   FileUp,
   MessageCircleQuestion,
+  Users,
   type LucideIcon,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
@@ -32,6 +33,12 @@ const SHORTCUT_CONFIG: Record<HomeShortcutId, {
     path: '/me/education',
     icon: BookOpen,
     description: '배정된 교육 과정을 확인하고 학습을 진행합니다.',
+  },
+  managerEducation: {
+    title: '팀 교육 현황',
+    path: '/manager/education',
+    icon: Users,
+    description: '관리 중인 직원들의 교육 진행 현황을 확인합니다.',
   },
   documents: {
     title: '문서 관리',
