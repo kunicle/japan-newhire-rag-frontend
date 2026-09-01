@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { LoginPage } from '../features/auth/LoginPage'
+import { HomePage } from '../features/home/HomePage'
 import { DocumentUploadPage } from '../features/documents/DocumentUploadPage'
 import { DocumentProcessingPage } from '../features/documents/DocumentProcessingPage'
 import { DocumentManagementPage } from '../features/documents/DocumentManagementPage'
@@ -15,7 +16,6 @@ import { ProtectedRoute } from './ProtectedRoute'
 import { RoleRoute } from './RoleRoute'
 
 const commonPlaceholderRoutes = [
-  { path: 'home', title: '홈', description: '업무 현황과 주요 안내를 한곳에서 확인할 수 있도록 준비하고 있습니다.' },
   { path: 'me/onboarding', title: '온보딩', description: '입사 후 필요한 절차와 진행 상황을 확인하는 기능을 준비하고 있습니다.' },
   { path: 'me/education', title: '교육', description: '배정된 교육 과정과 학습 현황을 확인하는 기능을 준비하고 있습니다.' },
   { path: 'me/evaluations', title: '평가', description: '평가 일정과 제출 항목을 관리하는 기능을 준비하고 있습니다.' },
@@ -59,6 +59,7 @@ export const router = createBrowserRouter([
         element: <AppShell />,
         children: [
           { index: true, element: <Navigate to="/home" replace /> },
+          { path: 'home', element: <HomePage /> },
           ...mapPlaceholderRoutes(commonPlaceholderRoutes),
           { path: 'rag', element: <RagPage /> },
           { path: 'notifications', element: <NotificationsPage /> },

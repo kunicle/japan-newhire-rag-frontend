@@ -1,0 +1,116 @@
+.page {
+  width: 100%;
+  max-width: 64rem;
+  margin-inline: auto;
+  min-width: 0;
+}
+
+.header {
+  display: flex;
+  min-width: 0;
+  margin-block-end: var(--space-8);
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--font-size-page-title);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-page-title);
+}
+
+.welcome {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+.roleList {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.section {
+  min-width: 0;
+  margin-block-end: var(--space-8);
+}
+
+.sectionTitle {
+  margin: 0 0 var(--space-4);
+  font-size: var(--font-size-section-title);
+  line-height: var(--line-height-section-title);
+}
+
+.shortcutGrid {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--space-4);
+}
+
+.shortcutCard {
+  min-width: 0;
+  overflow: hidden;
+  box-shadow: var(--shadow-subtle);
+}
+
+.shortcutLink {
+  display: flex;
+  height: 100%;
+  min-width: 0;
+  padding: var(--space-6);
+  flex-direction: column;
+  color: var(--color-text-primary);
+  text-decoration: none;
+}
+
+.shortcutLink:hover {
+  color: var(--color-text-primary);
+  background-color: var(--color-primary-soft);
+}
+
+.shortcutLink:focus-visible {
+  outline-offset: calc(-1 * var(--focus-ring-width));
+}
+
+.shortcutIcon {
+  margin-block-end: var(--space-4);
+  color: var(--color-primary);
+}
+
+.shortcutTitle {
+  min-width: 0;
+  margin: 0 0 var(--space-2);
+  font-size: var(--font-size-section-title);
+  line-height: var(--line-height-section-title);
+  overflow-wrap: anywhere;
+}
+
+.shortcutDescription {
+  min-width: 0;
+  margin: 0;
+  color: var(--color-text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.flowList {
+  display: flex;
+  min-width: 0;
+  margin: 0;
+  padding-inline-start: var(--space-6);
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.welcome,
+.flowList li {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 479px) {
+  .shortcutGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

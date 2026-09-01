@@ -1,0 +1,27 @@
+import { hasAnyRole } from '../auth/roles'
+import type { RoleType } from '../auth/types'
+
+export type HomeShortcutId =
+  | 'rag'
+  | 'documents'
+  | 'upload'
+  | 'processing'
+  | 'notifications'
+
+export function getHomeShortcutIds(
+  roles: RoleType[],
+): HomeShortcutId[] {
+  const ids: HomeShortcutId[] = ['rag']
+
+  if (hasAnyRole(roles, ['HR_MANAGER', 'SYSTEM_ADMIN'])) {
+    ids.push('documents', 'upload')
+  }
+
+  if (hasAnyRole(roles, ['HR_MANAGER'])) {
+    ids.push('processing')
+  }
+
+  ids.push('notifications')
+
+  return ids
+}
