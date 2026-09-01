@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { Badge, Button, EmptyState, Skeleton } from '../../shared/ui'
 import { CourseForm } from './CourseForm'
+import { CourseAssignmentSection } from './CourseAssignmentSection'
 import {
   changeCoursePublication,
   changeModuleActivation,
@@ -224,5 +225,6 @@ export function HrCourseDetailPage() {
           </li>
         })}</ol>}
     </section>
+    {course && <CourseAssignmentSection course={course} />}
   </div>
 }

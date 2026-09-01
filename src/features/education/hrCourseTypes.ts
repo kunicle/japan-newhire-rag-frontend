@@ -51,3 +51,25 @@ export interface HrCourseModuleFormInput {
   moduleOrder: number
   required: boolean
 }
+
+export type AssignmentTargetType =
+  | 'EMPLOYEE'
+  | 'DEPARTMENT'
+  | 'JOB_GRADE'
+  | 'NEW_HIRE'
+
+export interface CourseEnrollmentCreateInput {
+  targetType: AssignmentTargetType
+  employeeId: number | null
+  departmentId: number | null
+  jobGradeId: number | null
+  enrollmentRound: string
+  enrollmentStartDate: string
+  enrollmentDueDate: string
+}
+
+export interface CourseEnrollmentCreateResult {
+  assignedCount: number
+  duplicateCount: number
+  duplicateEmployeeIds: number[]
+}

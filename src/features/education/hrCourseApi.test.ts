@@ -3,6 +3,7 @@ import { request } from '../../shared/api/httpClient'
 import {
   changeCoursePublication,
   changeModuleActivation,
+  createCourseEnrollments,
   createHrCourse,
   createHrCourseModule,
   deleteHrCourse,
@@ -91,6 +92,24 @@ describe('hrCourseApi', () => {
     requestMock.mockResolvedValueOnce({}); await changeModuleActivation(5, false)
     expect(requestMock).toHaveBeenCalledWith('/hr/course-modules/5/activation', {
       method: 'PATCH', body: JSON.stringify({ active: false }),
+    })
+  })
+
+  it('creates course enrollments with an exact body', async () => {
+    const input = {
+      targetType: 'DEPARTMENT' as const,
+      employeeId: null,
+      departmentId: 9,
+      jobGradeId: null,
+      enrollmentRound: '2026-1',
+      enrollmentStartDate: '2026-01-01',
+      enrollmentDueDate: '2026-01-31',
+    }
+    requestMock.mockResolvedValueOnce({})
+    await createCourseEnrollments(10, input)
+    expect(requestMock).toHaveBeenCalledWith('/hr/courses/10/enrollments', {
+      method: 'POST',
+      body: JSON.stringify(input),
     })
   })
 })

@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { flattenDepartments } from './organizationHelpers'
-import type { OrganizationDepartmentNode } from './types'
+import { flattenDepartments, flattenEmployees } from './organizationHelpers'
+import type { OrganizationDepartmentNode, OrganizationEmployee } from './types'
 
 function department(
   id: number,
   name: string,
   children: OrganizationDepartmentNode[] = [],
+  employees: OrganizationEmployee[] = [],
 ): OrganizationDepartmentNode {
   return {
     departmentId: id,
@@ -13,6 +14,7 @@ function department(
     departmentName: name,
     parentDepartmentId: null,
     displayOrder: id,
+    employees,
     children,
   }
 }
@@ -53,5 +55,46 @@ describe('flattenDepartments', () => {
 
   it('returns an empty array for an empty tree', () => {
     expect(flattenDepartments([])).toEqual([])
+  })
+})
+
+describe('flattenEmployees', () => {
+  const employee = (
+    employeeId: number,
+    employeeName: string,
+    departmentId: number,
+    jobGradeId: number | null,
+    jobGradeName: string | null,
+  ): OrganizationEmployee => ({
+    employeeId,
+    employeeNumber: `E${employeeId}`,
+    employeeName,
+    departmentId,
+    jobGradeId,
+    jobGradeName,
+    jobGradeLevel: jobGradeId,
+    hireDate: '2026-01-01',
+  })
+
+  it('preserves root and nested traversal order with department names', () => {
+    const nodes = [department(1, '본사', [
+      department(2, '인사팀', [], [employee(2, '김인사', 2, null, null)]),
+    ], [employee(1, '홍길동', 1, 3, '선임')])]
+
+    expect(flattenEmployees(nodes)).toEqual([
+      { employeeId: 1, employeeName: '홍길동', departmentId: 1,
+        departmentName: '본사', jobGradeId: 3, jobGradeName: '선임' },
+      { employeeId: 2, employeeName: '김인사', departmentId: 2,
+        departmentName: '인사팀', jobGradeId: null, jobGradeName: null },
+    ])
+  })
+
+  it('returns empty for an empty tree', () => {
+    expect(flattenEmployees([])).toEqual([])
+  })
+
+  it('returns empty when departments have no employees', () => {
+    expect(flattenEmployees([department(1, '본사', [department(2, '인사팀')])]))
+      .toEqual([])
   })
 })

@@ -1,0 +1,16 @@
+.section, .form { display: flex; width: 100%; min-width: 0; flex-direction: column; align-items: flex-start; gap: var(--space-4); }
+.section { margin-block-end: var(--space-8); }
+.title { margin: 0; font-size: var(--font-size-section-title); }
+.notice, .status, .error, .result p { margin: 0; overflow-wrap: anywhere; }
+.notice, .status { color: var(--color-text-secondary); }
+.fieldset { width: 100%; min-width: 0; margin: 0; padding: var(--space-4); border: 1px solid var(--color-border); border-radius: var(--radius-small); }
+.fieldset legend, .field label { font-weight: var(--font-weight-semibold); }
+.field { display: flex; min-width: 0; flex-direction: column; gap: var(--space-2); }
+.field + .field, .field + .status, .field + .referenceError { margin-block-start: var(--space-4); }
+.field select { width: 100%; min-width: 0; padding: var(--space-3) var(--space-4); color: var(--color-text-primary); background-color: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-small); font: inherit; }
+.dateGrid { display: grid; width: 100%; min-width: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+.referenceError { display: flex; min-width: 0; flex-direction: column; align-items: flex-start; gap: var(--space-3); }
+.error { color: var(--color-danger); font-weight: var(--font-weight-medium); }
+.result { width: 100%; min-width: 0; padding: var(--space-4); color: var(--color-success); background-color: var(--color-success-background); border-radius: var(--radius-small); }
+.result p + p { margin-block-start: var(--space-1); }
+@media (max-width: 479px) { .dateGrid { grid-template-columns: minmax(0, 1fr); } .form > button, .referenceError > button { width: 100%; } }

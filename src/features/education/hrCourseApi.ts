@@ -1,5 +1,7 @@
 import { request } from '../../shared/api/httpClient'
 import type {
+  CourseEnrollmentCreateInput,
+  CourseEnrollmentCreateResult,
   CoursePublicationStatus,
   HrCourse,
   HrCourseFormInput,
@@ -7,6 +9,16 @@ import type {
   HrCourseModuleFormInput,
   HrCoursePage,
 } from './hrCourseTypes'
+
+export function createCourseEnrollments(
+  courseId: number,
+  input: CourseEnrollmentCreateInput,
+): Promise<CourseEnrollmentCreateResult> {
+  return request<CourseEnrollmentCreateResult>(`/hr/courses/${courseId}/enrollments`, {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })
+}
 
 export function fetchHrCourses(page = 0, size = 20): Promise<HrCoursePage> {
   return request<HrCoursePage>(`/hr/courses?page=${page}&size=${size}`)

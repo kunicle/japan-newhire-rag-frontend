@@ -7,6 +7,15 @@ export interface FlatDepartment {
   depth: number
 }
 
+export interface FlatEmployee {
+  employeeId: number
+  employeeName: string
+  departmentId: number
+  departmentName: string
+  jobGradeId: number | null
+  jobGradeName: string | null
+}
+
 export function flattenDepartments(
   nodes: OrganizationDepartmentNode[],
 ): FlatDepartment[] {
@@ -28,5 +37,30 @@ export function flattenDepartments(
   }
 
   visit(nodes, 0)
+  return result
+}
+
+export function flattenEmployees(
+  nodes: OrganizationDepartmentNode[],
+): FlatEmployee[] {
+  const result: FlatEmployee[] = []
+
+  function visit(items: OrganizationDepartmentNode[]) {
+    for (const node of items) {
+      for (const employee of node.employees) {
+        result.push({
+          employeeId: employee.employeeId,
+          employeeName: employee.employeeName,
+          departmentId: node.departmentId,
+          departmentName: node.departmentName,
+          jobGradeId: employee.jobGradeId,
+          jobGradeName: employee.jobGradeName,
+        })
+      }
+      visit(node.children)
+    }
+  }
+
+  visit(nodes)
   return result
 }
