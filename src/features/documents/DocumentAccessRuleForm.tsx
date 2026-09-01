@@ -30,6 +30,7 @@ interface DocumentAccessRuleFormProps {
   documentId: number
   documentVersionId: number
   initialConfiguration?: AccessRuleFormSnapshot | null
+  initialReferences?: AccessRuleReferences | null
   onSaved: (
     result: DocumentAccessRuleResult,
     configuration: AccessRuleFormSnapshot,
@@ -42,6 +43,7 @@ export function DocumentAccessRuleForm({
   documentId,
   documentVersionId,
   initialConfiguration,
+  initialReferences,
   onSaved,
   onCancel,
 }: DocumentAccessRuleFormProps) {
@@ -62,7 +64,9 @@ export function DocumentAccessRuleForm({
   const [newEmployeeOnly, setNewEmployeeOnly] = useState(
     initialConfiguration?.newEmployeeOnly ?? false,
   )
-  const [references, setReferences] = useState<AccessRuleReferences | null>(null)
+  const [references, setReferences] = useState<AccessRuleReferences | null>(
+    initialReferences ?? null,
+  )
   const [referencesLoading, setReferencesLoading] = useState(false)
   const [referencesError, setReferencesError] = useState<string | null>(null)
   const [savingAccessRule, setSavingAccessRule] = useState(false)

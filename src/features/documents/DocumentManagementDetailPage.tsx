@@ -4,11 +4,13 @@ import { Badge, Button, EmptyState, Skeleton } from '../../shared/ui'
 import { fetchJobGrades, fetchOrganization } from '../organization/organizationApi'
 import { flattenDepartments } from '../organization/organizationHelpers'
 import type { AccessRuleReferences } from './accessRuleFormHelpers'
+import { DocumentAccessRuleForm } from './DocumentAccessRuleForm'
 import { fetchDocument } from './documentManagementApi'
 import {
   buildAccessRuleReadSummaryLines,
   formatDocumentStatus,
   formatPublicationStatus,
+  toAccessRuleFormSnapshot,
 } from './documentManagementHelpers'
 import type {
   DocumentAccessRuleRead,
@@ -41,6 +43,7 @@ export function DocumentManagementDetailPage() {
   const [references, setReferences] = useState<AccessRuleReferences | null>(null)
   const [referencesLoading, setReferencesLoading] = useState(false)
   const [referencesError, setReferencesError] = useState<string | null>(null)
+  const [editingVersionId, setEditingVersionId] = useState<number | null>(null)
   const latestFetchIdRef = useRef(0)
   const referenceFetchIdRef = useRef(0)
   const mountedRef = useRef(false)
@@ -103,6 +106,15 @@ export function DocumentManagementDetailPage() {
       referenceFetchIdRef.current += 1
     }
   }, [loadDetail, validDocumentId])
+
+  useEffect(() => {
+    queueMicrotask(() => setEditingVersionId(null))
+  }, [documentId])
+
+  async function handleAccessRuleSaved() {
+    setEditingVersionId(null)
+    await loadDetail()
+  }
 
   function renderAccessRule(rule: DocumentAccessRuleRead | null) {
     if (!rule) return <p className={styles.unconfigured}>접근 범위 미설정</p>
@@ -176,8 +188,37 @@ export function DocumentManagementDetailPage() {
                       <div><dt>등록일시</dt><dd>{formatDateTime(version.createdAt)}</dd></div>
                     </dl>
                     <div className={styles.accessSection}>
-                      <h4 className={styles.accessTitle}>접근 범위</h4>
-                      {renderAccessRule(version.accessRule)}
+                      <div className={styles.accessHeader}>
+                        <h4 className={styles.accessTitle}>접근 범위</h4>
+                        {editingVersionId !== version.documentVersionId && (
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            size="sm"
+                            disabled={editingVersionId !== null}
+                            aria-label={`${version.versionName} ${
+                              version.accessRule ? '접근 범위 변경' : '접근 범위 설정'
+                            }`}
+                            onClick={() => setEditingVersionId(version.documentVersionId)}
+                          >
+                            {version.accessRule ? '접근 범위 변경' : '접근 범위 설정'}
+                          </Button>
+                        )}
+                      </div>
+                      {editingVersionId === version.documentVersionId ? (
+                        <DocumentAccessRuleForm
+                          documentId={detail.documentId}
+                          documentVersionId={version.documentVersionId}
+                          initialConfiguration={version.accessRule
+                            ? toAccessRuleFormSnapshot(version.accessRule)
+                            : undefined}
+                          initialReferences={references}
+                          onSaved={() => {
+                            void handleAccessRuleSaved()
+                          }}
+                          onCancel={() => setEditingVersionId(null)}
+                        />
+                      ) : renderAccessRule(version.accessRule)}
                     </div>
                   </li>
                 ))}

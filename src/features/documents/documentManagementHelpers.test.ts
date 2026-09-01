@@ -4,6 +4,7 @@ import {
   buildAccessRuleReadSummaryLines,
   formatDocumentStatus,
   formatPublicationStatus,
+  toAccessRuleFormSnapshot,
 } from './documentManagementHelpers'
 import type { DocumentAccessRuleRead } from './documentManagementTypes'
 
@@ -68,5 +69,45 @@ describe('documentManagementHelpers', () => {
     }), null)
     expect(lines).toContain('부서 정보 확인 불가')
     expect(lines).toContain('직급 정보 확인 불가')
+  })
+
+  it('normalizes ALL rules to the canonical fail-closed form state', () => {
+    expect(toAccessRuleFormSnapshot({
+      accessScope: 'ALL', conditionOperator: 'OR', roles: ['HR_MANAGER'],
+      departmentIds: [1], minimumJobGradeId: 2, newEmployeeOnly: true,
+    })).toEqual({
+      accessScope: 'ALL', conditionOperator: null, roles: [], departmentIds: [],
+      minimumJobGradeId: null, newEmployeeOnly: false,
+    })
+  })
+
+  it('copies a RESTRICTED AND rule exactly', () => {
+    expect(toAccessRuleFormSnapshot(restricted({
+      roles: ['HR_MANAGER'], departmentIds: [3], minimumJobGradeId: 4,
+      newEmployeeOnly: true,
+    }))).toEqual({
+      accessScope: 'RESTRICTED', conditionOperator: 'AND', roles: ['HR_MANAGER'],
+      departmentIds: [3], minimumJobGradeId: 4, newEmployeeOnly: true,
+    })
+  })
+
+  it('copies a RESTRICTED OR rule exactly', () => {
+    expect(toAccessRuleFormSnapshot(restricted({
+      conditionOperator: 'OR', roles: ['EMPLOYEE'], departmentIds: [3],
+    }))).toEqual({
+      accessScope: 'RESTRICTED', conditionOperator: 'OR', roles: ['EMPLOYEE'],
+      departmentIds: [3], minimumJobGradeId: null, newEmployeeOnly: false,
+    })
+  })
+
+  it('defensively copies RESTRICTED rule arrays', () => {
+    const rule = restricted({ roles: ['HR_MANAGER'], departmentIds: [3] })
+    const result = toAccessRuleFormSnapshot(rule)
+
+    result.roles.push('EMPLOYEE')
+    result.departmentIds.push(5)
+
+    expect(rule.roles).toEqual(['HR_MANAGER'])
+    expect(rule.departmentIds).toEqual([3])
   })
 })

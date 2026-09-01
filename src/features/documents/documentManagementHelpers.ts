@@ -1,4 +1,8 @@
-import { ROLE_LABELS, type AccessRuleReferences } from './accessRuleFormHelpers'
+import {
+  ROLE_LABELS,
+  type AccessRuleFormSnapshot,
+  type AccessRuleReferences,
+} from './accessRuleFormHelpers'
 import type { DocumentAccessRuleRead } from './documentManagementTypes'
 
 export function formatDocumentStatus(status: string): string {
@@ -9,6 +13,30 @@ export function formatPublicationStatus(status: string): string {
   if (status === 'PUBLIC') return '공개'
   if (status === 'DRAFT') return '초안'
   return status
+}
+
+export function toAccessRuleFormSnapshot(
+  rule: DocumentAccessRuleRead,
+): AccessRuleFormSnapshot {
+  if (rule.accessScope === 'ALL') {
+    return {
+      accessScope: 'ALL',
+      conditionOperator: null,
+      roles: [],
+      departmentIds: [],
+      minimumJobGradeId: null,
+      newEmployeeOnly: false,
+    }
+  }
+
+  return {
+    accessScope: 'RESTRICTED',
+    conditionOperator: rule.conditionOperator,
+    roles: [...rule.roles],
+    departmentIds: [...rule.departmentIds],
+    minimumJobGradeId: rule.minimumJobGradeId,
+    newEmployeeOnly: rule.newEmployeeOnly,
+  }
 }
 
 export function buildAccessRuleReadSummaryLines(

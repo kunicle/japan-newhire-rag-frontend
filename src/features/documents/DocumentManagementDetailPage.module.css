@@ -14,7 +14,8 @@
 .details dt { color: var(--color-text-tertiary); font-size: var(--font-size-caption); }
 .details dd { min-width: 0; margin: var(--space-1) 0 0; }
 .accessSection { min-width: 0; padding-block-start: var(--space-4); border-block-start: 1px solid var(--color-border); }
-.accessTitle { margin: 0 0 var(--space-2); font-size: var(--font-size-body); }
+.accessHeader { display: flex; min-width: 0; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3); margin-bottom: var(--space-2); }
+.accessTitle { margin: 0; font-size: var(--font-size-body); }
 .summaryList { min-width: 0; margin: 0; padding-inline-start: var(--space-6); color: var(--color-text-secondary); }
 .unconfigured, .status, .error { margin: 0; }
 .unconfigured, .status { color: var(--color-text-secondary); }
