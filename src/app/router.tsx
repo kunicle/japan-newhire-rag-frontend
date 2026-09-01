@@ -2,6 +2,8 @@ import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { LoginPage } from '../features/auth/LoginPage'
 import { DocumentUploadPage } from '../features/documents/DocumentUploadPage'
 import { DocumentProcessingPage } from '../features/documents/DocumentProcessingPage'
+import { DocumentManagementPage } from '../features/documents/DocumentManagementPage'
+import { DocumentManagementDetailPage } from '../features/documents/DocumentManagementDetailPage'
 import { NotificationsPage } from '../features/notifications/NotificationsPage'
 import { RagPage } from '../features/rag/RagPage'
 import { AccessDeniedPage } from '../pages/AccessDeniedPage'
@@ -63,6 +65,8 @@ export const router = createBrowserRouter([
           {
             element: <RoleRoute allow={['HR_MANAGER', 'SYSTEM_ADMIN']} />,
             children: [
+              { path: 'hr/documents', element: <DocumentManagementPage /> },
+              { path: 'hr/documents/:documentId', element: <DocumentManagementDetailPage /> },
               { path: 'hr/documents/upload', element: <DocumentUploadPage /> },
             ],
           },

@@ -2,6 +2,7 @@ import {
   BookOpen,
   ClipboardCheck,
   FileClock,
+  Files,
   FileUp,
   GraduationCap,
   Home,
@@ -51,10 +52,17 @@ export const navigationGroups: NavGroup[] = [
     ],
   },
   {
+    label: '문서 운영',
+    requiredRoles: ['HR_MANAGER', 'SYSTEM_ADMIN'],
+    items: [
+      { label: '문서 관리', path: '/hr/documents', icon: Files },
+      { label: '문서 업로드', path: '/hr/documents/upload', icon: FileUp },
+    ],
+  },
+  {
     label: '인사 운영',
     requiredRoles: ['HR_MANAGER'],
     items: [
-      { label: '문서 업로드', path: '/hr/documents/upload', icon: FileUp },
       {
         label: '문서 처리 현황',
         path: '/hr/documents/processing',
