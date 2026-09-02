@@ -19,6 +19,7 @@ describe('getHomeShortcutIds', () => {
       'onboarding',
       'evaluation',
       'managerEducation',
+      'managerEvaluation',
       'notifications',
     ])
   })
@@ -72,6 +73,7 @@ describe('getHomeShortcutIds', () => {
       'onboarding',
       'evaluation',
       'managerEducation',
+      'managerEvaluation',
       'documents',
       'upload',
       'processing',

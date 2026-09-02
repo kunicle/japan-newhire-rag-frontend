@@ -2,6 +2,7 @@ import {
   BookOpen,
   ClipboardCheck,
   ClipboardList,
+  ClipboardPenLine,
   FileClock,
   Files,
   FileUp,
@@ -45,7 +46,10 @@ export const navigationGroups: NavGroup[] = [
   {
     label: '팀 관리',
     requiredRoles: ['MANAGER'],
-    items: [{ label: '팀 교육 현황', path: '/manager/education', icon: Users }],
+    items: [
+      { label: '팀 교육 현황', path: '/manager/education', icon: Users },
+      { label: '팀 평가', path: '/manager/evaluations', icon: ClipboardPenLine },
+    ],
   },
   {
     label: '문서 운영',

@@ -14,6 +14,8 @@ import { HrCourseDetailPage } from '../features/education/HrCourseDetailPage'
 import { HrCourseListPage } from '../features/education/HrCourseListPage'
 import { MyEvaluationDetailPage } from '../features/evaluation/MyEvaluationDetailPage'
 import { MyEvaluationListPage } from '../features/evaluation/MyEvaluationListPage'
+import { ManagerEvaluationDetailPage } from '../features/evaluation/ManagerEvaluationDetailPage'
+import { ManagerEvaluationListPage } from '../features/evaluation/ManagerEvaluationListPage'
 import { NotificationsPage } from '../features/notifications/NotificationsPage'
 import { MyOnboardingPage } from '../features/onboarding/MyOnboardingPage'
 import { HrOnboardingPage } from '../features/onboarding/HrOnboardingPage'
@@ -25,10 +27,6 @@ import { AppShell } from './AppShell'
 import { GuestRoute } from './GuestRoute'
 import { ProtectedRoute } from './ProtectedRoute'
 import { RoleRoute } from './RoleRoute'
-
-const managerPlaceholderRoutes = [
-  { path: 'manager/evaluations', title: '팀 평가', description: '팀원 평가를 검토하고 관리하는 기능을 준비하고 있습니다.' },
-]
 
 const hrPlaceholderRoutes = [
   { path: 'hr/evaluations', title: '평가 관리', description: '평가 항목과 일정을 운영하는 기능을 준비하고 있습니다.' },
@@ -82,7 +80,8 @@ export const router = createBrowserRouter([
             children: [
               { path: 'manager/education', element: <ManagerEducationPage /> },
               { path: 'manager/education/:employeeId', element: <ManagerEmployeeEducationPage /> },
-              ...mapPlaceholderRoutes(managerPlaceholderRoutes),
+              { path: 'manager/evaluations', element: <ManagerEvaluationListPage /> },
+              { path: 'manager/evaluations/:evaluationId', element: <ManagerEvaluationDetailPage /> },
             ],
           },
           {

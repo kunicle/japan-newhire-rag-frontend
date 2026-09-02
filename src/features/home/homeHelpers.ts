@@ -7,6 +7,7 @@ export type HomeShortcutId =
   | 'onboarding'
   | 'evaluation'
   | 'managerEducation'
+  | 'managerEvaluation'
   | 'documents'
   | 'upload'
   | 'processing'
@@ -20,7 +21,7 @@ export function getHomeShortcutIds(
   const ids: HomeShortcutId[] = ['rag', 'education', 'onboarding', 'evaluation']
 
   if (hasAnyRole(roles, ['MANAGER'])) {
-    ids.push('managerEducation')
+    ids.push('managerEducation', 'managerEvaluation')
   }
 
   if (hasAnyRole(roles, ['HR_MANAGER', 'SYSTEM_ADMIN'])) {

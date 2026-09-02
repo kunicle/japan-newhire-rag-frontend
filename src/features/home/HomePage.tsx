@@ -3,6 +3,7 @@ import {
   BookOpen,
   ClipboardCheck,
   ClipboardList,
+  ClipboardPenLine,
   FileClock,
   Files,
   FileUp,
@@ -55,6 +56,12 @@ const SHORTCUT_CONFIG: Record<HomeShortcutId, {
     path: '/manager/education',
     icon: Users,
     description: '관리 중인 직원들의 교육 진행 현황을 확인합니다.',
+  },
+  managerEvaluation: {
+    title: '팀 평가',
+    path: '/manager/evaluations',
+    icon: ClipboardPenLine,
+    description: '팀원에게 배정된 평가를 확인하고 작성합니다.',
   },
   documents: {
     title: '문서 관리',
