@@ -14,10 +14,17 @@ function failRefresh(): false {
 async function performRefresh(): Promise<boolean> {
   try {
     const csrfToken = readCsrfToken()
+    if (!csrfToken) {
+      throw new Error('XSRF-TOKEN cookie is required to refresh authentication')
+    }
+
+    const headers = new Headers()
+    headers.set('X-XSRF-TOKEN', csrfToken)
+
     const response = await fetch(buildApiUrl('/auth/refresh'), {
       method: 'POST',
       credentials: 'include',
-      headers: csrfToken ? { 'X-XSRF-TOKEN': csrfToken } : undefined,
+      headers,
     })
 
     if (response.status !== 200) return failRefresh()
@@ -35,7 +42,8 @@ async function performRefresh(): Promise<boolean> {
 
     setAccessToken(body.accessToken)
     return true
-  } catch {
+  } catch (error) {
+    console.error('Failed to refresh authentication', error)
     return failRefresh()
   }
 }

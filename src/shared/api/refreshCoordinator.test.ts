@@ -29,6 +29,47 @@ describe('refreshAccessToken', () => {
     document.cookie = 'XSRF-TOKEN=; Max-Age=0; Path=/'
     vi.unstubAllGlobals()
     vi.unstubAllEnvs()
+    vi.restoreAllMocks()
+  })
+
+  it('sends the current XSRF cookie in the refresh header', async () => {
+    document.cookie = `XSRF-TOKEN=${encodeURIComponent('current-token+/=')}; Path=/`
+    fetchMock.mockResolvedValueOnce(jsonResponse({ accessToken: 'new-token' }))
+    const { refreshAccessToken } = await loadRefreshModules()
+
+    await expect(refreshAccessToken()).resolves.toBe(true)
+
+    const request = fetchMock.mock.calls[0]?.[1]
+    const headers = new Headers(request?.headers)
+    expect(headers.get('X-XSRF-TOKEN')).toBe('current-token+/=')
+    expect(request?.credentials).toBe('include')
+  })
+
+  it('does not send a refresh request without an XSRF cookie', async () => {
+    document.cookie = 'XSRF-TOKEN=; Max-Age=0; Path=/'
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const { refreshAccessToken } = await loadRefreshModules()
+
+    await expect(refreshAccessToken()).resolves.toBe(false)
+
+    expect(fetchMock).not.toHaveBeenCalled()
+    expect(consoleError).toHaveBeenCalledWith(
+      'Failed to refresh authentication',
+      expect.objectContaining({
+        message: 'XSRF-TOKEN cookie is required to refresh authentication',
+      }),
+    )
+  })
+
+  it('updates the stored access token after a successful refresh', async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ accessToken: 'rotated-access-token' }))
+    const { refreshAccessToken, getAccessToken, setAccessToken } =
+      await loadRefreshModules()
+    setAccessToken('expired-access-token')
+
+    await expect(refreshAccessToken()).resolves.toBe(true)
+
+    expect(getAccessToken()).toBe('rotated-access-token')
   })
 
   it('uses one in-flight request for concurrent callers', async () => {

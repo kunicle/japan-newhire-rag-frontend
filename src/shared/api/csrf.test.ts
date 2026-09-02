@@ -30,4 +30,11 @@ describe('readCsrfToken', () => {
     document.cookie = `XSRF-TOKEN=${encodeURIComponent('token+/= value')}; Path=/`
     expect(readCsrfToken()).toBe('token+/= value')
   })
+
+  it('reports an invalid URL-encoded token instead of hiding the failure', () => {
+    document.cookie = 'XSRF-TOKEN=%E0%A4%A; Path=/'
+    expect(() => readCsrfToken()).toThrow(
+      'XSRF-TOKEN cookie contains an invalid encoded value',
+    )
+  })
 })
