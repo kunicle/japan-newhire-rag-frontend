@@ -107,6 +107,12 @@ const SHORTCUT_CONFIG: Record<HomeShortcutId, {
     icon: CalendarCog,
     description: '평가 주기와 자기·관리자 평가 템플릿을 설정합니다.',
   },
+  audit: {
+    title: '감사 로그',
+    path: '/admin/audit',
+    icon: FileClock,
+    description: '주요 시스템 활동 기록을 확인합니다.',
+  },
   notifications: {
     title: '알림',
     path: '/notifications',

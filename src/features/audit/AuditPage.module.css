@@ -1,0 +1,29 @@
+.page { width: 100%; max-width: 64rem; margin-inline: auto; min-width: 0; }
+.page > h1 { margin: 0 0 var(--space-6); font-size: var(--font-size-page-title); line-height: var(--line-height-page-title); }
+.filters { min-width: 0; padding: var(--space-5); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-medium); }
+.filters legend { padding-inline: var(--space-2); font-weight: var(--font-weight-bold); }
+.filterGrid { display: grid; min-width: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+.filterGrid label { display: flex; min-width: 0; flex-direction: column; gap: var(--space-2); font-weight: var(--font-weight-semibold); }
+.filterGrid input, .filterGrid select { width: 100%; min-width: 0; padding: var(--space-3); color: var(--color-text-primary); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-small); font: inherit; }
+.filterGrid input:focus, .filterGrid select:focus { border-color: var(--color-primary); outline: var(--focus-ring-width) solid var(--focus-ring-color); }
+.actions { display: flex; margin-block-start: var(--space-4); justify-content: flex-end; }
+.results { display: block; min-width: 0; margin-block-start: var(--space-6); }
+.list { display: flex; min-width: 0; margin: 0; padding: 0; flex-direction: column; gap: var(--space-4); list-style: none; }
+.card { min-width: 0; padding: var(--space-5); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-medium); overflow-wrap: anywhere; }
+.cardHeader { display: flex; min-width: 0; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3); }
+.cardHeader h2 { margin: var(--space-1) 0 0; font-size: var(--font-size-body); }
+.cardHeader time { color: var(--color-text-tertiary); font-size: var(--font-size-caption); }
+.card > p { color: var(--color-text-secondary); }
+.details { display: flex; min-width: 0; margin-block-start: var(--space-4); padding-block-start: var(--space-4); flex-direction: column; gap: var(--space-4); border-top: 1px solid var(--color-border); }
+.details p, .valueSection h3 { margin: 0; }
+.valueSection { min-width: 0; }
+.metadata { display: grid; min-width: 0; margin: var(--space-2) 0 0; gap: var(--space-2); }
+.metadata div { display: grid; min-width: 0; grid-template-columns: minmax(8rem, 1fr) minmax(0, 2fr); gap: var(--space-3); }
+.metadata dt { color: var(--color-text-tertiary); }
+.metadata dd { min-width: 0; margin: 0; overflow-wrap: anywhere; }
+.rawValue { max-width: 100%; margin: var(--space-2) 0 0; color: var(--color-text-secondary); font: inherit; overflow-wrap: anywhere; white-space: pre-wrap; }
+.loadMore, .errorState { display: flex; margin-block-start: var(--space-4); align-items: center; flex-direction: column; gap: var(--space-3); }
+.errorState { align-items: flex-start; }
+.error { margin: var(--space-3) 0 0; color: var(--color-danger); font-weight: var(--font-weight-medium); overflow-wrap: anywhere; }
+.empty { color: var(--color-text-secondary); }
+@media (max-width: 479px) { .filters, .card { padding: var(--space-4); } .filterGrid, .metadata div { grid-template-columns: minmax(0, 1fr); } .actions > *, .errorState > * { width: 100%; } }

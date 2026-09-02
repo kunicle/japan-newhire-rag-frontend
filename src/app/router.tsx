@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { LoginPage } from '../features/auth/LoginPage'
+import { AuditPage } from '../features/audit/AuditPage'
 import { HomePage } from '../features/home/HomePage'
 import { DocumentUploadPage } from '../features/documents/DocumentUploadPage'
 import { DocumentProcessingPage } from '../features/documents/DocumentProcessingPage'
@@ -33,7 +34,6 @@ import { RoleRoute } from './RoleRoute'
 
 const adminPlaceholderRoutes = [
   { path: 'admin/users', title: '사용자 관리', description: '사용자 계정과 역할을 관리하는 기능을 준비하고 있습니다.' },
-  { path: 'admin/audit', title: '감사 로그', description: '주요 시스템 활동 기록을 확인하는 기능을 준비하고 있습니다.' },
 ]
 
 function mapPlaceholderRoutes(
@@ -97,7 +97,10 @@ export const router = createBrowserRouter([
           },
           {
             element: <RoleRoute allow={['SYSTEM_ADMIN']} />,
-            children: mapPlaceholderRoutes(adminPlaceholderRoutes),
+            children: [
+              { path: 'admin/audit', element: <AuditPage /> },
+              ...mapPlaceholderRoutes(adminPlaceholderRoutes),
+            ],
           },
           { path: 'access-denied', element: <AccessDeniedPage /> },
           { path: '*', element: <NotFoundPage /> },

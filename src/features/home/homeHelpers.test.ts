@@ -11,6 +11,7 @@ describe('getHomeShortcutIds', () => {
       'evaluation',
       'notifications',
     ])
+    expect(getHomeShortcutIds(['EMPLOYEE'])).not.toContain('audit')
   })
 
   it('returns manager shortcuts', () => {
@@ -41,6 +42,7 @@ describe('getHomeShortcutIds', () => {
       'hrEvaluation',
       'notifications',
     ])
+    expect(getHomeShortcutIds(['HR_MANAGER'])).not.toContain('audit')
   })
 
   it('returns system administrator shortcuts without processing', () => {
@@ -52,6 +54,7 @@ describe('getHomeShortcutIds', () => {
       'evaluation',
       'documents',
       'upload',
+      'audit',
       'notifications',
     ])
   })
@@ -69,6 +72,7 @@ describe('getHomeShortcutIds', () => {
       'courseManagement',
       'hrOnboarding',
       'hrEvaluation',
+      'audit',
       'notifications',
     ])
   })
