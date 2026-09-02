@@ -4,6 +4,7 @@ import {
   ClipboardCheck,
   ClipboardList,
   ClipboardPenLine,
+  CalendarCog,
   FileClock,
   Files,
   FileUp,
@@ -92,6 +93,12 @@ const SHORTCUT_CONFIG: Record<HomeShortcutId, {
     path: '/hr/onboarding',
     icon: UserPlus,
     description: '신입사원 온보딩 태스크를 만들고 배정합니다.',
+  },
+  hrEvaluation: {
+    title: '평가 관리',
+    path: '/hr/evaluations',
+    icon: CalendarCog,
+    description: '평가 주기와 자기·관리자 평가 템플릿을 설정합니다.',
   },
   notifications: {
     title: '알림',

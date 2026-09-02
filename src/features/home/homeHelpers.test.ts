@@ -35,6 +35,7 @@ describe('getHomeShortcutIds', () => {
       'processing',
       'courseManagement',
       'hrOnboarding',
+      'hrEvaluation',
       'notifications',
     ])
   })
@@ -62,6 +63,7 @@ describe('getHomeShortcutIds', () => {
       'processing',
       'courseManagement',
       'hrOnboarding',
+      'hrEvaluation',
       'notifications',
     ])
   })
@@ -79,6 +81,7 @@ describe('getHomeShortcutIds', () => {
       'processing',
       'courseManagement',
       'hrOnboarding',
+      'hrEvaluation',
       'notifications',
     ])
   })

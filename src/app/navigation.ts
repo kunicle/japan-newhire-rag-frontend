@@ -3,6 +3,7 @@ import {
   ClipboardCheck,
   ClipboardList,
   ClipboardPenLine,
+  CalendarCog,
   FileClock,
   Files,
   FileUp,
@@ -70,6 +71,7 @@ export const navigationGroups: NavGroup[] = [
       },
       { label: '교육 과정 관리', path: '/hr/courses', icon: GraduationCap },
       { label: '온보딩 관리', path: '/hr/onboarding', icon: UserPlus },
+      { label: '평가 관리', path: '/hr/evaluations', icon: CalendarCog },
     ],
   },
 ]
