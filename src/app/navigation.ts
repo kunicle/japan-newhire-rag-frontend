@@ -1,5 +1,6 @@
 import {
   BookOpen,
+  ClipboardCheck,
   FileClock,
   Files,
   FileUp,
@@ -33,7 +34,10 @@ export const navigationGroups: NavGroup[] = [
   },
   {
     label: '내 업무',
-    items: [{ label: '교육', path: '/me/education', icon: BookOpen }],
+    items: [
+      { label: '교육', path: '/me/education', icon: BookOpen },
+      { label: '온보딩', path: '/me/onboarding', icon: ClipboardCheck },
+    ],
   },
   {
     label: '팀 관리',

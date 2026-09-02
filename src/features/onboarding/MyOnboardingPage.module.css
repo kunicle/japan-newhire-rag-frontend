@@ -1,0 +1,25 @@
+.page { width: 100%; max-width: 48rem; margin-inline: auto; min-width: 0; }
+.header { display: flex; min-width: 0; margin-block-end: var(--space-6); flex-direction: column; gap: var(--space-2); }
+.title { min-width: 0; margin: 0; font-size: var(--font-size-page-title); line-height: var(--line-height-page-title); }
+.description { margin: 0; color: var(--color-text-secondary); }
+.summary { margin: 0 0 var(--space-5); color: var(--color-text-secondary); font-weight: var(--font-weight-semibold); }
+.sectionTitle { margin: 0 0 var(--space-4); font-size: var(--font-size-section-title); }
+.taskList, .skeletons, .errorState { display: flex; min-width: 0; flex-direction: column; gap: var(--space-4); }
+.taskList { margin: 0; padding: 0; list-style: none; }
+.taskItem { display: flex; min-width: 0; padding: var(--space-4); flex-direction: column; align-items: flex-start; gap: var(--space-3); background-color: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-medium); box-shadow: var(--shadow-subtle); }
+.taskHeader { display: flex; min-width: 0; align-items: center; flex-wrap: wrap; gap: var(--space-2); }
+.taskTitle { min-width: 0; margin: 0; font-size: var(--font-size-body); line-height: var(--line-height-body); }
+.taskDescription { margin: 0; color: var(--color-text-secondary); white-space: pre-wrap; }
+.taskDates { display: flex; min-width: 0; margin: 0; flex-wrap: wrap; gap: var(--space-3) var(--space-5); }
+.taskDates div { min-width: 0; }
+.taskDates dt { color: var(--color-text-tertiary); font-size: var(--font-size-caption); }
+.taskDates dd { min-width: 0; margin: var(--space-1) 0 0; }
+.errorState { align-items: flex-start; }
+.refreshError { display: flex; min-width: 0; margin-block-end: var(--space-4); align-items: center; flex-wrap: wrap; gap: var(--space-3); }
+.error { margin: 0; color: var(--color-danger); font-weight: var(--font-weight-medium); }
+.title, .description, .summary, .sectionTitle, .taskTitle, .taskDescription, .taskDates, .error { overflow-wrap: anywhere; }
+
+@media (max-width: 479px) {
+  .taskDates { flex-direction: column; gap: var(--space-2); }
+  .taskItem > button, .errorState > *, .refreshError > * { width: 100%; }
+}

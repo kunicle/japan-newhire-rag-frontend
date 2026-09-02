@@ -13,6 +13,7 @@ import { HrCourseCreatePage } from '../features/education/HrCourseCreatePage'
 import { HrCourseDetailPage } from '../features/education/HrCourseDetailPage'
 import { HrCourseListPage } from '../features/education/HrCourseListPage'
 import { NotificationsPage } from '../features/notifications/NotificationsPage'
+import { MyOnboardingPage } from '../features/onboarding/MyOnboardingPage'
 import { RagPage } from '../features/rag/RagPage'
 import { AccessDeniedPage } from '../pages/AccessDeniedPage'
 import { NotFoundPage } from '../pages/NotFoundPage'
@@ -23,7 +24,6 @@ import { ProtectedRoute } from './ProtectedRoute'
 import { RoleRoute } from './RoleRoute'
 
 const commonPlaceholderRoutes = [
-  { path: 'me/onboarding', title: '온보딩', description: '입사 후 필요한 절차와 진행 상황을 확인하는 기능을 준비하고 있습니다.' },
   { path: 'me/evaluations', title: '평가', description: '평가 일정과 제출 항목을 관리하는 기능을 준비하고 있습니다.' },
 ]
 
@@ -67,6 +67,7 @@ export const router = createBrowserRouter([
           ...mapPlaceholderRoutes(commonPlaceholderRoutes),
           { path: 'me/education', element: <MyEducationPage /> },
           { path: 'me/education/:enrollmentId', element: <MyEducationDetailPage /> },
+          { path: 'me/onboarding', element: <MyOnboardingPage /> },
           { path: 'rag', element: <RagPage /> },
           { path: 'notifications', element: <NotificationsPage /> },
           {

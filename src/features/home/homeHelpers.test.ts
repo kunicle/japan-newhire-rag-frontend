@@ -6,6 +6,7 @@ describe('getHomeShortcutIds', () => {
     expect(getHomeShortcutIds(['EMPLOYEE'])).toEqual([
       'rag',
       'education',
+      'onboarding',
       'notifications',
     ])
   })
@@ -14,6 +15,7 @@ describe('getHomeShortcutIds', () => {
     expect(getHomeShortcutIds(['MANAGER'])).toEqual([
       'rag',
       'education',
+      'onboarding',
       'managerEducation',
       'notifications',
     ])
@@ -23,6 +25,7 @@ describe('getHomeShortcutIds', () => {
     expect(getHomeShortcutIds(['HR_MANAGER'])).toEqual([
       'rag',
       'education',
+      'onboarding',
       'documents',
       'upload',
       'processing',
@@ -35,6 +38,7 @@ describe('getHomeShortcutIds', () => {
     expect(getHomeShortcutIds(['SYSTEM_ADMIN'])).toEqual([
       'rag',
       'education',
+      'onboarding',
       'documents',
       'upload',
       'notifications',
@@ -45,6 +49,7 @@ describe('getHomeShortcutIds', () => {
     expect(getHomeShortcutIds(['HR_MANAGER', 'SYSTEM_ADMIN'])).toEqual([
       'rag',
       'education',
+      'onboarding',
       'documents',
       'upload',
       'processing',
@@ -57,6 +62,7 @@ describe('getHomeShortcutIds', () => {
     expect(getHomeShortcutIds(['MANAGER', 'HR_MANAGER'])).toEqual([
       'rag',
       'education',
+      'onboarding',
       'managerEducation',
       'documents',
       'upload',
