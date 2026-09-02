@@ -1,15 +1,19 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { AppError } from '../../shared/api/errors'
 import { Badge, Button, Skeleton } from '../../shared/ui'
+import { fetchOrganization } from '../organization/organizationApi'
+import { flattenEmployees, type FlatEmployee } from '../organization/organizationHelpers'
 import { evaluationCycleStatusBadgeVariant, evaluationCycleStatusLabel } from './evaluationHelpers'
 import {
-  createEvaluationItem, createEvaluationTemplate, fetchEvaluationCycle,
+  createEvaluationItem, createEvaluationTemplate, fetchEvaluationCycle, fetchEvaluationProgress,
   fetchEvaluationItems, fetchEvaluationTemplates, updateEvaluationCycle,
   updateEvaluationItem, updateEvaluationTemplate,
 } from './hrEvaluationApi'
-import { isCycleDatesEditable, isCycleEditable, isTemplateOrItemWritable, mapHrEvaluationErrorMessage } from './hrEvaluationHelpers'
-import type { EvaluationCycle, EvaluationItem, EvaluationItemCreateInput, EvaluationItemUpdateInput, EvaluationTemplate, EvaluationType } from './hrEvaluationTypes'
+import { isAssignmentWritable, isCycleDatesEditable, isCycleEditable, isTemplateOrItemWritable, mapHrEvaluationErrorMessage } from './hrEvaluationHelpers'
+import type { EvaluationCycle, EvaluationItem, EvaluationItemCreateInput, EvaluationItemUpdateInput, EvaluationProgress, EvaluationTemplate, EvaluationType } from './hrEvaluationTypes'
+import { HrEvaluationAssignmentSection } from './HrEvaluationAssignmentSection'
+import { HrEvaluationProgressSection } from './HrEvaluationProgressSection'
 import styles from './HrEvaluationCycleDetailPage.module.css'
 
 interface ItemsState { loading: boolean; data: EvaluationItem[] | null; error: string | null; warning: string | null }
@@ -91,9 +95,17 @@ function HrEvaluationCycleDetailContent({ cycleId }: { cycleId: number }) {
   const [cycleSaveError, setCycleSaveError] = useState<string | null>(null)
   const [cycleSaveSuccess, setCycleSaveSuccess] = useState<string | null>(null)
   const [cycleSaving, setCycleSaving] = useState(false)
+  const [employees, setEmployees] = useState<FlatEmployee[]>([])
+  const [organizationLoading, setOrganizationLoading] = useState(true)
+  const [organizationError, setOrganizationError] = useState<string | null>(null)
+  const [progress, setProgress] = useState<EvaluationProgress | null>(null)
+  const [progressLoading, setProgressLoading] = useState(true)
+  const [progressError, setProgressError] = useState<string | null>(null)
   const mountedRef = useRef(false)
   const latestCycleFetchIdRef = useRef(0)
   const latestTemplatesFetchIdRef = useRef(0)
+  const latestOrganizationFetchIdRef = useRef(0)
+  const latestProgressFetchIdRef = useRef(0)
   const itemsRequestIdsRef = useRef<Map<number, number>>(new Map())
   const cycleSaveRef = useRef(false)
   const templateWriteRefs = useRef<Map<EvaluationType, boolean>>(new Map())
@@ -133,7 +145,21 @@ function HrEvaluationCycleDetailContent({ cycleId }: { cycleId: number }) {
     finally { if (mountedRef.current && requestId === latestTemplatesFetchIdRef.current) setTemplatesLoading(false) }
   }, [cycleId, loadItems])
 
-  useEffect(() => { const itemRequestIds = itemsRequestIdsRef.current; mountedRef.current = true; queueMicrotask(() => { void loadCycle(); void loadTemplates() }); return () => { mountedRef.current = false; latestCycleFetchIdRef.current += 1; latestTemplatesFetchIdRef.current += 1; itemRequestIds.clear() } }, [loadCycle, loadTemplates])
+  const loadOrganization = useCallback(async () => {
+    const requestId = ++latestOrganizationFetchIdRef.current; setOrganizationLoading(true); setOrganizationError(null)
+    try { const response = await fetchOrganization(); if (mountedRef.current && requestId === latestOrganizationFetchIdRef.current) setEmployees(flattenEmployees(response.departments)) }
+    catch (error) { if (mountedRef.current && requestId === latestOrganizationFetchIdRef.current) setOrganizationError(mapHrEvaluationErrorMessage(error, '직원 목록을 불러오지 못했습니다.')) }
+    finally { if (mountedRef.current && requestId === latestOrganizationFetchIdRef.current) setOrganizationLoading(false) }
+  }, [])
+
+  const loadProgress = useCallback(async () => {
+    const requestId = ++latestProgressFetchIdRef.current; setProgressLoading(true); setProgressError(null)
+    try { const response = await fetchEvaluationProgress(cycleId); if (mountedRef.current && requestId === latestProgressFetchIdRef.current) setProgress(response) }
+    catch (error) { if (mountedRef.current && requestId === latestProgressFetchIdRef.current) setProgressError(mapHrEvaluationErrorMessage(error, '평가 진행 현황을 불러오지 못했습니다.')) }
+    finally { if (mountedRef.current && requestId === latestProgressFetchIdRef.current) setProgressLoading(false) }
+  }, [cycleId])
+
+  useEffect(() => { const itemRequestIds = itemsRequestIdsRef.current; mountedRef.current = true; queueMicrotask(() => { void loadCycle(); void loadTemplates(); void loadOrganization(); void loadProgress() }); return () => { mountedRef.current = false; latestCycleFetchIdRef.current += 1; latestTemplatesFetchIdRef.current += 1; latestOrganizationFetchIdRef.current += 1; latestProgressFetchIdRef.current += 1; itemRequestIds.clear() } }, [loadCycle, loadOrganization, loadProgress, loadTemplates])
 
   async function saveCycle() {
     if (!cycle || cycleSaveRef.current) return
@@ -179,6 +205,7 @@ function HrEvaluationCycleDetailContent({ cycleId }: { cycleId: number }) {
     } finally { itemUpdateRefs.current.delete(item.evaluationItemId) }
   }
 
+  const alreadyAssignedEmployeeIds = useMemo(() => progress && !progressLoading && !progressError ? new Set(progress.employees.map((entry) => entry.employee.employeeId)) : new Set<number>(), [progress, progressError, progressLoading])
   if (cycleLoading && !cycle) return <div role="status" aria-label="평가 주기를 불러오는 중"><Skeleton lines={6} /></div>
   if (cycleError && !cycle) return <div className={styles.errorState}><p className={styles.error} role="alert">{cycleError}</p><Button variant="secondary" onClick={() => void loadCycle()}>다시 시도</Button></div>
   if (!cycle) return null
@@ -201,6 +228,8 @@ function HrEvaluationCycleDetailContent({ cycleId }: { cycleId: number }) {
           <div className={styles.templateList}>{TEMPLATE_META.map(({ type, title }) => <TemplateSection key={type} title={title} type={type} template={templates.find((entry) => entry.evaluationType === type)} writable={setupWritable} itemsState={templates.find((entry) => entry.evaluationType === type) ? itemsByTemplate.get(templates.find((entry) => entry.evaluationType === type)!.evaluationTemplateId) : undefined} onWrite={writeTemplate} onRetryItems={loadItems} onCreateItem={createItem} onSaveItem={saveItem} />)}</div>
         )}
       </section>
+      {organizationLoading ? <section aria-labelledby="assignment-loading-title"><h2 id="assignment-loading-title" className={styles.sectionTitle}>직원 배정</h2><div role="status" aria-label="직원 목록을 불러오는 중"><Skeleton lines={3} /></div></section> : organizationError ? <section aria-labelledby="assignment-error-title"><h2 id="assignment-error-title" className={styles.sectionTitle}>직원 배정</h2><div className={styles.errorState}><p className={styles.error} role="alert">{organizationError}</p><Button variant="secondary" onClick={() => void loadOrganization()}>직원 목록 다시 시도</Button></div></section> : <HrEvaluationAssignmentSection cycleId={cycleId} writable={isAssignmentWritable(cycle.cycleStatus)} employees={employees} alreadyAssignedEmployeeIds={alreadyAssignedEmployeeIds} onAssignSucceeded={() => void loadProgress()} />}
+      <HrEvaluationProgressSection progress={progress} loading={progressLoading} error={progressError} onRetry={() => void loadProgress()} />
     </div>
   )
 }

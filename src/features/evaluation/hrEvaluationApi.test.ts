@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { request } from '../../shared/api/httpClient'
 import {
+  assignEvaluation,
   createEvaluationCycle, createEvaluationItem, createEvaluationTemplate,
-  fetchEvaluationCycle, fetchEvaluationItems, fetchEvaluationTemplates,
+  fetchEvaluationCycle, fetchEvaluationCycles, fetchEvaluationItems, fetchEvaluationProgress, fetchEvaluationTemplates,
   updateEvaluationCycle, updateEvaluationItem, updateEvaluationTemplate,
 } from './hrEvaluationApi'
 
@@ -16,6 +17,9 @@ const itemUpdate = { itemName: '협업', itemDescription: 'desc', itemOrder: 2, 
 
 describe('hrEvaluationApi', () => {
   beforeEach(() => requestMock.mockReset().mockResolvedValue({}))
+  it('fetches cycles', async () => { await fetchEvaluationCycles(); expect(requestMock).toHaveBeenCalledWith('/hr/evaluation-cycles') })
+  it('assigns an employee', async () => { const input = { evaluationCycleId: 3, targetEmployeeId: 8 }; await assignEvaluation(input); expect(requestMock).toHaveBeenCalledWith('/hr/evaluation-assignments', { method: 'POST', body: JSON.stringify(input) }) })
+  it('fetches cycle progress', async () => { await fetchEvaluationProgress(3); expect(requestMock).toHaveBeenCalledWith('/hr/evaluations/progress?cycleId=3') })
   it('creates a cycle', async () => { await createEvaluationCycle(cycleInput); expect(requestMock).toHaveBeenCalledWith('/hr/evaluation-cycles', { method: 'POST', body: JSON.stringify(cycleInput) }) })
   it('fetches a cycle', async () => { await fetchEvaluationCycle(3); expect(requestMock).toHaveBeenCalledWith('/hr/evaluation-cycles/3') })
   it('updates a cycle', async () => { await updateEvaluationCycle(3, cycleInput); expect(requestMock).toHaveBeenCalledWith('/hr/evaluation-cycles/3', { method: 'PATCH', body: JSON.stringify(cycleInput) }) })

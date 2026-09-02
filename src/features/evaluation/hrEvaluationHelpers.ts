@@ -1,5 +1,22 @@
 import { AppError } from '../../shared/api/errors'
+import type { BadgeProps } from '../../shared/ui'
 import type { EvaluationCycleStatus } from './evaluationTypes'
+import type { EvaluationProgressStatus } from './hrEvaluationTypes'
+
+export function progressStatusLabel(status: string): string {
+  if (status === 'NOT_STARTED') return '시작 전'
+  if (status === 'IN_PROGRESS') return '작성 중'
+  if (status === 'SUBMITTED') return '제출 완료'
+  return status
+}
+
+export function progressStatusBadgeVariant(status: EvaluationProgressStatus): NonNullable<BadgeProps['variant']> {
+  if (status === 'SUBMITTED') return 'success'
+  if (status === 'IN_PROGRESS') return 'info'
+  return 'neutral'
+}
+
+export function isAssignmentWritable(status: EvaluationCycleStatus): boolean { return status === 'PLANNED' }
 
 export function isCycleEditable(status: EvaluationCycleStatus): boolean {
   return status !== 'CLOSED'
@@ -24,4 +41,15 @@ export function mapHrEvaluationErrorMessage(
   if (error.status === 404) return '요청한 항목을 찾을 수 없습니다.'
   if (error.status === 409) return conflictMessage
   return fallback
+}
+
+export function mapAssignmentErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof AppError) {
+    if (error.code === 'EVALUATION_DUPLICATE_ASSIGNMENT') return '이미 해당 평가 주기에 배정된 직원입니다.'
+    if (error.code === 'EVALUATION_MANAGER_RELATION_INVALID') return '유효한 직속 관리자가 없어 평가를 배정할 수 없습니다.'
+    if (error.code === 'EVALUATION_TEMPLATE_NOT_READY') return '자기/관리자 평가 템플릿과 평가 항목 설정을 확인해 주세요.'
+    if (error.code === 'EVALUATION_CYCLE_NOT_ASSIGNABLE') return '현재 평가 주기에는 직원을 배정할 수 없습니다.'
+    if (error.code === 'EVALUATION_TARGET_INVALID') return '유효한 직원을 선택해 주세요.'
+  }
+  return mapHrEvaluationErrorMessage(error, fallback)
 }

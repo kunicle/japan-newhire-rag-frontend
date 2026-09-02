@@ -1,4 +1,4 @@
-import type { EvaluationCycleStatus } from './evaluationTypes'
+import type { EvaluationCycleStatus, EvaluationStatus } from './evaluationTypes'
 
 export type EvaluationType = 'SELF' | 'MANAGER'
 
@@ -82,3 +82,12 @@ export interface EvaluationItemUpdateInput {
   minimumScore: number | null
   maximumScore: number | null
 }
+
+export interface EvaluationAssignmentInput { evaluationCycleId: number; targetEmployeeId: number }
+export interface EvaluationAssignmentResult { evaluationCycleId: number; targetEmployeeId: number; managerEmployeeId: number; selfEvaluationId: number; managerEvaluationId: number }
+export type EvaluationProgressStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'SUBMITTED'
+export interface EvaluationProgressEmployeeSummary { employeeId: number; employeeName: string; departmentId: number | null; departmentName: string | null; jobGradeId: number | null; jobGradeName: string | null }
+export interface EvaluationProgressDetail { evaluationId: number; evaluationStatus: EvaluationStatus; progressStatus: EvaluationProgressStatus; submittedAt: string | null }
+export interface EvaluationProgressEmployee { employee: EvaluationProgressEmployeeSummary; selfEvaluation: EvaluationProgressDetail | null; managerEvaluation: EvaluationProgressDetail | null }
+export interface EvaluationProgressSummary { notStartedCount: number; inProgressCount: number; submittedCount: number }
+export interface EvaluationProgress { cycleId: number; cycleName: string; startDate: string; endDate: string; currentCycleStatus: EvaluationCycleStatus; totalTargetCount: number; selfSummary: EvaluationProgressSummary; managerSummary: EvaluationProgressSummary; employees: EvaluationProgressEmployee[] }

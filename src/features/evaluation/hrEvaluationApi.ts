@@ -1,6 +1,9 @@
 import { request } from '../../shared/api/httpClient'
 import type {
   EvaluationCycle,
+  EvaluationAssignmentInput,
+  EvaluationAssignmentResult,
+  EvaluationProgress,
   EvaluationCycleInput,
   EvaluationItem,
   EvaluationItemCreateInput,
@@ -9,6 +12,18 @@ import type {
   EvaluationTemplateCreateInput,
   EvaluationTemplateUpdateInput,
 } from './hrEvaluationTypes'
+
+export function fetchEvaluationCycles(): Promise<EvaluationCycle[]> {
+  return request<EvaluationCycle[]>('/hr/evaluation-cycles')
+}
+
+export function assignEvaluation(input: EvaluationAssignmentInput): Promise<EvaluationAssignmentResult> {
+  return request<EvaluationAssignmentResult>('/hr/evaluation-assignments', { method: 'POST', body: JSON.stringify(input) })
+}
+
+export function fetchEvaluationProgress(cycleId: number): Promise<EvaluationProgress> {
+  return request<EvaluationProgress>(`/hr/evaluations/progress?cycleId=${cycleId}`)
+}
 
 export function createEvaluationCycle(input: EvaluationCycleInput): Promise<EvaluationCycle> {
   return request<EvaluationCycle>('/hr/evaluation-cycles', {

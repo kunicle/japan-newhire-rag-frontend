@@ -16,8 +16,8 @@ import { MyEvaluationDetailPage } from '../features/evaluation/MyEvaluationDetai
 import { MyEvaluationListPage } from '../features/evaluation/MyEvaluationListPage'
 import { ManagerEvaluationDetailPage } from '../features/evaluation/ManagerEvaluationDetailPage'
 import { ManagerEvaluationListPage } from '../features/evaluation/ManagerEvaluationListPage'
-import { HrEvaluationCycleCreatePage } from '../features/evaluation/HrEvaluationCycleCreatePage'
 import { HrEvaluationCycleDetailPage } from '../features/evaluation/HrEvaluationCycleDetailPage'
+import { HrEvaluationListPage } from '../features/evaluation/HrEvaluationListPage'
 import { NotificationsPage } from '../features/notifications/NotificationsPage'
 import { MyOnboardingPage } from '../features/onboarding/MyOnboardingPage'
 import { HrOnboardingPage } from '../features/onboarding/HrOnboardingPage'
@@ -93,7 +93,7 @@ export const router = createBrowserRouter([
               { path: 'hr/courses/new', element: <HrCourseCreatePage /> },
               { path: 'hr/courses/:courseId', element: <HrCourseDetailPage /> },
               { path: 'hr/onboarding', element: <HrOnboardingPage /> },
-              { path: 'hr/evaluations', element: <HrEvaluationCycleCreatePage /> },
+              { path: 'hr/evaluations', element: <HrEvaluationListPage /> },
               { path: 'hr/evaluations/:cycleId', element: <HrEvaluationCycleDetailPage /> },
               ...mapPlaceholderRoutes(hrPlaceholderRoutes),
             ],
