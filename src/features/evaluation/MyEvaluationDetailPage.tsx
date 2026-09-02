@@ -238,6 +238,7 @@ function EvaluationDetailContent({
   }
 
   async function handleSubmit() {
+    if (savingDraftRef.current || submittingRef.current) return
     if (!validateScores(true)) return
     if (!window.confirm('제출 후에는 수정할 수 없습니다. 제출하시겠습니까?')) return
     if (savingDraftRef.current || submittingRef.current) return
@@ -247,23 +248,40 @@ function EvaluationDetailContent({
     setSubmitError(null)
     setSaveError(null)
     setSaveSuccess(null)
-    let writeSucceeded = false
     try {
-      await submitSelfEvaluation(evaluationId)
-      writeSucceeded = true
-      if (mountedRef.current) setSubmissionSucceededAwaitingRefresh(true)
-    } catch (error) {
-      if (mountedRef.current) {
-        setSubmitError(mapEvaluationErrorMessage(error, '평가 제출에 실패했습니다.'))
+      let draftResponse: SelfEvaluationDetail
+      try {
+        draftResponse = await saveSelfEvaluationDraft(
+          evaluationId,
+          buildSelfEvaluationDraftInput(formItems, overallFeedbackInput),
+        )
+      } catch (error) {
+        if (mountedRef.current) {
+          setSubmitError(mapEvaluationErrorMessage(
+            error,
+            '평가 제출 준비에 실패했습니다.',
+          ))
+        }
+        return
       }
-    }
+      if (!mountedRef.current) return
+      applyDetail(draftResponse)
 
-    if (writeSucceeded && mountedRef.current) {
+      try {
+        await submitSelfEvaluation(evaluationId)
+      } catch (error) {
+        if (mountedRef.current) {
+          setSubmitError(mapEvaluationErrorMessage(error, '평가 제출에 실패했습니다.'))
+        }
+        return
+      }
+      if (!mountedRef.current) return
+      setSubmissionSucceededAwaitingRefresh(true)
       await loadDetail('평가 정보를 다시 불러오지 못했습니다.', false)
+    } finally {
+      submittingRef.current = false
+      if (mountedRef.current) setSubmitting(false)
     }
-
-    submittingRef.current = false
-    if (mountedRef.current) setSubmitting(false)
   }
 
   if (detailLoading && !detail) {
