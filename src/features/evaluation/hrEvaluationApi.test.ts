@@ -3,7 +3,7 @@ import { request } from '../../shared/api/httpClient'
 import {
   assignEvaluation,
   createEvaluationCycle, createEvaluationItem, createEvaluationTemplate,
-  fetchEvaluationCycle, fetchEvaluationCycles, fetchEvaluationItems, fetchEvaluationProgress, fetchEvaluationTemplates,
+  fetchEvaluationCycle, fetchEvaluationCycles, fetchEvaluationItems, fetchEvaluationProgress, fetchEvaluationPublishPreview, fetchEvaluationTemplates, publishEvaluation,
   updateEvaluationCycle, updateEvaluationItem, updateEvaluationTemplate,
 } from './hrEvaluationApi'
 
@@ -20,6 +20,8 @@ describe('hrEvaluationApi', () => {
   it('fetches cycles', async () => { await fetchEvaluationCycles(); expect(requestMock).toHaveBeenCalledWith('/hr/evaluation-cycles') })
   it('assigns an employee', async () => { const input = { evaluationCycleId: 3, targetEmployeeId: 8 }; await assignEvaluation(input); expect(requestMock).toHaveBeenCalledWith('/hr/evaluation-assignments', { method: 'POST', body: JSON.stringify(input) }) })
   it('fetches cycle progress', async () => { await fetchEvaluationProgress(3); expect(requestMock).toHaveBeenCalledWith('/hr/evaluations/progress?cycleId=3') })
+  it('fetches a publish preview', async () => { await fetchEvaluationPublishPreview(11); expect(requestMock).toHaveBeenCalledWith('/hr/evaluations/11/publish-preview') })
+  it('publishes an evaluation', async () => { const input = { publishReason: '검토 완료', visibleManagerFeedbackIds: [21, 22] }; await publishEvaluation(11, input); expect(requestMock).toHaveBeenCalledWith('/hr/evaluations/11/publish', { method: 'PATCH', body: JSON.stringify(input) }) })
   it('creates a cycle', async () => { await createEvaluationCycle(cycleInput); expect(requestMock).toHaveBeenCalledWith('/hr/evaluation-cycles', { method: 'POST', body: JSON.stringify(cycleInput) }) })
   it('fetches a cycle', async () => { await fetchEvaluationCycle(3); expect(requestMock).toHaveBeenCalledWith('/hr/evaluation-cycles/3') })
   it('updates a cycle', async () => { await updateEvaluationCycle(3, cycleInput); expect(requestMock).toHaveBeenCalledWith('/hr/evaluation-cycles/3', { method: 'PATCH', body: JSON.stringify(cycleInput) }) })

@@ -91,3 +91,9 @@ export interface EvaluationProgressDetail { evaluationId: number; evaluationStat
 export interface EvaluationProgressEmployee { employee: EvaluationProgressEmployeeSummary; selfEvaluation: EvaluationProgressDetail | null; managerEvaluation: EvaluationProgressDetail | null }
 export interface EvaluationProgressSummary { notStartedCount: number; inProgressCount: number; submittedCount: number }
 export interface EvaluationProgress { cycleId: number; cycleName: string; startDate: string; endDate: string; currentCycleStatus: EvaluationCycleStatus; totalTargetCount: number; selfSummary: EvaluationProgressSummary; managerSummary: EvaluationProgressSummary; employees: EvaluationProgressEmployee[] }
+
+export type EvaluationFeedbackType = 'ITEM' | 'OVERALL'
+export interface EvaluationPublishPreviewFeedback { evaluationFeedbackId: number; evaluationItemId: number; feedbackType: EvaluationFeedbackType; feedbackContent: string; isVisibleToEmployee: boolean }
+export interface EvaluationPublishPreview { evaluationCycleId: number; targetEmployeeId: number; selfEvaluationId: number; managerEvaluationId: number; managerFeedbacks: EvaluationPublishPreviewFeedback[] }
+export interface EvaluationPublishInput { publishReason: string | null; visibleManagerFeedbackIds: number[] | null }
+export interface EvaluationPublishResult { cycleId: number; targetEmployeeId: number; selfEvaluationId: number; managerEvaluationId: number; selfStatus: EvaluationStatus; managerStatus: EvaluationStatus; publishedAt: string; visibleManagerFeedbackIds: number[]; idempotent: boolean }

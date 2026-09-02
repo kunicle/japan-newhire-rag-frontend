@@ -29,4 +29,5 @@
 .error { margin: 0; color: var(--color-danger); font-weight: var(--font-weight-medium); }
 .success { margin: 0; color: var(--color-success); font-weight: var(--font-weight-semibold); }
 .warning { margin: 0; color: var(--color-warning); font-weight: var(--font-weight-medium); }
+.publishPanel { min-width: 0; }
 @media (max-width: 479px) { .panel { padding: var(--space-4); } .formGrid, .readOnlyGrid { grid-template-columns: minmax(0, 1fr); } .actions > *, .errorState > * { width: 100%; } }

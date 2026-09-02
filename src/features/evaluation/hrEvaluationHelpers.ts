@@ -1,7 +1,7 @@
 import { AppError } from '../../shared/api/errors'
 import type { BadgeProps } from '../../shared/ui'
 import type { EvaluationCycleStatus } from './evaluationTypes'
-import type { EvaluationProgressStatus } from './hrEvaluationTypes'
+import type { EvaluationProgressEmployee, EvaluationProgressStatus } from './hrEvaluationTypes'
 
 export function progressStatusLabel(status: string): string {
   if (status === 'NOT_STARTED') return '시작 전'
@@ -50,6 +50,27 @@ export function mapAssignmentErrorMessage(error: unknown, fallback: string): str
     if (error.code === 'EVALUATION_TEMPLATE_NOT_READY') return '자기/관리자 평가 템플릿과 평가 항목 설정을 확인해 주세요.'
     if (error.code === 'EVALUATION_CYCLE_NOT_ASSIGNABLE') return '현재 평가 주기에는 직원을 배정할 수 없습니다.'
     if (error.code === 'EVALUATION_TARGET_INVALID') return '유효한 직원을 선택해 주세요.'
+  }
+  return mapHrEvaluationErrorMessage(error, fallback)
+}
+
+export function isPublished(entry: EvaluationProgressEmployee): boolean {
+  return entry.selfEvaluation?.evaluationStatus === 'PUBLISHED' && entry.managerEvaluation?.evaluationStatus === 'PUBLISHED'
+}
+
+export function getPublishEvaluationId(entry: EvaluationProgressEmployee): number | null {
+  return entry.managerEvaluation?.evaluationId ?? entry.selfEvaluation?.evaluationId ?? null
+}
+
+export function isPublishCandidate(cycleStatus: EvaluationCycleStatus, entry: EvaluationProgressEmployee): boolean {
+  return cycleStatus === 'CLOSED' && entry.selfEvaluation != null && entry.managerEvaluation != null && !isPublished(entry)
+}
+
+export function mapPublishErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof AppError) {
+    if (error.code === 'EVALUATION_NOT_PUBLISHABLE') return '현재 평가 결과를 발행할 수 없습니다.'
+    if (error.code === 'EVALUATION_PUBLISH_CONFLICT') return '평가 발행 상태가 일치하지 않습니다. 진행 상태를 다시 확인해 주세요.'
+    if (error.code === 'EVALUATION_FEEDBACK_INVALID') return '공개할 관리자 피드백 정보를 다시 확인해 주세요.'
   }
   return mapHrEvaluationErrorMessage(error, fallback)
 }

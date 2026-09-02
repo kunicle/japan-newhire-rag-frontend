@@ -4,6 +4,9 @@ import type {
   EvaluationAssignmentInput,
   EvaluationAssignmentResult,
   EvaluationProgress,
+  EvaluationPublishInput,
+  EvaluationPublishPreview,
+  EvaluationPublishResult,
   EvaluationCycleInput,
   EvaluationItem,
   EvaluationItemCreateInput,
@@ -23,6 +26,14 @@ export function assignEvaluation(input: EvaluationAssignmentInput): Promise<Eval
 
 export function fetchEvaluationProgress(cycleId: number): Promise<EvaluationProgress> {
   return request<EvaluationProgress>(`/hr/evaluations/progress?cycleId=${cycleId}`)
+}
+
+export function fetchEvaluationPublishPreview(evaluationId: number): Promise<EvaluationPublishPreview> {
+  return request<EvaluationPublishPreview>(`/hr/evaluations/${evaluationId}/publish-preview`)
+}
+
+export function publishEvaluation(evaluationId: number, input: EvaluationPublishInput): Promise<EvaluationPublishResult> {
+  return request<EvaluationPublishResult>(`/hr/evaluations/${evaluationId}/publish`, { method: 'PATCH', body: JSON.stringify(input) })
 }
 
 export function createEvaluationCycle(input: EvaluationCycleInput): Promise<EvaluationCycle> {

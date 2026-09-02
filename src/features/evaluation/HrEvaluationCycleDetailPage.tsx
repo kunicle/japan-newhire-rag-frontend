@@ -14,6 +14,7 @@ import { isAssignmentWritable, isCycleDatesEditable, isCycleEditable, isTemplate
 import type { EvaluationCycle, EvaluationItem, EvaluationItemCreateInput, EvaluationItemUpdateInput, EvaluationProgress, EvaluationTemplate, EvaluationType } from './hrEvaluationTypes'
 import { HrEvaluationAssignmentSection } from './HrEvaluationAssignmentSection'
 import { HrEvaluationProgressSection } from './HrEvaluationProgressSection'
+import { HrEvaluationPublishPanel } from './HrEvaluationPublishPanel'
 import styles from './HrEvaluationCycleDetailPage.module.css'
 
 interface ItemsState { loading: boolean; data: EvaluationItem[] | null; error: string | null; warning: string | null }
@@ -101,6 +102,8 @@ function HrEvaluationCycleDetailContent({ cycleId }: { cycleId: number }) {
   const [progress, setProgress] = useState<EvaluationProgress | null>(null)
   const [progressLoading, setProgressLoading] = useState(true)
   const [progressError, setProgressError] = useState<string | null>(null)
+  const [activePublish, setActivePublish] = useState<{ evaluationId: number; employeeName: string } | null>(null)
+  const [locallyPublishedEvaluationIds, setLocallyPublishedEvaluationIds] = useState<Set<number>>(new Set())
   const mountedRef = useRef(false)
   const latestCycleFetchIdRef = useRef(0)
   const latestTemplatesFetchIdRef = useRef(0)
@@ -205,6 +208,11 @@ function HrEvaluationCycleDetailContent({ cycleId }: { cycleId: number }) {
     } finally { itemUpdateRefs.current.delete(item.evaluationItemId) }
   }
 
+  function handlePublished(evaluationId: number) {
+    setLocallyPublishedEvaluationIds((current) => { const next = new Set(current); next.add(evaluationId); return next })
+    void loadProgress()
+  }
+
   const alreadyAssignedEmployeeIds = useMemo(() => progress && !progressLoading && !progressError ? new Set(progress.employees.map((entry) => entry.employee.employeeId)) : new Set<number>(), [progress, progressError, progressLoading])
   if (cycleLoading && !cycle) return <div role="status" aria-label="평가 주기를 불러오는 중"><Skeleton lines={6} /></div>
   if (cycleError && !cycle) return <div className={styles.errorState}><p className={styles.error} role="alert">{cycleError}</p><Button variant="secondary" onClick={() => void loadCycle()}>다시 시도</Button></div>
@@ -229,7 +237,8 @@ function HrEvaluationCycleDetailContent({ cycleId }: { cycleId: number }) {
         )}
       </section>
       {organizationLoading ? <section aria-labelledby="assignment-loading-title"><h2 id="assignment-loading-title" className={styles.sectionTitle}>직원 배정</h2><div role="status" aria-label="직원 목록을 불러오는 중"><Skeleton lines={3} /></div></section> : organizationError ? <section aria-labelledby="assignment-error-title"><h2 id="assignment-error-title" className={styles.sectionTitle}>직원 배정</h2><div className={styles.errorState}><p className={styles.error} role="alert">{organizationError}</p><Button variant="secondary" onClick={() => void loadOrganization()}>직원 목록 다시 시도</Button></div></section> : <HrEvaluationAssignmentSection cycleId={cycleId} writable={isAssignmentWritable(cycle.cycleStatus)} employees={employees} alreadyAssignedEmployeeIds={alreadyAssignedEmployeeIds} onAssignSucceeded={() => void loadProgress()} />}
-      <HrEvaluationProgressSection progress={progress} loading={progressLoading} error={progressError} onRetry={() => void loadProgress()} />
+      <HrEvaluationProgressSection progress={progress} loading={progressLoading} error={progressError} onRetry={() => void loadProgress()} cycleStatus={cycle.cycleStatus} onPreparePublish={(evaluationId, employeeName) => setActivePublish({ evaluationId, employeeName })} locallyPublishedEvaluationIds={locallyPublishedEvaluationIds} />
+      {activePublish && <div className={styles.publishPanel}><HrEvaluationPublishPanel key={activePublish.evaluationId} evaluationId={activePublish.evaluationId} employeeName={activePublish.employeeName} onClose={() => setActivePublish(null)} onPublished={handlePublished} /></div>}
     </div>
   )
 }
