@@ -1,0 +1,18 @@
+.page { width: 100%; max-width: 48rem; margin-inline: auto; min-width: 0; }
+.header { display: flex; min-width: 0; margin-block-end: var(--space-6); flex-direction: column; gap: var(--space-2); }
+.title { margin: 0; font-size: var(--font-size-page-title); line-height: var(--line-height-page-title); }
+.description, .period { margin: 0; color: var(--color-text-secondary); }
+.list, .skeletons, .errorState { display: flex; min-width: 0; flex-direction: column; gap: var(--space-4); }
+.list { margin: 0; padding: 0; list-style: none; }
+.card { display: flex; min-width: 0; padding: var(--space-4); flex-direction: column; gap: var(--space-3); color: inherit; background-color: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-medium); box-shadow: var(--shadow-subtle); text-decoration: none; }
+.card:hover { border-color: var(--color-primary); }
+.card:focus-visible { outline: var(--focus-ring-width) solid var(--focus-ring-color); outline-offset: var(--focus-ring-offset); }
+.cardHeader { display: flex; min-width: 0; align-items: center; flex-wrap: wrap; gap: var(--space-2); }
+.cycleName { min-width: 0; margin: 0; font-size: var(--font-size-section-title); overflow-wrap: anywhere; }
+.errorState { align-items: flex-start; }
+.error { margin: 0; color: var(--color-danger); font-weight: var(--font-weight-medium); overflow-wrap: anywhere; }
+.title, .description, .period { overflow-wrap: anywhere; }
+
+@media (max-width: 479px) {
+  .errorState > * { width: 100%; }
+}

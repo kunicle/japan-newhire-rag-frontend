@@ -12,6 +12,8 @@ import { ManagerEmployeeEducationPage } from '../features/education/ManagerEmplo
 import { HrCourseCreatePage } from '../features/education/HrCourseCreatePage'
 import { HrCourseDetailPage } from '../features/education/HrCourseDetailPage'
 import { HrCourseListPage } from '../features/education/HrCourseListPage'
+import { MyEvaluationDetailPage } from '../features/evaluation/MyEvaluationDetailPage'
+import { MyEvaluationListPage } from '../features/evaluation/MyEvaluationListPage'
 import { NotificationsPage } from '../features/notifications/NotificationsPage'
 import { MyOnboardingPage } from '../features/onboarding/MyOnboardingPage'
 import { HrOnboardingPage } from '../features/onboarding/HrOnboardingPage'
@@ -23,10 +25,6 @@ import { AppShell } from './AppShell'
 import { GuestRoute } from './GuestRoute'
 import { ProtectedRoute } from './ProtectedRoute'
 import { RoleRoute } from './RoleRoute'
-
-const commonPlaceholderRoutes = [
-  { path: 'me/evaluations', title: '평가', description: '평가 일정과 제출 항목을 관리하는 기능을 준비하고 있습니다.' },
-]
 
 const managerPlaceholderRoutes = [
   { path: 'manager/evaluations', title: '팀 평가', description: '팀원 평가를 검토하고 관리하는 기능을 준비하고 있습니다.' },
@@ -64,10 +62,11 @@ export const router = createBrowserRouter([
         children: [
           { index: true, element: <Navigate to="/home" replace /> },
           { path: 'home', element: <HomePage /> },
-          ...mapPlaceholderRoutes(commonPlaceholderRoutes),
           { path: 'me/education', element: <MyEducationPage /> },
           { path: 'me/education/:enrollmentId', element: <MyEducationDetailPage /> },
           { path: 'me/onboarding', element: <MyOnboardingPage /> },
+          { path: 'me/evaluations', element: <MyEvaluationListPage /> },
+          { path: 'me/evaluations/:evaluationId', element: <MyEvaluationDetailPage /> },
           { path: 'rag', element: <RagPage /> },
           { path: 'notifications', element: <NotificationsPage /> },
           {

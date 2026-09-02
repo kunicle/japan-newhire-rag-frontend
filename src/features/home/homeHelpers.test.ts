@@ -7,6 +7,7 @@ describe('getHomeShortcutIds', () => {
       'rag',
       'education',
       'onboarding',
+      'evaluation',
       'notifications',
     ])
   })
@@ -16,6 +17,7 @@ describe('getHomeShortcutIds', () => {
       'rag',
       'education',
       'onboarding',
+      'evaluation',
       'managerEducation',
       'notifications',
     ])
@@ -26,6 +28,7 @@ describe('getHomeShortcutIds', () => {
       'rag',
       'education',
       'onboarding',
+      'evaluation',
       'documents',
       'upload',
       'processing',
@@ -40,6 +43,7 @@ describe('getHomeShortcutIds', () => {
       'rag',
       'education',
       'onboarding',
+      'evaluation',
       'documents',
       'upload',
       'notifications',
@@ -51,6 +55,7 @@ describe('getHomeShortcutIds', () => {
       'rag',
       'education',
       'onboarding',
+      'evaluation',
       'documents',
       'upload',
       'processing',
@@ -65,6 +70,7 @@ describe('getHomeShortcutIds', () => {
       'rag',
       'education',
       'onboarding',
+      'evaluation',
       'managerEducation',
       'documents',
       'upload',

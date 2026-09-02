@@ -2,6 +2,7 @@ import {
   Bell,
   BookOpen,
   ClipboardCheck,
+  ClipboardList,
   FileClock,
   Files,
   FileUp,
@@ -42,6 +43,12 @@ const SHORTCUT_CONFIG: Record<HomeShortcutId, {
     path: '/me/onboarding',
     icon: ClipboardCheck,
     description: '배정된 온보딩 할 일을 확인하고 진행합니다.',
+  },
+  evaluation: {
+    title: '내 평가',
+    path: '/me/evaluations',
+    icon: ClipboardList,
+    description: '배정된 평가를 확인하고 자기 평가를 작성합니다.',
   },
   managerEducation: {
     title: '팀 교육 현황',
