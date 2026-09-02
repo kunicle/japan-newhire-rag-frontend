@@ -1,0 +1,30 @@
+.page { width: 100%; max-width: 72rem; margin-inline: auto; min-width: 0; }
+.page h1 { margin: 0 0 var(--space-6); font-size: var(--font-size-page-title); line-height: var(--line-height-page-title); }
+.layout { display: grid; min-width: 0; grid-template-columns: minmax(14rem, 1fr) minmax(0, 2fr); gap: var(--space-5); }
+.departmentPane, .employeePane { min-width: 0; padding: var(--space-5); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-medium); }
+.departmentPane h2, .employeePane h2 { margin: 0 0 var(--space-4); }
+.departmentList, .employeeList { display: grid; min-width: 0; margin: 0; padding: 0; gap: var(--space-2); list-style: none; }
+.departmentButton { display: flex; width: 100%; min-width: 0; padding: var(--space-3); padding-inline-start: calc(var(--space-3) + var(--department-depth) * var(--space-4)); align-items: center; justify-content: space-between; gap: var(--space-3); color: var(--color-text-primary); background: transparent; border: 1px solid transparent; border-radius: var(--radius-small); font: inherit; text-align: start; cursor: pointer; }
+.departmentButton:hover { background: var(--color-background); }
+.departmentButton[aria-pressed='true'] { background: var(--color-primary-soft); border-color: var(--color-primary); }
+.departmentButton:focus-visible { outline: var(--focus-ring-width) solid var(--focus-ring-color); }
+.departmentButton span:first-child { display: flex; min-width: 0; flex-direction: column; overflow-wrap: anywhere; }
+.departmentButton small, .count, .meta, .employeeCard > p { color: var(--color-text-secondary); }
+.count { flex: 0 0 auto; }
+.search { display: flex; min-width: 0; margin-block-end: var(--space-4); flex-direction: column; gap: var(--space-2); }
+.search label { font-weight: var(--font-weight-semibold); }
+.search input { width: 100%; min-width: 0; padding: var(--space-3); color: var(--color-text-primary); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-small); font: inherit; }
+.search input:focus { border-color: var(--color-primary); outline: var(--focus-ring-width) solid var(--focus-ring-color); }
+.employeeList { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+.employeeCard { min-width: 0; padding: var(--space-4); border: 1px solid var(--color-border); border-radius: var(--radius-small); overflow-wrap: anywhere; }
+.employeeCard h3, .employeeCard p { margin: 0; }
+.employeeCard > p { margin-block-start: var(--space-1); }
+.employeeCard dl { display: grid; margin: var(--space-3) 0 0; gap: var(--space-2); }
+.employeeCard dl div { display: grid; min-width: 0; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-3); }
+.employeeCard dt { color: var(--color-text-tertiary); }
+.employeeCard dd { min-width: 0; margin: 0; text-align: end; overflow-wrap: anywhere; }
+.empty { margin: 0; color: var(--color-text-secondary); }
+.errorState { display: flex; min-width: 0; align-items: flex-start; flex-direction: column; gap: var(--space-3); }
+.error { margin: 0; color: var(--color-danger); font-weight: var(--font-weight-medium); }
+@media (max-width: 767px) { .layout, .employeeList { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 479px) { .departmentPane, .employeePane { padding: var(--space-4); } .departmentButton { align-items: flex-start; } .employeeCard dl div { grid-template-columns: minmax(0, 1fr); gap: var(--space-1); } .employeeCard dd { text-align: start; } .errorState > * { width: 100%; } }

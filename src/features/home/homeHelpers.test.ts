@@ -5,6 +5,7 @@ describe('getHomeShortcutIds', () => {
   it('returns employee shortcuts', () => {
     expect(getHomeShortcutIds(['EMPLOYEE'])).toEqual([
       'rag',
+      'organization',
       'education',
       'onboarding',
       'evaluation',
@@ -15,6 +16,7 @@ describe('getHomeShortcutIds', () => {
   it('returns manager shortcuts', () => {
     expect(getHomeShortcutIds(['MANAGER'])).toEqual([
       'rag',
+      'organization',
       'education',
       'onboarding',
       'evaluation',
@@ -27,6 +29,7 @@ describe('getHomeShortcutIds', () => {
   it('returns HR manager shortcuts', () => {
     expect(getHomeShortcutIds(['HR_MANAGER'])).toEqual([
       'rag',
+      'organization',
       'education',
       'onboarding',
       'evaluation',
@@ -43,6 +46,7 @@ describe('getHomeShortcutIds', () => {
   it('returns system administrator shortcuts without processing', () => {
     expect(getHomeShortcutIds(['SYSTEM_ADMIN'])).toEqual([
       'rag',
+      'organization',
       'education',
       'onboarding',
       'evaluation',
@@ -55,6 +59,7 @@ describe('getHomeShortcutIds', () => {
   it('returns combined-role shortcuts without duplicates', () => {
     expect(getHomeShortcutIds(['HR_MANAGER', 'SYSTEM_ADMIN'])).toEqual([
       'rag',
+      'organization',
       'education',
       'onboarding',
       'evaluation',
@@ -71,6 +76,7 @@ describe('getHomeShortcutIds', () => {
   it('returns manager and HR shortcuts together without duplicates', () => {
     expect(getHomeShortcutIds(['MANAGER', 'HR_MANAGER'])).toEqual([
       'rag',
+      'organization',
       'education',
       'onboarding',
       'evaluation',

@@ -19,6 +19,7 @@ import { ManagerEvaluationListPage } from '../features/evaluation/ManagerEvaluat
 import { HrEvaluationCycleDetailPage } from '../features/evaluation/HrEvaluationCycleDetailPage'
 import { HrEvaluationListPage } from '../features/evaluation/HrEvaluationListPage'
 import { NotificationsPage } from '../features/notifications/NotificationsPage'
+import { OrganizationPage } from '../features/organization/OrganizationPage'
 import { MyOnboardingPage } from '../features/onboarding/MyOnboardingPage'
 import { HrOnboardingPage } from '../features/onboarding/HrOnboardingPage'
 import { RagPage } from '../features/rag/RagPage'
@@ -29,10 +30,6 @@ import { AppShell } from './AppShell'
 import { GuestRoute } from './GuestRoute'
 import { ProtectedRoute } from './ProtectedRoute'
 import { RoleRoute } from './RoleRoute'
-
-const hrPlaceholderRoutes = [
-  { path: 'hr/organization', title: '조직 관리', description: '조직 구조와 구성원 정보를 관리하는 기능을 준비하고 있습니다.' },
-]
 
 const adminPlaceholderRoutes = [
   { path: 'admin/users', title: '사용자 관리', description: '사용자 계정과 역할을 관리하는 기능을 준비하고 있습니다.' },
@@ -68,6 +65,7 @@ export const router = createBrowserRouter([
           { path: 'me/evaluations/:evaluationId', element: <MyEvaluationDetailPage /> },
           { path: 'rag', element: <RagPage /> },
           { path: 'notifications', element: <NotificationsPage /> },
+          { path: 'organization', element: <OrganizationPage /> },
           {
             element: <RoleRoute allow={['HR_MANAGER', 'SYSTEM_ADMIN']} />,
             children: [
@@ -95,7 +93,6 @@ export const router = createBrowserRouter([
               { path: 'hr/onboarding', element: <HrOnboardingPage /> },
               { path: 'hr/evaluations', element: <HrEvaluationListPage /> },
               { path: 'hr/evaluations/:cycleId', element: <HrEvaluationCycleDetailPage /> },
-              ...mapPlaceholderRoutes(hrPlaceholderRoutes),
             ],
           },
           {

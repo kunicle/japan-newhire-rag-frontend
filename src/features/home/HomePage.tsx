@@ -1,6 +1,7 @@
 import {
   Bell,
   BookOpen,
+  Building2,
   ClipboardCheck,
   ClipboardList,
   ClipboardPenLine,
@@ -33,6 +34,12 @@ const SHORTCUT_CONFIG: Record<HomeShortcutId, {
     path: '/rag',
     icon: MessageCircleQuestion,
     description: '권한이 있는 사내 문서를 기반으로 질문하고 근거와 함께 답변을 확인합니다.',
+  },
+  organization: {
+    title: '조직도',
+    path: '/organization',
+    icon: Building2,
+    description: '부서 구조와 소속 직원을 확인합니다.',
   },
   education: {
     title: '내 교육',

@@ -1,5 +1,6 @@
 import {
   BookOpen,
+  Building2,
   ClipboardCheck,
   ClipboardList,
   ClipboardPenLine,
@@ -34,7 +35,10 @@ export const navigationGroups: NavGroup[] = [
   },
   {
     label: '업무 지원',
-    items: [{ label: 'AI 질문', path: '/rag', icon: MessageCircleQuestion }],
+    items: [
+      { label: 'AI 질문', path: '/rag', icon: MessageCircleQuestion },
+      { label: '조직도', path: '/organization', icon: Building2 },
+    ],
   },
   {
     label: '내 업무',
