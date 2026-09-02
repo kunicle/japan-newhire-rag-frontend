@@ -8,6 +8,7 @@ import {
   GraduationCap,
   MessageCircleQuestion,
   Users,
+  UserPlus,
   type LucideIcon,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
@@ -71,6 +72,12 @@ const SHORTCUT_CONFIG: Record<HomeShortcutId, {
     path: '/hr/courses',
     icon: GraduationCap,
     description: '교육 과정과 학습 모듈을 만들고 관리합니다.',
+  },
+  hrOnboarding: {
+    title: '온보딩 관리',
+    path: '/hr/onboarding',
+    icon: UserPlus,
+    description: '신입사원 온보딩 태스크를 만들고 배정합니다.',
   },
   notifications: {
     title: '알림',

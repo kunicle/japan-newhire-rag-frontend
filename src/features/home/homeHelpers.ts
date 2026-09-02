@@ -10,6 +10,7 @@ export type HomeShortcutId =
   | 'upload'
   | 'processing'
   | 'courseManagement'
+  | 'hrOnboarding'
   | 'notifications'
 
 export function getHomeShortcutIds(
@@ -26,7 +27,7 @@ export function getHomeShortcutIds(
   }
 
   if (hasAnyRole(roles, ['HR_MANAGER'])) {
-    ids.push('processing', 'courseManagement')
+    ids.push('processing', 'courseManagement', 'hrOnboarding')
   }
 
   ids.push('notifications')

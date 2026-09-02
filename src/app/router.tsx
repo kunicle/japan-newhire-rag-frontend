@@ -14,6 +14,7 @@ import { HrCourseDetailPage } from '../features/education/HrCourseDetailPage'
 import { HrCourseListPage } from '../features/education/HrCourseListPage'
 import { NotificationsPage } from '../features/notifications/NotificationsPage'
 import { MyOnboardingPage } from '../features/onboarding/MyOnboardingPage'
+import { HrOnboardingPage } from '../features/onboarding/HrOnboardingPage'
 import { RagPage } from '../features/rag/RagPage'
 import { AccessDeniedPage } from '../pages/AccessDeniedPage'
 import { NotFoundPage } from '../pages/NotFoundPage'
@@ -32,7 +33,6 @@ const managerPlaceholderRoutes = [
 ]
 
 const hrPlaceholderRoutes = [
-  { path: 'hr/onboarding', title: '온보딩 관리', description: '신입 구성원의 온보딩 절차를 관리하는 기능을 준비하고 있습니다.' },
   { path: 'hr/evaluations', title: '평가 관리', description: '평가 항목과 일정을 운영하는 기능을 준비하고 있습니다.' },
   { path: 'hr/organization', title: '조직 관리', description: '조직 구조와 구성원 정보를 관리하는 기능을 준비하고 있습니다.' },
 ]
@@ -93,6 +93,7 @@ export const router = createBrowserRouter([
               { path: 'hr/courses', element: <HrCourseListPage /> },
               { path: 'hr/courses/new', element: <HrCourseCreatePage /> },
               { path: 'hr/courses/:courseId', element: <HrCourseDetailPage /> },
+              { path: 'hr/onboarding', element: <HrOnboardingPage /> },
               ...mapPlaceholderRoutes(hrPlaceholderRoutes),
             ],
           },

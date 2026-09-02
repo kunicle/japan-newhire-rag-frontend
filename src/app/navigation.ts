@@ -8,6 +8,7 @@ import {
   Home,
   MessageCircleQuestion,
   Users,
+  UserPlus,
   type LucideIcon,
 } from 'lucide-react'
 import type { RoleType } from '../features/auth/types'
@@ -62,6 +63,7 @@ export const navigationGroups: NavGroup[] = [
         icon: FileClock,
       },
       { label: '교육 과정 관리', path: '/hr/courses', icon: GraduationCap },
+      { label: '온보딩 관리', path: '/hr/onboarding', icon: UserPlus },
     ],
   },
 ]
