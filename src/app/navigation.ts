@@ -81,7 +81,10 @@ export const navigationGroups: NavGroup[] = [
   {
     label: '시스템 관리',
     requiredRoles: ['SYSTEM_ADMIN'],
-    items: [{ label: '감사 로그', path: '/admin/audit', icon: FileClock }],
+    items: [
+      { label: '감사 로그', path: '/admin/audit', icon: FileClock },
+      { label: '사용자 관리', path: '/admin/users', icon: Users },
+    ],
   },
 ]
 

@@ -113,6 +113,12 @@ const SHORTCUT_CONFIG: Record<HomeShortcutId, {
     icon: FileClock,
     description: '주요 시스템 활동 기록을 확인합니다.',
   },
+  adminUsers: {
+    title: '사용자 관리',
+    path: '/admin/users',
+    icon: Users,
+    description: '새 사용자 계정을 생성하고 권한을 관리합니다.',
+  },
   notifications: {
     title: '알림',
     path: '/notifications',

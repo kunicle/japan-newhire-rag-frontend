@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { LoginPage } from '../features/auth/LoginPage'
+import { AdminUsersPage } from '../features/admin/AdminUsersPage'
 import { AuditPage } from '../features/audit/AuditPage'
 import { HomePage } from '../features/home/HomePage'
 import { DocumentUploadPage } from '../features/documents/DocumentUploadPage'
@@ -26,24 +27,10 @@ import { HrOnboardingPage } from '../features/onboarding/HrOnboardingPage'
 import { RagPage } from '../features/rag/RagPage'
 import { AccessDeniedPage } from '../pages/AccessDeniedPage'
 import { NotFoundPage } from '../pages/NotFoundPage'
-import { PlaceholderPage } from '../pages/PlaceholderPage'
 import { AppShell } from './AppShell'
 import { GuestRoute } from './GuestRoute'
 import { ProtectedRoute } from './ProtectedRoute'
 import { RoleRoute } from './RoleRoute'
-
-const adminPlaceholderRoutes = [
-  { path: 'admin/users', title: '사용자 관리', description: '사용자 계정과 역할을 관리하는 기능을 준비하고 있습니다.' },
-]
-
-function mapPlaceholderRoutes(
-  routes: Array<{ path: string; title: string; description: string }>,
-) {
-  return routes.map(({ path, title, description }) => ({
-    path,
-    element: <PlaceholderPage title={title} description={description} />,
-  }))
-}
 
 export const router = createBrowserRouter([
   {
@@ -99,7 +86,7 @@ export const router = createBrowserRouter([
             element: <RoleRoute allow={['SYSTEM_ADMIN']} />,
             children: [
               { path: 'admin/audit', element: <AuditPage /> },
-              ...mapPlaceholderRoutes(adminPlaceholderRoutes),
+              { path: 'admin/users', element: <AdminUsersPage /> },
             ],
           },
           { path: 'access-denied', element: <AccessDeniedPage /> },

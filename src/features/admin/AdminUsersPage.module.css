@@ -1,0 +1,24 @@
+.page { width: 100%; max-width: 64rem; margin-inline: auto; min-width: 0; }
+.page > h1 { margin: 0 0 var(--space-3); font-size: var(--font-size-page-title); line-height: var(--line-height-page-title); }
+.notice { margin: 0 0 var(--space-7); padding: var(--space-4); color: var(--color-text-secondary); background: var(--color-primary-soft); border-radius: var(--radius-small); overflow-wrap: anywhere; }
+.section { display: flex; min-width: 0; margin-block-end: var(--space-8); flex-direction: column; gap: var(--space-4); }
+.section h2, .section h3, .section p { margin-block: 0; }
+.form, .accountCard { min-width: 0; padding: var(--space-5); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-medium); }
+.formGrid { display: grid; min-width: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+.formGrid label { display: flex; min-width: 0; flex-direction: column; gap: var(--space-2); font-weight: var(--font-weight-semibold); }
+.formGrid input, .formGrid select { width: 100%; min-width: 0; padding: var(--space-3); color: var(--color-text-primary); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-small); font: inherit; }
+.formGrid input:focus, .formGrid select:focus { border-color: var(--color-primary); outline: var(--focus-ring-width) solid var(--focus-ring-color); }
+.actions { display: flex; margin-block-start: var(--space-4); justify-content: flex-end; }
+.accountList { display: flex; min-width: 0; margin: 0; padding: 0; flex-direction: column; gap: var(--space-4); list-style: none; }
+.accountCard { display: flex; flex-direction: column; gap: var(--space-3); overflow-wrap: anywhere; }
+.accountHeader { display: flex; min-width: 0; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3); }
+.accountHeader p, .accountCard > p { color: var(--color-text-secondary); }
+.management { display: flex; min-width: 0; padding-block-start: var(--space-4); flex-direction: column; align-items: flex-start; gap: var(--space-4); border-top: 1px solid var(--color-border); }
+.roles { display: flex; min-width: 0; padding: var(--space-3); flex-wrap: wrap; gap: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-small); }
+.roles legend { padding-inline: var(--space-2); font-weight: var(--font-weight-semibold); }
+.roles label { display: inline-flex; align-items: center; gap: var(--space-2); }
+.errorState { display: flex; align-items: flex-start; flex-direction: column; gap: var(--space-3); }
+.error { margin: var(--space-3) 0 0; color: var(--color-danger); font-weight: var(--font-weight-medium); }
+.success { margin: var(--space-3) 0 0; color: var(--color-success); font-weight: var(--font-weight-semibold); }
+.empty { color: var(--color-text-secondary); }
+@media (max-width: 479px) { .form, .accountCard { padding: var(--space-4); } .formGrid { grid-template-columns: minmax(0, 1fr); } .actions > *, .errorState > *, .management > button { width: 100%; } }

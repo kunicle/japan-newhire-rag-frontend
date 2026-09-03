@@ -16,6 +16,7 @@ export type HomeShortcutId =
   | 'hrOnboarding'
   | 'hrEvaluation'
   | 'audit'
+  | 'adminUsers'
   | 'notifications'
 
 export function getHomeShortcutIds(
@@ -36,7 +37,7 @@ export function getHomeShortcutIds(
   }
 
   if (hasAnyRole(roles, ['SYSTEM_ADMIN'])) {
-    ids.push('audit')
+    ids.push('audit', 'adminUsers')
   }
 
   ids.push('notifications')
