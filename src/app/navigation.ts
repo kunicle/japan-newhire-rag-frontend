@@ -74,6 +74,7 @@ export const navigationGroups: NavGroup[] = [
         icon: FileClock,
       },
       { label: '교육 과정 관리', path: '/hr/courses', icon: GraduationCap },
+      { label: '신입사원 등록', path: '/hr/new-hires', icon: UserPlus },
       { label: '온보딩 관리', path: '/hr/onboarding', icon: UserPlus },
       { label: '평가 관리', path: '/hr/evaluations', icon: CalendarCog },
     ],

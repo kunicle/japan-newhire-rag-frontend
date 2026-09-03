@@ -21,6 +21,7 @@ import { ManagerEvaluationListPage } from '../features/evaluation/ManagerEvaluat
 import { HrEvaluationCycleDetailPage } from '../features/evaluation/HrEvaluationCycleDetailPage'
 import { HrEvaluationListPage } from '../features/evaluation/HrEvaluationListPage'
 import { NotificationsPage } from '../features/notifications/NotificationsPage'
+import { NewHireRegistrationPage } from '../features/newHire/NewHireRegistrationPage'
 import { OrganizationPage } from '../features/organization/OrganizationPage'
 import { MyOnboardingPage } from '../features/onboarding/MyOnboardingPage'
 import { HrOnboardingPage } from '../features/onboarding/HrOnboardingPage'
@@ -78,6 +79,7 @@ export const router = createBrowserRouter([
               { path: 'hr/courses/new', element: <HrCourseCreatePage /> },
               { path: 'hr/courses/:courseId', element: <HrCourseDetailPage /> },
               { path: 'hr/onboarding', element: <HrOnboardingPage /> },
+              { path: 'hr/new-hires', element: <NewHireRegistrationPage /> },
               { path: 'hr/evaluations', element: <HrEvaluationListPage /> },
               { path: 'hr/evaluations/:cycleId', element: <HrEvaluationCycleDetailPage /> },
             ],
