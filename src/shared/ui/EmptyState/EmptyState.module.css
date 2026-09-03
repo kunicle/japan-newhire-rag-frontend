@@ -8,6 +8,9 @@
   gap: var(--space-4);
   color: var(--color-text-primary);
   text-align: center;
+  background: var(--color-surface);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-large);
 }
 
 .icon {
@@ -18,7 +21,7 @@
   justify-content: center;
   color: var(--color-secondary);
   background-color: var(--color-primary-soft);
-  border-radius: var(--radius-medium);
+  border-radius: 50%;
 }
 
 .icon > svg {

@@ -1,6 +1,6 @@
 .sidebar {
   display: flex;
-  width: 15rem;
+  width: 16.5rem;
   height: 100vh;
   height: 100dvh;
   padding: 0 var(--space-4) var(--space-4);
@@ -11,16 +11,47 @@
 
 .brand {
   display: flex;
-  min-height: var(--space-16);
+  min-height: 4.75rem;
   padding-inline: var(--space-2);
   align-items: center;
   color: var(--color-text-primary);
-  font-size: var(--font-size-section-title);
+  gap: var(--space-3);
+  border-block-end: 1px solid var(--color-border);
+}
+
+.brandMark {
+  display: inline-grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex: none;
+  place-items: center;
+  color: var(--color-surface);
+  background: var(--color-primary);
+  border-radius: var(--radius-small);
   font-weight: var(--font-weight-bold);
+  box-shadow: 0 5px 14px color-mix(in srgb, var(--color-primary) 24%, transparent);
+}
+
+.brandText {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  line-height: var(--line-height-compact);
+}
+
+.brandText strong {
+  font-size: var(--font-size-body);
+}
+
+.brandText small {
+  color: var(--color-text-tertiary);
+  font-size: 0.625rem;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.14em;
 }
 
 .navigation {
-  padding-block: var(--space-3);
+  padding-block: var(--space-5);
   flex: 1;
   overflow-y: auto;
 }
@@ -35,6 +66,7 @@
   color: var(--color-text-tertiary);
   font-size: var(--font-size-caption);
   font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.05em;
   line-height: var(--line-height-compact);
 }
 
@@ -51,6 +83,9 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-2);
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-medium);
 }
 
 .identity {

@@ -1,6 +1,8 @@
 .page { width: 100%; max-width: 64rem; margin-inline: auto; min-width: 0; }
-.page > h1 { margin: 0 0 var(--space-6); font-size: var(--font-size-page-title); line-height: var(--line-height-page-title); }
-.filters { min-width: 0; padding: var(--space-5); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-medium); }
+.pageHeader { margin-block-end: var(--space-6); }
+.pageHeader h1 { margin: 0 0 var(--space-2); font-size: var(--font-size-page-title); line-height: var(--line-height-page-title); }
+.pageHeader p { margin: 0; color: var(--color-text-secondary); }
+.filters { min-width: 0; padding: var(--space-6); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-large); box-shadow: var(--shadow-subtle); }
 .filters legend { padding-inline: var(--space-2); font-weight: var(--font-weight-bold); }
 .filterGrid { display: grid; min-width: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
 .filterGrid label { display: flex; min-width: 0; flex-direction: column; gap: var(--space-2); font-weight: var(--font-weight-semibold); }
@@ -9,7 +11,7 @@
 .actions { display: flex; margin-block-start: var(--space-4); justify-content: flex-end; }
 .results { display: block; min-width: 0; margin-block-start: var(--space-6); }
 .list { display: flex; min-width: 0; margin: 0; padding: 0; flex-direction: column; gap: var(--space-4); list-style: none; }
-.card { min-width: 0; padding: var(--space-5); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-medium); overflow-wrap: anywhere; }
+.card { min-width: 0; padding: var(--space-5); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-medium); box-shadow: var(--shadow-subtle); overflow-wrap: anywhere; }
 .cardHeader { display: flex; min-width: 0; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3); }
 .cardHeader h2 { margin: var(--space-1) 0 0; font-size: var(--font-size-body); }
 .cardHeader time { color: var(--color-text-tertiary); font-size: var(--font-size-caption); }

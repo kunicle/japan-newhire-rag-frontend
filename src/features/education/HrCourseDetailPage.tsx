@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { ArrowLeft, Plus } from 'lucide-react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { Badge, Button, EmptyState, Skeleton } from '../../shared/ui'
 import { CourseForm } from './CourseForm'
@@ -188,26 +189,24 @@ export function HrCourseDetailPage() {
     if (mountedRef.current) setCreatingModule(false)
   }
 
-  if (!validCourseId) return <div className={styles.page}><p className={styles.error} role="alert">잘못된 교육 과정 정보입니다.</p><Link className={styles.backLink} to="/hr/courses">교육 과정 목록으로 돌아가기</Link></div>
+  if (!validCourseId) return <div className={styles.page}><p className={styles.error} role="alert">잘못된 교육 과정 정보입니다.</p><Link className={styles.backLink} to="/hr/courses"><ArrowLeft size={16} aria-hidden="true" />교육 과정 목록으로 돌아가기</Link></div>
 
   return <div className={styles.page}>
-    <Link className={styles.backLink} to="/hr/courses">교육 과정 목록으로 돌아가기</Link>
+    <Link className={styles.backLink} to="/hr/courses"><ArrowLeft size={16} aria-hidden="true" />교육 과정 목록으로 돌아가기</Link>
     <section className={styles.section} aria-labelledby="course-title">
       {courseLoading && !course ? <div role="status" aria-label="교육 과정 정보를 불러오는 중"><Skeleton lines={5}/></div> : course ? <>
-        <div className={styles.headingRow}><h1 className={styles.title} id="course-title">{course.courseName}</h1><Badge variant={coursePublicationBadgeVariant(course.publicationStatus)}>{coursePublicationLabel(course.publicationStatus)}</Badge><Badge variant={course.required ? 'warning' : 'neutral'}>{course.required ? '필수' : '선택'}</Badge></div>
-        <h2 className={styles.sectionTitle}>기본 정보</h2>
+        <header className={styles.pageHeader}><div className={styles.titleArea}><h1 className={styles.title} id="course-title">{course.courseName}</h1><div className={styles.badgeGroup}><Badge variant={coursePublicationBadgeVariant(course.publicationStatus)}>{coursePublicationLabel(course.publicationStatus)}</Badge><Badge variant={course.required ? 'warning' : 'neutral'}>{course.required ? '필수' : '선택'}</Badge></div></div></header>
         {courseError && <p className={styles.error} role="alert">{courseError}</p>}
-        {editingCourse ? <CourseForm initialValue={{ courseName: course.courseName, courseDescription: course.courseDescription, required: course.required, trainingStartDate: course.trainingStartDate, trainingEndDate: course.trainingEndDate }} submitting={savingCourse} submitLabel="수정 저장" onSubmit={(input) => void handleCourseSave(input)} onCancel={() => setEditingCourse(false)} /> : <>
-          <p className={styles.description}>{course.courseDescription}</p><p className={styles.dates}>{formatDate(course.trainingStartDate)} ~ {formatDate(course.trainingEndDate)}</p>
-          <Button variant="secondary" onClick={() => setEditingCourse(true)}>수정</Button>
-        </>}
-        <div className={styles.publication}><h2 className={styles.sectionTitle}>공개 상태</h2><div className={styles.actions}>{getAllowedPublicationTargets(course.publicationStatus).map((target) => <Button key={target} variant="secondary" loading={changingPublication} disabled={changingPublication || deleting} onClick={() => void handlePublication(target)}>{publicationActionLabel(target)}</Button>)}</div></div>
-        <Button variant="danger" loading={deleting} disabled={deleting || changingPublication} onClick={() => void handleDelete()}>교육 과정 삭제</Button>
+        <section className={styles.summaryCard} aria-labelledby="summary-title"><div className={styles.panelHeader}><div><h2 className={styles.sectionTitle} id="summary-title">기본 정보</h2><p>과정의 주요 정보와 교육 기간입니다.</p></div>{!editingCourse && <Button variant="secondary" onClick={() => setEditingCourse(true)}>수정</Button>}</div>
+          {editingCourse ? <CourseForm initialValue={{ courseName: course.courseName, courseDescription: course.courseDescription, required: course.required, trainingStartDate: course.trainingStartDate, trainingEndDate: course.trainingEndDate }} submitting={savingCourse} submitLabel="수정 저장" onSubmit={(input) => void handleCourseSave(input)} onCancel={() => setEditingCourse(false)} /> : <div className={styles.summaryContent}><dl className={styles.summaryGrid}><div><dt>과정명</dt><dd>{course.courseName}</dd></div><div><dt>교육 기간</dt><dd>{formatDate(course.trainingStartDate)} ~ {formatDate(course.trainingEndDate)}</dd></div></dl><div className={styles.descriptionBlock}><span>과정 설명</span><p className={styles.description}>{course.courseDescription}</p></div></div>}
+        </section>
+        <section className={styles.publication} aria-labelledby="publication-title"><div className={styles.panelHeader}><div><h2 className={styles.sectionTitle} id="publication-title">공개 상태</h2><p>직원에게 노출되는 과정 상태를 관리합니다.</p></div><Badge variant={coursePublicationBadgeVariant(course.publicationStatus)}>{coursePublicationLabel(course.publicationStatus)}</Badge></div><div className={styles.actions}>{getAllowedPublicationTargets(course.publicationStatus).map((target) => <Button key={target} variant="secondary" loading={changingPublication} disabled={changingPublication || deleting} onClick={() => void handlePublication(target)}>{publicationActionLabel(target)}</Button>)}</div></section>
+        <section className={styles.dangerZone} aria-labelledby="danger-title"><div><h2 id="danger-title">위험 영역</h2><p>이 과정과 관련된 설정을 삭제합니다. 삭제한 과정은 되돌릴 수 없습니다.</p></div><Button variant="danger" loading={deleting} disabled={deleting || changingPublication} onClick={() => void handleDelete()}>교육 과정 삭제</Button></section>
       </> : courseError ? <div className={styles.errorState}><p className={styles.error} role="alert">{courseError}</p><Button variant="secondary" onClick={() => void loadCourse()}>다시 시도</Button></div> : null}
     </section>
 
     <section className={styles.section} aria-labelledby="modules-title">
-      <div className={styles.sectionHeader}><h2 className={styles.sectionTitle} id="modules-title">학습 모듈</h2><Button disabled={showCreateModule} onClick={() => { setEditingModuleId(null); setShowCreateModule(true); setCreateModuleError(null) }}>+ 모듈 추가</Button></div>
+      <div className={styles.sectionHeader}><div className={styles.sectionTitleGroup}><h2 className={styles.sectionTitle} id="modules-title">학습 모듈</h2><p>과정에서 학습할 콘텐츠와 순서를 관리합니다.</p></div><Button leadingIcon={<Plus size={16} aria-hidden="true" />} disabled={showCreateModule} onClick={() => { setEditingModuleId(null); setShowCreateModule(true); setCreateModuleError(null) }}>모듈 추가</Button></div>
       {showCreateModule && <div className={styles.formPanel}>{createModuleError && <p className={styles.error} role="alert">{createModuleError}</p>}<ModuleForm submitting={creatingModule} submitLabel="모듈 만들기" onSubmit={(input) => void handleModuleCreate(input)} onCancel={() => setShowCreateModule(false)} /></div>}
       {modulesError && <div className={styles.errorState}><p className={styles.error} role="alert">{modulesError}</p><Button variant="secondary" onClick={() => void loadModules()}>다시 시도</Button></div>}
       {modulesLoading && modules.length === 0 ? <div className={styles.skeletons} role="status" aria-label="학습 모듈을 불러오는 중"><Skeleton lines={4}/><Skeleton lines={4}/></div>
@@ -216,10 +215,10 @@ export function HrCourseDetailPage() {
           const pending = pendingModuleIds.has(module.courseModuleId)
           const actionError = actionErrorByModuleId.get(module.courseModuleId)
           return <li className={styles.moduleItem} key={module.courseModuleId}>
-            <div className={styles.moduleHeader}><h3 className={styles.moduleTitle}>{module.moduleTitle}</h3><Badge variant={module.required ? 'warning' : 'neutral'}>{module.required ? '필수' : '선택'}</Badge><Badge variant={module.active ? 'success' : 'neutral'}>{module.active ? '활성' : '비활성'}</Badge></div>
+            <div className={styles.moduleHeader}><h3 className={styles.moduleTitle}>{module.moduleTitle}</h3><div className={styles.badgeGroup}><Badge variant={module.required ? 'warning' : 'neutral'}>{module.required ? '필수' : '선택'}</Badge><Badge variant={module.active ? 'success' : 'neutral'}>{module.active ? '활성' : '비활성'}</Badge></div></div>
             {editingModuleId === module.courseModuleId ? <ModuleForm initialValue={{ moduleTitle: module.moduleTitle, moduleContent: module.moduleContent ?? '', referenceUrl: module.referenceUrl ?? '', moduleOrder: module.moduleOrder, required: module.required }} submitting={pending} submitLabel="수정 저장" onSubmit={(input) => void handleModuleUpdate(module.courseModuleId, input)} onCancel={() => setEditingModuleId(null)} /> : <>
-              <p className={styles.order}>학습 순서 {module.moduleOrder}</p>{module.moduleContent?.trim() && <p className={styles.moduleContent}>{module.moduleContent}</p>}{module.referenceUrl && <a href={module.referenceUrl} target="_blank" rel="noreferrer">참고 자료 열기</a>}
-              <div className={styles.actions}><Button size="sm" variant="secondary" disabled={pending} onClick={() => { setShowCreateModule(false); setEditingModuleId(module.courseModuleId) }}>수정</Button><Button size="sm" variant="secondary" loading={pending} disabled={pending} onClick={() => void handleModuleActivation(module)}>{module.active ? '비활성화' : '활성화'}</Button></div>
+              <div className={styles.moduleBody}><p className={styles.order}>학습 순서 {module.moduleOrder}</p>{module.moduleContent?.trim() && <p className={styles.moduleContent}>{module.moduleContent}</p>}{module.referenceUrl && <a href={module.referenceUrl} target="_blank" rel="noreferrer">참고 자료 열기</a>}</div>
+              <div className={styles.moduleActions}><Button size="sm" variant="secondary" disabled={pending} onClick={() => { setShowCreateModule(false); setEditingModuleId(module.courseModuleId) }}>수정</Button><Button size="sm" variant="secondary" loading={pending} disabled={pending} onClick={() => void handleModuleActivation(module)}>{module.active ? '비활성화' : '활성화'}</Button></div>
             </>}
             {actionError && <p className={styles.error} role="alert">{actionError}</p>}
           </li>

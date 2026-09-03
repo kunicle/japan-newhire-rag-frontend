@@ -79,7 +79,7 @@ export function NavDrawer({
         aria-label="전체 메뉴"
       >
         <div className={styles.header}>
-          <span className={styles.title}>전체 메뉴</span>
+          <span className={styles.title}>주식회사 SLDK</span>
           <button
             ref={closeButtonRef}
             className={styles.closeButton}

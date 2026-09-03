@@ -4,7 +4,7 @@ import styles from './AccessDeniedPage.module.css'
 
 export function AccessDeniedPage() {
   useEffect(() => {
-    document.title = '접근 권한 없음 · 사내 플랫폼'
+    document.title = '접근 권한 없음 · 주식회사 SLDK'
   }, [])
 
   return (

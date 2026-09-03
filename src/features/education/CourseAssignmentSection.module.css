@@ -3,6 +3,7 @@
 .title { margin: 0; font-size: var(--font-size-section-title); }
 .notice, .status, .error, .result p { margin: 0; overflow-wrap: anywhere; }
 .notice, .status { color: var(--color-text-secondary); }
+.notice { width: 100%; padding: var(--space-5); background: var(--color-surface); border: 1px dashed var(--color-border-strong); border-radius: var(--radius-large); }
 .fieldset { width: 100%; min-width: 0; margin: 0; padding: var(--space-4); border: 1px solid var(--color-border); border-radius: var(--radius-small); }
 .fieldset legend, .field label { font-weight: var(--font-weight-semibold); }
 .field { display: flex; min-width: 0; flex-direction: column; gap: var(--space-2); }

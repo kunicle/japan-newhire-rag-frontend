@@ -4,7 +4,7 @@ import styles from './NotFoundPage.module.css'
 
 export function NotFoundPage() {
   useEffect(() => {
-    document.title = '페이지를 찾을 수 없습니다 · 사내 플랫폼'
+    document.title = '페이지를 찾을 수 없습니다 · 주식회사 SLDK'
   }, [])
 
   return (

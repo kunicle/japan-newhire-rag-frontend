@@ -1,5 +1,14 @@
 import type { OrganizationDepartmentNode } from './types'
 
+const DEVELOPMENT_LABELS: Record<string, string> = {
+  'Development Default Department': '개발 기본 부서',
+  'Development Default Grade': '개발 기본 직급',
+}
+
+export function organizationDisplayLabel(value: string): string {
+  return DEVELOPMENT_LABELS[value] ?? value
+}
+
 export interface OrganizationViewEmployee {
   employeeId: number
   employeeNumber: string

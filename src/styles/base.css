@@ -26,6 +26,11 @@ body {
   line-height: var(--line-height-body);
 }
 
+#root {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
 button,
 input,
 optgroup,
@@ -104,6 +109,25 @@ h4 {
 
 table {
   border-collapse: collapse;
+}
+
+input,
+select,
+textarea {
+  accent-color: var(--color-primary);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+input:disabled,
+select:disabled,
+textarea:disabled {
+  color: var(--color-text-tertiary);
+  background-color: var(--color-background);
+  opacity: 0.8;
 }
 
 [hidden] {

@@ -10,7 +10,13 @@ export function Sidebar() {
 
   return (
     <aside className={styles.sidebar}>
-      <div className={styles.brand}>사내 플랫폼</div>
+      <div className={styles.brand}>
+        <span className={styles.brandMark} aria-hidden="true">S</span>
+        <span className={styles.brandText}>
+          <strong>주식회사 SLDK</strong>
+          <small>WORKSPACE</small>
+        </span>
+      </div>
       <nav className={styles.navigation} aria-label="주 메뉴">
         {visibleGroups.map((group) => (
           <div className={styles.group} key={group.label ?? 'home'}>

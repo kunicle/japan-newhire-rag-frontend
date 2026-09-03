@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { ArrowLeft } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 import { Badge, Button, EmptyState, Skeleton } from '../../shared/ui'
 import { fetchJobGrades, fetchOrganization } from '../organization/organizationApi'
@@ -137,14 +138,14 @@ export function DocumentManagementDetailPage() {
     return (
       <div className={styles.page}>
         <p className={styles.error} role="alert">잘못된 문서 정보입니다.</p>
-        <Link className={styles.backLink} to="/hr/documents">문서 관리로 돌아가기</Link>
+        <Link className={styles.backLink} to="/hr/documents"><ArrowLeft size={16} aria-hidden="true" />문서 관리로 돌아가기</Link>
       </div>
     )
   }
 
   return (
     <div className={styles.page}>
-      <Link className={styles.backLink} to="/hr/documents">문서 관리로 돌아가기</Link>
+      <Link className={styles.backLink} to="/hr/documents"><ArrowLeft size={16} aria-hidden="true" />문서 관리로 돌아가기</Link>
       {detailLoading ? (
         <div className={styles.skeletons} role="status" aria-label="문서 정보를 불러오는 중">
           <Skeleton lines={3} /><Skeleton lines={5} /><Skeleton lines={5} />
@@ -161,9 +162,11 @@ export function DocumentManagementDetailPage() {
               <h1 className={styles.title}>{detail.documentName}</h1>
               <Badge variant="success">{formatDocumentStatus(detail.documentStatus)}</Badge>
             </div>
+            <div className={styles.metadataRow}>
+              <span className={styles.metadata}>카테고리 · {detail.categoryName}</span>
+              <time className={styles.metadata} dateTime={detail.createdAt}>등록 · {formatDateTime(detail.createdAt)}</time>
+            </div>
             <p className={styles.description}>{detail.documentDescription ?? '설명 없음'}</p>
-            <p className={styles.metadata}>카테고리: {detail.categoryName}</p>
-            <time className={styles.metadata} dateTime={detail.createdAt}>등록 {formatDateTime(detail.createdAt)}</time>
           </header>
           {detail.versions.length === 0 ? (
             <EmptyState title="버전이 없습니다." description="등록된 문서 버전이 없습니다." />

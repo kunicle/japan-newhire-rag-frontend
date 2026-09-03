@@ -2,9 +2,9 @@
   display: inline-flex;
   align-items: center;
   min-height: var(--space-6);
-  padding: var(--space-1) var(--space-2);
-  border: 1px solid currentColor;
-  border-radius: var(--radius-small);
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid transparent;
+  border-radius: 999px;
   font-size: var(--font-size-caption);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-compact);
@@ -20,19 +20,23 @@
 .info {
   color: var(--color-info);
   background-color: var(--color-info-background);
+  border-color: color-mix(in srgb, var(--color-info) 18%, transparent);
 }
 
 .success {
   color: var(--color-success);
   background-color: var(--color-success-background);
+  border-color: color-mix(in srgb, var(--color-success) 18%, transparent);
 }
 
 .warning {
   color: var(--color-warning);
   background-color: var(--color-warning-background);
+  border-color: color-mix(in srgb, var(--color-warning) 18%, transparent);
 }
 
 .danger {
   color: var(--color-danger);
   background-color: var(--color-danger-background);
+  border-color: color-mix(in srgb, var(--color-danger) 18%, transparent);
 }

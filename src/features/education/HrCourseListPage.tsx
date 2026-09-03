@@ -60,8 +60,8 @@ export function HrCourseListPage() {
         <ul className={styles.grid} aria-label="교육 과정 목록">{pageData.content.map((course) => <li key={course.courseId}>
           <Card padding="none" className={styles.card}><Link className={styles.cardLink} to={`/hr/courses/${course.courseId}`}>
             <div className={styles.cardHeader}><h2 className={styles.cardTitle}>{course.courseName}</h2><Badge variant={coursePublicationBadgeVariant(course.publicationStatus)}>{coursePublicationLabel(course.publicationStatus)}</Badge></div>
-            <Badge variant={course.required ? 'warning' : 'neutral'}>{course.required ? '필수' : '선택'}</Badge>
-            <p className={styles.dates}>{formatDate(course.trainingStartDate)} ~ {formatDate(course.trainingEndDate)}</p>
+            <div className={styles.cardMeta}><Badge variant={course.required ? 'warning' : 'neutral'}>{course.required ? '필수' : '선택'}</Badge></div>
+            <footer className={styles.cardFooter}><span className={styles.dateLabel}>교육 기간</span><p className={styles.dates}>{formatDate(course.trainingStartDate)} ~ {formatDate(course.trainingEndDate)}</p></footer>
           </Link></Card>
         </li>)}</ul>
         {pageData.totalPages > 0 && <nav className={styles.pagination} aria-label="교육 과정 페이지">

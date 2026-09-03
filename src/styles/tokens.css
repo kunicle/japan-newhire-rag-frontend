@@ -1,17 +1,18 @@
 :root {
   /* Brand and interaction */
-  --color-primary: #2955eb;
-  --color-primary-hover: #1f44c4;
-  --color-primary-soft: #eef2fe;
-  --color-secondary: #3a4b63;
+  --color-primary: #2857d9;
+  --color-primary-hover: #1f46b4;
+  --color-primary-soft: #edf3ff;
+  --color-secondary: #40516b;
 
   /* Surfaces and content */
   --color-surface: #ffffff;
-  --color-background: #f6f7fa;
-  --color-border: #e2e5eb;
-  --color-text-primary: #14181f;
-  --color-text-secondary: #5b6472;
-  --color-text-tertiary: #647082;
+  --color-background: #f4f6f9;
+  --color-border: #dfe4ec;
+  --color-border-strong: #cdd5e1;
+  --color-text-primary: #172033;
+  --color-text-secondary: #536176;
+  --color-text-tertiary: #647087;
 
   /* Semantic feedback */
   --color-success: #16734a;
@@ -27,7 +28,7 @@
   --font-family-sans: 'Pretendard Variable', -apple-system, BlinkMacSystemFont,
     'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Yu Gothic UI', 'Noto Sans JP',
     'Noto Sans KR', system-ui, sans-serif;
-  --font-size-page-title: 1.5rem;
+  --font-size-page-title: 1.75rem;
   --font-size-section-title: 1.125rem;
   --font-size-body: 0.9375rem;
   --font-size-secondary: 0.8125rem;
@@ -48,16 +49,19 @@
   --space-2: 0.5rem;
   --space-3: 0.75rem;
   --space-4: 1rem;
+  --space-5: 1.25rem;
   --space-6: 1.5rem;
+  --space-7: 1.75rem;
   --space-8: 2rem;
   --space-12: 3rem;
   --space-16: 4rem;
 
   /* Shape and elevation */
-  --radius-small: 0.375rem;
-  --radius-medium: 0.625rem;
-  --radius-large: 0.875rem;
-  --shadow-subtle: 0 1px 2px rgb(20 24 31 / 6%);
+  --radius-small: 0.5rem;
+  --radius-medium: 0.75rem;
+  --radius-large: 1rem;
+  --shadow-subtle: 0 1px 2px rgb(23 32 51 / 5%), 0 1px 4px rgb(23 32 51 / 3%);
+  --shadow-raised: 0 12px 30px rgb(23 32 51 / 8%), 0 2px 8px rgb(23 32 51 / 5%);
 
   /* Keyboard focus */
   --focus-ring-color: rgb(41 85 235 / 35%);

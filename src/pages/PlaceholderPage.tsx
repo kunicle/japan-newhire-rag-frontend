@@ -14,7 +14,7 @@ export function PlaceholderPage({
   status = '준비 중',
 }: PlaceholderPageProps) {
   useEffect(() => {
-    document.title = `${title} · 사내 플랫폼`
+    document.title = `${title} · 주식회사 SLDK`
   }, [title])
 
   return (

@@ -4,7 +4,7 @@ import { Button, Skeleton } from '../../shared/ui'
 import { fetchOrganization } from './organizationApi'
 import { flattenDepartments } from './organizationHelpers'
 import type { OrganizationResponse } from './types'
-import { countEmployeesByDepartment, filterEmployeesByName, flattenOrganizationViewEmployees } from './organizationViewHelpers'
+import { countEmployeesByDepartment, filterEmployeesByName, flattenOrganizationViewEmployees, organizationDisplayLabel } from './organizationViewHelpers'
 import styles from './OrganizationPage.module.css'
 
 function organizationErrorMessage(error: unknown): string {
@@ -48,13 +48,13 @@ export function OrganizationPage() {
   if (error && !organization) return <div className={styles.errorState}><p className={styles.error} role="alert">{error}</p><Button variant="secondary" onClick={() => void loadOrganization()}>다시 시도</Button></div>
 
   return <div className={styles.page}>
-    <h1>조직도</h1>
+    <header className={styles.pageHeader}><h1>조직도</h1><p>부서 구조를 살펴보고 소속 직원 정보를 빠르게 찾아보세요.</p></header>
     {loading && <p className={styles.meta} role="status">조직 정보를 다시 불러오는 중입니다.</p>}
     {error && <div className={styles.errorState}><p className={styles.error} role="alert">{error}</p><Button variant="secondary" onClick={() => void loadOrganization()}>다시 시도</Button></div>}
     {flatDepartments.length === 0 ? <p className={styles.empty}>등록된 부서가 없습니다.</p> : <div className={styles.layout}>
-      <section className={styles.departmentPane} aria-labelledby="departments-title"><h2 id="departments-title">부서</h2><ul className={styles.departmentList}>{flatDepartments.map((department) => <li key={department.departmentId}><button type="button" className={styles.departmentButton} aria-pressed={selectedDepartmentId === department.departmentId} style={{ '--department-depth': department.depth } as CSSProperties} onClick={() => { setSelectedDepartmentId(department.departmentId); setSearchQuery('') }}><span><strong>{department.departmentName}</strong><small>{department.departmentCode}</small></span><span className={styles.count}>{counts.get(department.departmentId) ?? 0}명</span></button></li>)}</ul></section>
+      <section className={styles.departmentPane} aria-labelledby="departments-title"><h2 id="departments-title">부서</h2><ul className={styles.departmentList}>{flatDepartments.map((department) => <li key={department.departmentId}><button type="button" className={styles.departmentButton} aria-pressed={selectedDepartmentId === department.departmentId} style={{ '--department-depth': department.depth } as CSSProperties} onClick={() => { setSelectedDepartmentId(department.departmentId); setSearchQuery('') }}><span><strong>{organizationDisplayLabel(department.departmentName)}</strong><small>{department.departmentCode}</small></span><span className={styles.count}>{counts.get(department.departmentId) ?? 0}명</span></button></li>)}</ul></section>
       <section className={styles.employeePane} aria-labelledby="employees-title"><h2 id="employees-title">소속 직원</h2><div className={styles.search}><label htmlFor="organization-employee-search">직원 이름 검색</label><input id="organization-employee-search" type="search" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} /></div>
-        {selectedEmployees.length === 0 ? <p className={styles.empty}>소속 직원이 없습니다.</p> : visibleEmployees.length === 0 ? <p className={styles.empty}>검색 결과가 없습니다.</p> : <ul className={styles.employeeList}>{visibleEmployees.map((employee) => <li className={styles.employeeCard} key={employee.employeeId}><h3>{employee.employeeName}</h3><p>{employee.jobGradeName ?? '직급 미지정'}</p><dl><div><dt>사번</dt><dd>{employee.employeeNumber}</dd></div><div><dt>입사일</dt><dd>{employee.hireDate}</dd></div></dl></li>)}</ul>}
+        {selectedEmployees.length === 0 ? <p className={styles.empty}>소속 직원이 없습니다.</p> : visibleEmployees.length === 0 ? <p className={styles.empty}>검색 결과가 없습니다.</p> : <ul className={styles.employeeList}>{visibleEmployees.map((employee) => <li className={styles.employeeCard} key={employee.employeeId}><h3>{employee.employeeName}</h3><p>{employee.jobGradeName ? organizationDisplayLabel(employee.jobGradeName) : '직급 미지정'}</p><dl><div><dt>사번</dt><dd>{employee.employeeNumber}</dd></div><div><dt>입사일</dt><dd>{employee.hireDate}</dd></div></dl></li>)}</ul>}
       </section>
     </div>}
   </div>

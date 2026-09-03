@@ -52,7 +52,10 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-medium);
   box-shadow: var(--shadow-subtle);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
 }
+
+.jobItem:hover { border-color: var(--color-border-strong); box-shadow: var(--shadow-raised); }
 
 .itemHeader,
 .itemFooter {

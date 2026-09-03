@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { OrganizationDepartmentNode, OrganizationEmployee } from './types'
-import { countEmployeesByDepartment, filterEmployeesByName, flattenOrganizationViewEmployees } from './organizationViewHelpers'
+import { countEmployeesByDepartment, filterEmployeesByName, flattenOrganizationViewEmployees, organizationDisplayLabel } from './organizationViewHelpers'
 
 function employee(employeeId: number, employeeNumber: string, employeeName: string, departmentId: number): OrganizationEmployee { return { employeeId, employeeNumber, employeeName, departmentId, jobGradeId: null, jobGradeName: null, jobGradeLevel: null, hireDate: `2024-01-0${employeeId}` } }
 function department(departmentId: number, departmentName: string, employees: OrganizationEmployee[], children: OrganizationDepartmentNode[] = []): OrganizationDepartmentNode { return { departmentId, departmentCode: `D${departmentId}`, departmentName, parentDepartmentId: null, displayOrder: departmentId, employees, children } }
@@ -15,4 +15,9 @@ describe('organization view helpers', () => {
   it('filters an empty employee list', () => expect(filterEmployeesByName([], 'name')).toEqual([]))
   it('counts direct employees by department', () => expect([...countEmployeesByDepartment(flattenOrganizationViewEmployees(nested))]).toEqual([[1, 2], [2, 1], [3, 1]]))
   it('counts an empty list', () => expect(countEmployeesByDepartment([]).size).toBe(0))
+  it('localizes only known development placeholder labels', () => {
+    expect(organizationDisplayLabel('Development Default Department')).toBe('개발 기본 부서')
+    expect(organizationDisplayLabel('Development Default Grade')).toBe('개발 기본 직급')
+    expect(organizationDisplayLabel('Engineering')).toBe('Engineering')
+  })
 })

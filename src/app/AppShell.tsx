@@ -16,7 +16,7 @@ export function AppShell() {
     const currentItem = navigationGroups
       .flatMap((group) => group.items)
       .find((item) => item.path === pathname)
-    return currentItem?.label ?? '사내 플랫폼'
+    return currentItem?.label ?? '주식회사 SLDK 업무 포털'
   }, [pathname])
 
   const closeDrawer = useCallback(() => setDrawerOpen(false), [])

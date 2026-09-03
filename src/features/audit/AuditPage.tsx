@@ -72,7 +72,7 @@ export function AuditPage() {
   const filtered = Object.values(appliedFilters).some((value) => value !== undefined)
   function toggleDetail(id: number) { setExpandedIds((current) => { const next = new Set(current); if (next.has(id)) next.delete(id); else next.add(id); return next }) }
 
-  return <div className={styles.page}><h1>감사 로그</h1>
+  return <div className={styles.page}><header className={styles.pageHeader}><h1>감사 로그</h1><p>주요 시스템 활동과 변경 이력을 조건별로 확인하세요.</p></header>
     <form onSubmit={applyFilters}><fieldset className={styles.filters}><legend>조회 조건</legend><div className={styles.filterGrid}>
       <label>행위 유형<select value={draft.actionType} onChange={(event) => setDraft({ ...draft, actionType: event.target.value as DraftFilters['actionType'] })}><option value="">전체</option>{ACTIONS.map((action) => <option value={action} key={action}>{actionLabel(action)}</option>)}</select></label>
       <label>대상 유형<select value={draft.targetType} onChange={(event) => setDraft({ ...draft, targetType: event.target.value as DraftFilters['targetType'] })}><option value="">전체</option>{TARGETS.map((target) => <option value={target} key={target}>{targetTypeLabel(target)}</option>)}</select></label>

@@ -1,6 +1,6 @@
 .page {
   width: 100%;
-  max-width: 64rem;
+  max-width: 76rem;
   margin-inline: auto;
   min-width: 0;
 }
@@ -8,9 +8,23 @@
 .header {
   display: flex;
   min-width: 0;
-  margin-block-end: var(--space-8);
+  margin-block-end: var(--space-12);
+  padding: clamp(var(--space-6), 5vw, var(--space-12));
   flex-direction: column;
   gap: var(--space-3);
+  background: linear-gradient(125deg, var(--color-surface) 55%, var(--color-primary-soft));
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-large);
+  box-shadow: var(--shadow-subtle);
+}
+
+.eyebrow,
+.sectionEyebrow {
+  margin: 0;
+  color: var(--color-primary);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.12em;
 }
 
 .title {
@@ -30,15 +44,30 @@
   min-width: 0;
   flex-wrap: wrap;
   gap: var(--space-2);
+  margin-block-start: var(--space-2);
 }
 
 .section {
   min-width: 0;
-  margin-block-end: var(--space-8);
+  margin-block-end: var(--space-12);
+}
+
+.sectionHeading {
+  display: flex;
+  margin-block-end: var(--space-5);
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.sectionHeading > p {
+  margin: 0;
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-secondary);
 }
 
 .sectionTitle {
-  margin: 0 0 var(--space-4);
+  margin: var(--space-1) 0 0;
   font-size: var(--font-size-section-title);
   line-height: var(--line-height-section-title);
 }
@@ -46,14 +75,22 @@
 .shortcutGrid {
   display: grid;
   min-width: 0;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: var(--space-5);
 }
 
 .shortcutCard {
+  position: relative;
   min-width: 0;
   overflow: hidden;
   box-shadow: var(--shadow-subtle);
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.shortcutCard:hover {
+  border-color: color-mix(in srgb, var(--color-primary) 32%, var(--color-border));
+  box-shadow: var(--shadow-raised);
+  transform: translateY(-3px);
 }
 
 .shortcutLink {
@@ -68,16 +105,39 @@
 
 .shortcutLink:hover {
   color: var(--color-text-primary);
-  background-color: var(--color-primary-soft);
 }
 
 .shortcutLink:focus-visible {
   outline-offset: calc(-1 * var(--focus-ring-width));
 }
 
-.shortcutIcon {
-  margin-block-end: var(--space-4);
+.shortcutIconWrap {
+  display: inline-flex;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-block-end: var(--space-5);
+  align-items: center;
+  justify-content: center;
   color: var(--color-primary);
+  background: var(--color-primary-soft);
+  border-radius: var(--radius-medium);
+}
+
+.shortcutIcon {
+  color: var(--color-primary);
+}
+
+.shortcutArrow {
+  position: absolute;
+  inset-block-start: var(--space-5);
+  inset-inline-end: var(--space-5);
+  color: var(--color-text-tertiary);
+  transition: color 150ms ease, transform 150ms ease;
+}
+
+.shortcutLink:hover .shortcutArrow {
+  color: var(--color-primary);
+  transform: translate(2px, -2px);
 }
 
 .shortcutTitle {
@@ -93,15 +153,54 @@
   margin: 0;
   color: var(--color-text-secondary);
   overflow-wrap: anywhere;
+  font-size: var(--font-size-secondary);
 }
 
 .flowList {
-  display: flex;
+  display: grid;
   min-width: 0;
   margin: 0;
-  padding-inline-start: var(--space-6);
+  padding: 0;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--space-3);
+  list-style: none;
+}
+
+.flowPanel {
+  display: grid;
+  padding: var(--space-6);
+  grid-template-columns: minmax(13rem, 0.7fr) minmax(0, 2fr);
+  align-items: center;
+  gap: var(--space-8);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-large);
+  box-shadow: var(--shadow-subtle);
+}
+
+.flowIntro > p:last-child {
+  margin: var(--space-2) 0 0;
+  color: var(--color-text-secondary);
+}
+
+.flowList li {
+  display: flex;
+  min-width: 0;
   flex-direction: column;
   gap: var(--space-2);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-secondary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.flowList li span {
+  display: inline-grid;
+  width: var(--space-8);
+  height: var(--space-8);
+  place-items: center;
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+  border-radius: 50%;
 }
 
 .welcome,
@@ -113,4 +212,13 @@
   .shortcutGrid {
     grid-template-columns: minmax(0, 1fr);
   }
+
+  .header { padding: var(--space-6) var(--space-5); }
+  .sectionHeading { align-items: flex-start; flex-direction: column; }
+  .flowPanel { padding: var(--space-5); }
+}
+
+@media (max-width: 767px) {
+  .flowPanel { grid-template-columns: minmax(0, 1fr); gap: var(--space-5); }
+  .flowList { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

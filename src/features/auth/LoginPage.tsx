@@ -35,10 +35,13 @@ export function LoginPage() {
     <main className={styles.page}>
       <div className={styles.content}>
         <header className={styles.header}>
-          <p className={styles.brand}>사내 플랫폼</p>
+          <div className={styles.brand}>
+            <span className={styles.brandMark} aria-hidden="true">S</span>
+            <span>주식회사 SLDK</span>
+          </div>
           <h1 className={styles.title}>로그인</h1>
           <p className={styles.description}>
-            계정으로 로그인해 업무를 시작하세요.
+            사내 문서, 교육, 평가와 온보딩 업무를 한 곳에서 관리하세요.
           </p>
         </header>
 

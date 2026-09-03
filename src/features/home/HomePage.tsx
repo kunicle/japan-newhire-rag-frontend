@@ -1,4 +1,5 @@
 import {
+  ArrowUpRight,
   Bell,
   BookOpen,
   Building2,
@@ -143,10 +144,11 @@ export function HomePage() {
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <h1 className={styles.title}>업무 지원 포털</h1>
+        <p className={styles.eyebrow}>SLDK WORKSPACE</p>
+        <h1 className={styles.title}>주식회사 SLDK 업무 포털</h1>
         {user && (
           <p className={styles.welcome}>
-            {user.employeeName}님, 현재 역할에 맞는 업무와 AI 문서 검색 기능을 빠르게 이용할 수 있습니다.
+            {user.employeeName}님, 안녕하세요. 사내 문서, 교육, 평가와 온보딩 업무를 한 곳에서 관리하세요.
           </p>
         )}
         <div className={styles.roleList} aria-label="현재 역할">
@@ -157,7 +159,13 @@ export function HomePage() {
       </header>
 
       <section className={styles.section} aria-labelledby="shortcuts-title">
-        <h2 className={styles.sectionTitle} id="shortcuts-title">바로가기</h2>
+        <div className={styles.sectionHeading}>
+          <div>
+            <p className={styles.sectionEyebrow}>WORK TOOLS</p>
+            <h2 className={styles.sectionTitle} id="shortcuts-title">주요 업무 바로가기</h2>
+          </div>
+          <p>현재 역할에 필요한 메뉴만 표시됩니다.</p>
+        </div>
         <div className={styles.shortcutGrid}>
           {shortcutIds.map((shortcutId) => {
             const config = SHORTCUT_CONFIG[shortcutId]
@@ -165,7 +173,10 @@ export function HomePage() {
             return (
               <Card padding="none" className={styles.shortcutCard} key={shortcutId}>
                 <Link className={styles.shortcutLink} to={config.path}>
-                  <Icon className={styles.shortcutIcon} size={24} aria-hidden="true" />
+                  <span className={styles.shortcutIconWrap}>
+                    <Icon className={styles.shortcutIcon} size={22} aria-hidden="true" />
+                  </span>
+                  <ArrowUpRight className={styles.shortcutArrow} size={18} aria-hidden="true" />
                   <h3 className={styles.shortcutTitle}>{config.title}</h3>
                   <p className={styles.shortcutDescription}>{config.description}</p>
                 </Link>
@@ -177,10 +188,16 @@ export function HomePage() {
 
       {showHrFlow && (
         <section className={styles.section} aria-labelledby="flow-title">
-          <h2 className={styles.sectionTitle} id="flow-title">문서 운영 흐름</h2>
-          <ol className={styles.flowList}>
-            {HR_FLOW_STEPS.map((step) => <li key={step}>{step}</li>)}
-          </ol>
+          <div className={styles.flowPanel}>
+            <div className={styles.flowIntro}>
+              <p className={styles.sectionEyebrow}>HR GUIDE</p>
+              <h2 className={styles.sectionTitle} id="flow-title">문서 운영 흐름</h2>
+              <p>문서를 등록한 뒤 AI 검색에 반영되기까지의 순서입니다.</p>
+            </div>
+            <ol className={styles.flowList}>
+              {HR_FLOW_STEPS.map((step, index) => <li key={step}><span>{index + 1}</span>{step}</li>)}
+            </ol>
+          </div>
         </section>
       )}
     </div>
