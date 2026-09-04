@@ -11,17 +11,23 @@ import type {
 import styles from './RagPage.module.css'
 
 const VALIDATION_MESSAGE = '질문은 2자 이상 500자 이하로 입력해 주세요.'
-const GENERAL_ERROR_MESSAGE =
-  '일시적인 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.'
 const HISTORY_ERROR_MESSAGE = '질문 기록을 불러오지 못했습니다.'
 const DETAIL_ERROR_MESSAGE = '질문 상세 내용을 불러오지 못했습니다.'
-const NO_EVIDENCE_MESSAGE =
-  '답변을 생성할 충분한 근거를 찾지 못했습니다.'
+const NO_EVIDENCE_MESSAGE = '답변에 사용할 충분한 근거를 찾지 못했습니다.'
+const NO_EVIDENCE_GUIDANCE =
+  '질문을 조금 더 구체적으로 작성하거나, 관련 문서의 용어를 포함해 다시 질문해 주세요.'
 
-type ActiveResult =
-  | { source: 'query'; question: string; result: RagQueryResult }
-  | { source: 'history'; detail: RagHistoryDetail }
-  | null
+type RagUiState =
+  | { status: 'IDLE' }
+  | { status: 'LOADING'; question: string }
+  | { status: 'ANSWERED'; question: string; result: RagQueryResult }
+  | {
+      status: 'INSUFFICIENT_EVIDENCE'
+      question: string
+      result: RagQueryResult
+    }
+  | { status: 'ERROR'; question: string }
+  | { status: 'HISTORY'; detail: RagHistoryDetail }
 
 const dateFormatter = new Intl.DateTimeFormat('ko-KR', {
   dateStyle: 'medium',
@@ -39,7 +45,7 @@ function Citations({ citations }: { citations: RagCitation[] }) {
   return (
     <section className={styles.citations} aria-labelledby="citations-title">
       <h3 className={styles.sectionTitle} id="citations-title">
-        참고 문서
+        근거 문서
       </h3>
       <ul className={styles.citationList}>
         {citations.map((citation) => (
@@ -59,26 +65,47 @@ function Citations({ citations }: { citations: RagCitation[] }) {
   )
 }
 
-function QueryResult({
+function AnsweredResult({ question, result }: { question: string; result: RagQueryResult }) {
+  return (
+    <Card className={styles.resultCard}>
+      <p className={styles.resultQuestion}>{question}</p>
+      <p className={styles.answer}>{result.answer}</p>
+      <Citations citations={result.citations} />
+    </Card>
+  )
+}
+
+function InsufficientEvidence({
   question,
-  result,
+  onEdit,
 }: {
   question: string
-  result: RagQueryResult
+  onEdit: () => void
 }) {
   return (
     <Card className={styles.resultCard}>
       <p className={styles.resultQuestion}>{question}</p>
-      {result.hasSufficientEvidence ? (
-        <>
-          <p className={styles.answer}>
-            {result.answer ?? '답변 내용을 표시할 수 없습니다.'}
-          </p>
-          <Citations citations={result.citations} />
-        </>
-      ) : (
-        <p className={styles.neutralMessage}>{NO_EVIDENCE_MESSAGE}</p>
-      )}
+      <div className={styles.insufficientState} role="status">
+        <p className={styles.statusTitle}>{NO_EVIDENCE_MESSAGE}</p>
+        <p className={styles.statusDescription}>{NO_EVIDENCE_GUIDANCE}</p>
+        <Button type="button" variant="secondary" size="sm" onClick={onEdit}>
+          질문 수정하기
+        </Button>
+      </div>
+    </Card>
+  )
+}
+
+function SystemError({ onRetry }: { onRetry: () => void }) {
+  return (
+    <Card className={styles.resultCard}>
+      <div className={styles.systemError} role="alert">
+        <p className={styles.statusTitle}>AI 답변을 불러오지 못했습니다.</p>
+        <p className={styles.statusDescription}>잠시 후 다시 시도해 주세요.</p>
+        <Button type="button" variant="secondary" size="sm" onClick={onRetry}>
+          다시 시도
+        </Button>
+      </div>
     </Card>
   )
 }
@@ -96,7 +123,13 @@ function HistoryResult({ detail }: { detail: RagHistoryDetail }) {
       </>
     )
   } else if (detail.status === 'REJECTED') {
-    content = <p className={styles.neutralMessage}>{NO_EVIDENCE_MESSAGE}</p>
+    content = (
+      <div className={styles.insufficientState} role="status">
+        <p className={styles.statusTitle}>
+          이 질문에 답변할 충분한 근거를 찾지 못했습니다.
+        </p>
+      </div>
+    )
   } else if (detail.status === 'FAILED') {
     content = (
       <p className={styles.errorMessage}>질문 처리 중 오류가 발생했습니다.</p>
@@ -105,7 +138,7 @@ function HistoryResult({ detail }: { detail: RagHistoryDetail }) {
     content = (
       <div className={styles.processing}>
         <Spinner size="sm" label="질문을 처리하고 있습니다" decorative={false} />
-        <span>질문을 처리하고 있습니다.</span>
+        <span>사내 문서에서 근거를 찾고 있습니다.</span>
       </div>
     )
   }
@@ -129,11 +162,11 @@ export function RagPage() {
   const [historyError, setHistoryError] = useState<string | null>(null)
   const [question, setQuestion] = useState('')
   const [submitting, setSubmitting] = useState(false)
-  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [validationError, setValidationError] = useState<string | null>(null)
   const [selectedQuestionId, setSelectedQuestionId] = useState<number | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
   const [detailError, setDetailError] = useState<string | null>(null)
-  const [activeResult, setActiveResult] = useState<ActiveResult>(null)
+  const [uiState, setUiState] = useState<RagUiState>({ status: 'IDLE' })
   const latestInteractionId = useRef(0)
   const latestHistoryFetchId = useRef(0)
 
@@ -185,36 +218,53 @@ export function RagPage() {
     }
   }
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    if (submitting) return
-
-    const trimmedQuestion = question.trim()
-    if (trimmedQuestion.length < 2 || trimmedQuestion.length > 500) {
-      setSubmitError(VALIDATION_MESSAGE)
-      return
-    }
-
+  async function executeQuestion(trimmedQuestion: string) {
     const interactionId = latestInteractionId.current + 1
     latestInteractionId.current = interactionId
     setSelectedQuestionId(null)
     setDetailLoading(false)
     setDetailError(null)
     setSubmitting(true)
-    setSubmitError(null)
+    setValidationError(null)
+    setUiState({ status: 'LOADING', question: trimmedQuestion })
 
     try {
       const result = await askQuestion(trimmedQuestion)
       if (interactionId === latestInteractionId.current) {
-        setActiveResult({ source: 'query', question: trimmedQuestion, result })
+        if (!result.hasSufficientEvidence) {
+          setUiState({
+            status: 'INSUFFICIENT_EVIDENCE',
+            question: trimmedQuestion,
+            result,
+          })
+        } else if (result.answer?.trim()) {
+          setUiState({ status: 'ANSWERED', question: trimmedQuestion, result })
+        } else {
+          setUiState({ status: 'ERROR', question: trimmedQuestion })
+        }
       }
       setQuestion('')
       await refreshHistory()
     } catch {
-      setSubmitError(GENERAL_ERROR_MESSAGE)
+      if (interactionId === latestInteractionId.current) {
+        setUiState({ status: 'ERROR', question: trimmedQuestion })
+      }
     } finally {
       setSubmitting(false)
     }
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (submitting) return
+
+    const trimmedQuestion = question.trim()
+    if (trimmedQuestion.length < 2 || trimmedQuestion.length > 500) {
+      setValidationError(VALIDATION_MESSAGE)
+      return
+    }
+
+    await executeQuestion(trimmedQuestion)
   }
 
   async function handleHistorySelect(item: RagHistoryItem) {
@@ -227,7 +277,7 @@ export function RagPage() {
     try {
       const detail = await fetchHistoryDetail(item.questionId)
       if (interactionId !== latestInteractionId.current) return
-      setActiveResult({ source: 'history', detail })
+      setUiState({ status: 'HISTORY', detail })
     } catch {
       if (interactionId !== latestInteractionId.current) return
       setDetailError(DETAIL_ERROR_MESSAGE)
@@ -259,9 +309,9 @@ export function RagPage() {
                 onChange={(event) => setQuestion(event.target.value)}
                 placeholder="궁금한 내용을 입력해 주세요"
               />
-              {submitError && (
+              {validationError && (
                 <p className={styles.errorMessage} role="alert">
-                  {submitError}
+                  {validationError}
                 </p>
               )}
               <div className={styles.submitRow}>
@@ -274,7 +324,14 @@ export function RagPage() {
 
           <section className={styles.resultSection} aria-live="polite">
             <h2 className={styles.sectionTitle}>답변</h2>
-            {detailLoading ? (
+            {submitting || uiState.status === 'LOADING' ? (
+              <Card className={styles.resultCard}>
+                <div className={styles.processing} role="status">
+                  <Spinner size="sm" label="근거 검색 중" decorative={false} />
+                  <span>사내 문서에서 근거를 찾고 있습니다.</span>
+                </div>
+              </Card>
+            ) : detailLoading ? (
               <Card>
                 <Skeleton lines={4} />
               </Card>
@@ -282,17 +339,25 @@ export function RagPage() {
               <p className={styles.errorMessage} role="alert">
                 {detailError}
               </p>
-            ) : activeResult?.source === 'query' ? (
-              <QueryResult
-                question={activeResult.question}
-                result={activeResult.result}
+            ) : uiState.status === 'ANSWERED' ? (
+              <AnsweredResult question={uiState.question} result={uiState.result} />
+            ) : uiState.status === 'INSUFFICIENT_EVIDENCE' ? (
+              <InsufficientEvidence
+                question={uiState.question}
+                onEdit={() => setQuestion(uiState.question)}
               />
-            ) : activeResult?.source === 'history' ? (
-              <HistoryResult detail={activeResult.detail} />
+            ) : uiState.status === 'ERROR' ? (
+              <SystemError
+                onRetry={() => {
+                  void executeQuestion(uiState.question)
+                }}
+              />
+            ) : uiState.status === 'HISTORY' ? (
+              <HistoryResult detail={uiState.detail} />
             ) : (
               <EmptyState
-                title="아직 표시할 답변이 없습니다"
-                description="질문을 입력하거나 이전 질문을 선택해 주세요."
+                title="사내 문서를 기반으로 궁금한 내용을 질문해 보세요"
+                description="질문을 입력하거나 이전 질문을 선택할 수 있습니다."
               />
             )}
           </section>
