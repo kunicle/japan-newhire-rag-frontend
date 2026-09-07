@@ -1,0 +1,110 @@
+name: Frontend CD
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: frontend-production-deploy
+  cancel-in-progress: false
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      EC2_HOST: ${{ secrets.EC2_HOST }}
+      EC2_USER: ${{ secrets.EC2_USER }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build for production
+        env:
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+        run: npm run build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ap-northeast-2
+
+      - name: Retrieve SSH private key
+        run: |
+          umask 077
+          aws secretsmanager get-secret-value \
+            --secret-id japan-newhire/deploy/ssh-key \
+            --query SecretString \
+            --output text > deploy_key
+          chmod 600 deploy_key
+
+      - name: Upload deployment files
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts
+          ssh -i deploy_key -o BatchMode=yes "$EC2_USER@$EC2_HOST" \
+            "mkdir -p deploy/frontend/$GITHUB_SHA"
+          scp -i deploy_key -o BatchMode=yes -r dist Dockerfile nginx.conf \
+            "$EC2_USER@$EC2_HOST:deploy/frontend/$GITHUB_SHA/"
+
+      - name: Deploy and check health
+        run: |
+          ssh -i deploy_key -o BatchMode=yes "$EC2_USER@$EC2_HOST" \
+            bash -s -- "$GITHUB_SHA" <<'REMOTE'
+          set -euo pipefail
+          image_tag="$1"
+          cd "$HOME/deploy/frontend/$image_tag"
+
+          docker build -t "my-service-web:$image_tag" -t my-service-web:latest .
+
+          if docker container inspect my-service-web > /dev/null 2>&1; then
+            docker rm -f my-service-web
+          fi
+
+          docker run -d \
+            --name my-service-web \
+            --restart unless-stopped \
+            --network deploy_my-service-net \
+            -p 80:80 \
+            "my-service-web:$image_tag"
+
+          healthy=false
+          for attempt in $(seq 1 12); do
+            if curl --fail --silent --show-error --max-time 10 http://127.0.0.1/ > /dev/null; then
+              echo "Frontend health check succeeded (attempt $attempt/12)."
+              healthy=true
+              break
+            fi
+            if [ "$attempt" -lt 12 ]; then
+              sleep 5
+            fi
+          done
+
+          if [ "$healthy" != true ]; then
+            echo "Frontend health check failed after 12 attempts."
+            docker logs --tail 100 my-service-web || true
+            exit 1
+          fi
+
+          docker image prune -f
+          REMOTE
+
+      - name: Remove SSH private key
+        if: always()
+        run: rm -f deploy_key

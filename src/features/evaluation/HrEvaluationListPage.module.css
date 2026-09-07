@@ -1,0 +1,27 @@
+.page { width: 100%; max-width: 64rem; margin-inline: auto; min-width: 0; }
+.page > h1 { margin: 0 0 var(--space-6); font-size: var(--font-size-page-title); line-height: var(--line-height-page-title); }
+.section { display: flex; min-width: 0; margin-block-end: var(--space-8); flex-direction: column; gap: var(--space-4); }
+.section h2, .section h3, .section p { margin-block: 0; }
+.sectionHeader, .employeeMain, .row, .actions { display: flex; min-width: 0; align-items: center; flex-wrap: wrap; gap: var(--space-3); }
+.sectionHeader { justify-content: space-between; }
+.cardList, .employeeList, .progressList { display: grid; min-width: 0; margin: 0; padding: 0; gap: var(--space-3); list-style: none; }
+.cardList { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.card { display: flex; min-width: 0; height: 100%; padding: var(--space-5); flex-direction: column; gap: var(--space-3); color: var(--color-text-primary); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-medium); text-decoration: none; }
+.card:hover { border-color: var(--color-primary); }
+.meta { color: var(--color-text-secondary); overflow-wrap: anywhere; }
+.error { color: var(--color-danger); font-weight: var(--font-weight-medium); }
+.success { color: var(--color-success); font-weight: var(--font-weight-semibold); }
+.panel { display: flex; min-width: 0; padding: var(--space-5); flex-direction: column; gap: var(--space-4); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-medium); }
+.employeeRow { display: flex; min-width: 0; padding: var(--space-3); align-items: flex-start; flex-wrap: wrap; gap: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-small); }
+.employeeMain { flex: 1; align-items: flex-start; }
+.employeeMain input { margin-block-start: var(--space-1); }
+.employeeText { display: flex; min-width: 0; flex-direction: column; gap: var(--space-1); overflow-wrap: anywhere; }
+.summaryGrid { display: grid; min-width: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+.summary { padding: var(--space-4); background: var(--color-background); border-radius: var(--radius-small); }
+.summary dl { display: grid; margin: var(--space-3) 0 0; grid-template-columns: 1fr auto; gap: var(--space-2); }
+.summary dd { margin: 0; font-weight: var(--font-weight-semibold); }
+.progressRow { display: grid; min-width: 0; padding: var(--space-4); grid-template-columns: minmax(0, 2fr) repeat(2, minmax(0, 1fr)); align-items: center; gap: var(--space-4); border: 1px solid var(--color-border); border-radius: var(--radius-small); }
+.progressCell { min-width: 0; overflow-wrap: anywhere; }
+.progressCell > span { display: inline-flex; }
+@media (max-width: 767px) { .cardList, .summaryGrid { grid-template-columns: minmax(0, 1fr); } .progressRow { grid-template-columns: minmax(0, 1fr); gap: var(--space-2); } }
+@media (max-width: 479px) { .panel, .card { padding: var(--space-4); } .actions > * { width: 100%; } }

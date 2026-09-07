@@ -1,0 +1,26 @@
+.page { width: 100%; max-width: 48rem; margin-inline: auto; min-width: 0; }
+.backLink { display: inline-flex; margin-block-end: var(--space-5); color: var(--color-primary); font-weight: var(--font-weight-semibold); }
+.header { display: flex; min-width: 0; margin-block-end: var(--space-8); flex-direction: column; gap: var(--space-3); }
+.headingRow, .moduleHeader, .progressText, .moduleDates { display: flex; min-width: 0; align-items: center; flex-wrap: wrap; gap: var(--space-3); }
+.title { min-width: 0; margin: 0; font-size: var(--font-size-page-title); line-height: var(--line-height-page-title); }
+.description, .progressNote { margin: 0; color: var(--color-text-secondary); white-space: pre-wrap; }
+.courseDetails { display: grid; min-width: 0; margin: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+.courseDetails div { min-width: 0; }
+.courseDetails dt { color: var(--color-text-tertiary); font-size: var(--font-size-caption); }
+.courseDetails dd { min-width: 0; margin: var(--space-1) 0 0; }
+.progressText { justify-content: space-between; color: var(--color-text-secondary); font-size: var(--font-size-secondary); }
+.progressTrack { width: 100%; height: var(--space-2); overflow: hidden; background-color: var(--color-border); border-radius: var(--radius-small); }
+.progressFill { height: 100%; background-color: var(--color-primary); border-radius: inherit; }
+.progressNote { font-size: var(--font-size-caption); }
+.sectionTitle { margin: 0 0 var(--space-4); font-size: var(--font-size-section-title); }
+.moduleList, .skeletons, .errorState { display: flex; min-width: 0; flex-direction: column; gap: var(--space-4); }
+.moduleList { margin: 0; padding: 0; list-style: none; counter-reset: module; }
+.moduleItem { display: flex; min-width: 0; padding: var(--space-4); flex-direction: column; align-items: flex-start; gap: var(--space-3); background-color: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-medium); box-shadow: var(--shadow-subtle); }
+.moduleTitle { min-width: 0; margin: 0; font-size: var(--font-size-body); line-height: var(--line-height-body); }
+.moduleContent { margin: 0; color: var(--color-text-secondary); white-space: pre-wrap; }
+.referenceLink { font-weight: var(--font-weight-semibold); }
+.moduleDates { color: var(--color-text-tertiary); font-size: var(--font-size-caption); }
+.errorState { align-items: flex-start; }
+.error { margin: 0; color: var(--color-danger); font-weight: var(--font-weight-medium); }
+.title, .description, .courseDetails dd, .progressText, .progressNote, .moduleTitle, .moduleContent, .moduleDates, .error { overflow-wrap: anywhere; }
+@media (max-width: 479px) { .courseDetails { grid-template-columns: minmax(0, 1fr); } .moduleItem > button, .errorState > * { width: 100%; } }

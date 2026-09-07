@@ -1,0 +1,4 @@
+.page { width: 100%; max-width: 40rem; margin-inline: auto; min-width: 0; }
+.backLink { display: inline-flex; margin-block-end: var(--space-5); font-weight: var(--font-weight-semibold); }
+.title { margin: 0 0 var(--space-6); font-size: var(--font-size-page-title); line-height: var(--line-height-page-title); }
+.error { margin: 0 0 var(--space-4); color: var(--color-danger); font-weight: var(--font-weight-medium); overflow-wrap: anywhere; }

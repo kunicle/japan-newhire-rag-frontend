@@ -1,0 +1,38 @@
+.page { width: 100%; max-width: 54rem; margin-inline: auto; min-width: 0; }
+.backLink { display: inline-flex; margin-block-end: var(--space-5); color: var(--color-primary); font-weight: var(--font-weight-semibold); }
+.header { margin-block-end: var(--space-6); }
+.headingRow, .itemHeading, .actions, .refreshError { display: flex; min-width: 0; align-items: center; flex-wrap: wrap; gap: var(--space-3); }
+.title { min-width: 0; margin: 0; font-size: var(--font-size-page-title); line-height: var(--line-height-page-title); overflow-wrap: anywhere; }
+.sectionTitle { margin: 0 0 var(--space-4); font-size: var(--font-size-section-title); }
+.itemList, .skeletons, .errorState, .resultItems { display: flex; min-width: 0; flex-direction: column; gap: var(--space-4); }
+.itemList, .resultItems { margin: 0; padding: 0; list-style: none; }
+.itemCard, .overallSection, .resultSection, .resultDetail { display: flex; min-width: 0; padding: var(--space-4); flex-direction: column; align-items: stretch; gap: var(--space-3); background-color: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-medium); }
+.itemTitle, .resultTitle { min-width: 0; margin: 0; font-size: var(--font-size-body); overflow-wrap: anywhere; }
+.itemDescription, .itemMeta, .readOnlyFeedback, .resultFeedback, .totalScore { margin: 0; overflow-wrap: anywhere; }
+.itemDescription, .itemMeta { color: var(--color-text-secondary); }
+.itemMeta { font-size: var(--font-size-caption); }
+.field { display: flex; min-width: 0; flex-direction: column; gap: var(--space-2); }
+.field label { font-weight: var(--font-weight-semibold); }
+.field input, .field textarea { width: 100%; min-width: 0; padding: var(--space-3) var(--space-4); color: var(--color-text-primary); background-color: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-small); font: inherit; }
+.field input { max-width: 12rem; }
+.field textarea { min-height: 7rem; resize: vertical; }
+.field input:focus, .field textarea:focus { border-color: var(--color-primary); outline: var(--focus-ring-width) solid var(--focus-ring-color); outline-offset: 0; }
+.readOnlyValues { display: grid; min-width: 0; margin: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+.readOnlyValues dt { color: var(--color-text-tertiary); font-size: var(--font-size-caption); }
+.readOnlyValues dd { min-width: 0; margin: var(--space-1) 0 0; overflow-wrap: anywhere; }
+.overallSection, .resultSection { margin-block-start: var(--space-8); }
+.actions { justify-content: flex-end; }
+.refreshError { margin-block-end: var(--space-5); }
+.errorState { align-items: flex-start; }
+.error { margin: 0; color: var(--color-danger); font-weight: var(--font-weight-medium); overflow-wrap: anywhere; }
+.success { margin: 0; color: var(--color-success); font-weight: var(--font-weight-semibold); }
+.resultCycle { display: flex; min-width: 0; flex-direction: column; gap: var(--space-1); color: var(--color-text-secondary); overflow-wrap: anywhere; }
+.resultGrid { display: grid; min-width: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+.resultItems li { display: flex; min-width: 0; padding-block-start: var(--space-3); flex-direction: column; gap: var(--space-1); border-block-start: 1px solid var(--color-border); overflow-wrap: anywhere; }
+.resultItems p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+@media (max-width: 479px) {
+  .readOnlyValues, .resultGrid { grid-template-columns: minmax(0, 1fr); }
+  .field input { max-width: none; }
+  .actions > *, .errorState > *, .refreshError > * { width: 100%; }
+}

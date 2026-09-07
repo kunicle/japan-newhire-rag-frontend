@@ -1,0 +1,46 @@
+.page { width: 100%; max-width: 64rem; margin-inline: auto; min-width: 0; }
+.header { display: flex; min-width: 0; margin-block-end: var(--space-6); flex-direction: column; gap: var(--space-2); }
+.title { margin: 0; font-size: var(--font-size-page-title); line-height: var(--line-height-page-title); }
+.description, .taskDescription, .notice { margin: 0; color: var(--color-text-secondary); }
+.limitationNotice { margin: var(--space-2) 0 0; padding: var(--space-3); color: var(--color-text-secondary); background-color: var(--color-background); border-radius: var(--radius-small); }
+.section { display: flex; min-width: 0; margin-block-end: var(--space-8); padding: var(--space-5); flex-direction: column; align-items: stretch; gap: var(--space-4); background-color: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-medium); box-shadow: var(--shadow-subtle); }
+.sectionTitle { min-width: 0; margin: 0; font-size: var(--font-size-section-title); overflow-wrap: anywhere; }
+.listHeading { display: flex; min-width: 0; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3); }
+.listSummary { margin: var(--space-1) 0 0; color: var(--color-text-tertiary); font-size: var(--font-size-caption); }
+.taskListLoading, .taskListError { min-width: 0; }
+.taskListError { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-3); }
+.emptyTaskList { margin: 0; padding: var(--space-5); color: var(--color-text-secondary); text-align: center; background-color: var(--color-background); border-radius: var(--radius-small); }
+.taskList { display: grid; min-width: 0; margin: 0; padding: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); list-style: none; }
+.taskList li { min-width: 0; }
+.taskListButton { display: grid; width: 100%; min-width: 0; padding: var(--space-4); grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--space-2) var(--space-3); color: var(--color-text-primary); text-align: start; font: inherit; background-color: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-small); cursor: pointer; }
+.taskListButton:hover:not(:disabled) { border-color: var(--color-primary); background-color: var(--color-primary-soft); }
+.taskListButton:focus-visible { outline: var(--focus-ring-width) solid var(--color-primary); outline-offset: var(--focus-ring-offset); }
+.taskListButton:disabled { cursor: not-allowed; opacity: 0.55; }
+.taskListButton[aria-pressed='true'] { border-color: var(--color-primary); background-color: var(--color-primary-soft); box-shadow: var(--shadow-subtle); }
+.taskListTitle { min-width: 0; font-weight: var(--font-weight-semibold); overflow-wrap: anywhere; }
+.taskListMeta { grid-column: 1 / -1; color: var(--color-text-tertiary); font-size: var(--font-size-caption); }
+.pagination { display: flex; min-width: 0; align-items: center; justify-content: center; flex-wrap: wrap; gap: var(--space-4); }
+.taskHeading, .actions, .referenceError { display: flex; min-width: 0; align-items: center; flex-wrap: wrap; gap: var(--space-3); }
+.taskDetails { display: grid; min-width: 0; margin: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+.taskDetails div { min-width: 0; }
+.taskDetails dt { color: var(--color-text-tertiary); font-size: var(--font-size-caption); }
+.taskDetails dd { min-width: 0; margin: var(--space-1) 0 0; overflow-wrap: anywhere; }
+.actions { justify-content: flex-end; }
+.referenceLoading, .referenceError { margin-block-end: var(--space-5); }
+.employeeFieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
+.employeeFieldset legend { margin-block-end: var(--space-3); font-weight: var(--font-weight-semibold); }
+.employeeList { display: grid; min-width: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); }
+.employeeOption { display: flex; min-width: 0; padding: var(--space-3); align-items: flex-start; gap: var(--space-2); border: 1px solid var(--color-border); border-radius: var(--radius-small); }
+.employeeOption input { flex: 0 0 auto; margin-block-start: var(--space-1); }
+.employeeOption span { min-width: 0; overflow-wrap: anywhere; }
+.error { margin: 0; color: var(--color-danger); font-weight: var(--font-weight-medium); overflow-wrap: anywhere; }
+.success { margin: 0; color: var(--color-success); font-weight: var(--font-weight-semibold); overflow-wrap: anywhere; }
+.title, .description, .limitationNotice, .taskDescription, .notice, .listSummary, .emptyTaskList, .taskListMeta, .pagination { overflow-wrap: anywhere; }
+
+@media (max-width: 479px) {
+  .section { padding: var(--space-4); }
+  .taskDetails, .employeeList, .taskList { grid-template-columns: minmax(0, 1fr); }
+  .actions > *, .section > button, .referenceError > *, .taskListError > * { width: 100%; }
+  .listHeading > button { width: 100%; }
+  .pagination { justify-content: space-between; }
+}

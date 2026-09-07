@@ -1,0 +1,17 @@
+.page {
+  max-width: calc(var(--space-16) * 12);
+}
+
+.title {
+  margin: var(--space-4) 0 var(--space-2);
+  font-size: var(--font-size-page-title);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-page-title);
+}
+
+.description {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+}

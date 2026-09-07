@@ -1,0 +1,17 @@
+.panel { display: flex; min-width: 0; margin-block-start: var(--space-6); padding: var(--space-5); flex-direction: column; gap: var(--space-4); background: var(--color-surface); border: 1px solid var(--color-primary); border-radius: var(--radius-medium); }
+.heading, .smallActions, .actions { display: flex; min-width: 0; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3); }
+.heading h2, .heading h3, .panel p { margin: 0; overflow-wrap: anywhere; }
+.feedbackSection, .message, .reason { display: flex; min-width: 0; flex-direction: column; gap: var(--space-3); }
+.feedbackList { display: flex; min-width: 0; margin: 0; padding: 0; flex-direction: column; gap: var(--space-2); list-style: none; }
+.feedbackRow { display: flex; min-width: 0; padding: var(--space-3); align-items: flex-start; gap: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-small); }
+.feedbackRow input { margin-block-start: var(--space-1); flex: 0 0 auto; }
+.feedbackRow span { min-width: 0; overflow-wrap: anywhere; }
+.feedbackContent { display: block; margin-block-start: var(--space-1); color: var(--color-text-secondary); white-space: pre-wrap; }
+.reason { font-weight: var(--font-weight-semibold); }
+.reason textarea { width: 100%; min-width: 0; min-height: 6rem; padding: var(--space-3); color: var(--color-text-primary); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-small); font: inherit; resize: vertical; }
+.reason textarea:focus { border-color: var(--color-primary); outline: var(--focus-ring-width) solid var(--focus-ring-color); }
+.notice, .meta { color: var(--color-text-secondary); }
+.error { color: var(--color-danger); font-weight: var(--font-weight-medium); }
+.success { color: var(--color-success); font-weight: var(--font-weight-semibold); }
+.actions { justify-content: flex-end; }
+@media (max-width: 479px) { .panel { padding: var(--space-4); } .heading, .smallActions, .actions { align-items: stretch; flex-direction: column; } .heading > *, .smallActions > *, .actions > *, .message > * { width: 100%; } }

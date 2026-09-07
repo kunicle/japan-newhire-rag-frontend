@@ -1,0 +1,100 @@
+import { createBrowserRouter, Navigate } from 'react-router-dom'
+import { LoginPage } from '../features/auth/LoginPage'
+import { AdminUsersPage } from '../features/admin/AdminUsersPage'
+import { AuditPage } from '../features/audit/AuditPage'
+import { HomePage } from '../features/home/HomePage'
+import { DocumentUploadPage } from '../features/documents/DocumentUploadPage'
+import { DocumentProcessingPage } from '../features/documents/DocumentProcessingPage'
+import { DocumentManagementPage } from '../features/documents/DocumentManagementPage'
+import { DocumentManagementDetailPage } from '../features/documents/DocumentManagementDetailPage'
+import { MyEducationDetailPage } from '../features/education/MyEducationDetailPage'
+import { MyEducationPage } from '../features/education/MyEducationPage'
+import { ManagerEducationPage } from '../features/education/ManagerEducationPage'
+import { ManagerEmployeeEducationPage } from '../features/education/ManagerEmployeeEducationPage'
+import { HrCourseCreatePage } from '../features/education/HrCourseCreatePage'
+import { HrCourseDetailPage } from '../features/education/HrCourseDetailPage'
+import { HrCourseListPage } from '../features/education/HrCourseListPage'
+import { MyEvaluationDetailPage } from '../features/evaluation/MyEvaluationDetailPage'
+import { MyEvaluationListPage } from '../features/evaluation/MyEvaluationListPage'
+import { ManagerEvaluationDetailPage } from '../features/evaluation/ManagerEvaluationDetailPage'
+import { ManagerEvaluationListPage } from '../features/evaluation/ManagerEvaluationListPage'
+import { HrEvaluationCycleDetailPage } from '../features/evaluation/HrEvaluationCycleDetailPage'
+import { HrEvaluationListPage } from '../features/evaluation/HrEvaluationListPage'
+import { NotificationsPage } from '../features/notifications/NotificationsPage'
+import { NewHireRegistrationPage } from '../features/newHire/NewHireRegistrationPage'
+import { OrganizationPage } from '../features/organization/OrganizationPage'
+import { MyOnboardingPage } from '../features/onboarding/MyOnboardingPage'
+import { HrOnboardingPage } from '../features/onboarding/HrOnboardingPage'
+import { RagPage } from '../features/rag/RagPage'
+import { AccessDeniedPage } from '../pages/AccessDeniedPage'
+import { NotFoundPage } from '../pages/NotFoundPage'
+import { AppShell } from './AppShell'
+import { GuestRoute } from './GuestRoute'
+import { ProtectedRoute } from './ProtectedRoute'
+import { RoleRoute } from './RoleRoute'
+
+export const router = createBrowserRouter([
+  {
+    element: <GuestRoute />,
+    children: [{ path: 'login', element: <LoginPage /> }],
+  },
+  {
+    element: <ProtectedRoute />,
+    children: [
+      {
+        element: <AppShell />,
+        children: [
+          { index: true, element: <Navigate to="/home" replace /> },
+          { path: 'home', element: <HomePage /> },
+          { path: 'me/education', element: <MyEducationPage /> },
+          { path: 'me/education/:enrollmentId', element: <MyEducationDetailPage /> },
+          { path: 'me/onboarding', element: <MyOnboardingPage /> },
+          { path: 'me/evaluations', element: <MyEvaluationListPage /> },
+          { path: 'me/evaluations/:evaluationId', element: <MyEvaluationDetailPage /> },
+          { path: 'rag', element: <RagPage /> },
+          { path: 'notifications', element: <NotificationsPage /> },
+          { path: 'organization', element: <OrganizationPage /> },
+          {
+            element: <RoleRoute allow={['HR_MANAGER', 'SYSTEM_ADMIN']} />,
+            children: [
+              { path: 'hr/documents', element: <DocumentManagementPage /> },
+              { path: 'hr/documents/:documentId', element: <DocumentManagementDetailPage /> },
+              { path: 'hr/documents/upload', element: <DocumentUploadPage /> },
+            ],
+          },
+          {
+            element: <RoleRoute allow={['MANAGER']} />,
+            children: [
+              { path: 'manager/education', element: <ManagerEducationPage /> },
+              { path: 'manager/education/:employeeId', element: <ManagerEmployeeEducationPage /> },
+              { path: 'manager/evaluations', element: <ManagerEvaluationListPage /> },
+              { path: 'manager/evaluations/:evaluationId', element: <ManagerEvaluationDetailPage /> },
+            ],
+          },
+          {
+            element: <RoleRoute allow={['HR_MANAGER']} />,
+            children: [
+              { path: 'hr/documents/processing', element: <DocumentProcessingPage /> },
+              { path: 'hr/courses', element: <HrCourseListPage /> },
+              { path: 'hr/courses/new', element: <HrCourseCreatePage /> },
+              { path: 'hr/courses/:courseId', element: <HrCourseDetailPage /> },
+              { path: 'hr/onboarding', element: <HrOnboardingPage /> },
+              { path: 'hr/new-hires', element: <NewHireRegistrationPage /> },
+              { path: 'hr/evaluations', element: <HrEvaluationListPage /> },
+              { path: 'hr/evaluations/:cycleId', element: <HrEvaluationCycleDetailPage /> },
+            ],
+          },
+          {
+            element: <RoleRoute allow={['SYSTEM_ADMIN']} />,
+            children: [
+              { path: 'admin/audit', element: <AuditPage /> },
+              { path: 'admin/users', element: <AdminUsersPage /> },
+            ],
+          },
+          { path: 'access-denied', element: <AccessDeniedPage /> },
+          { path: '*', element: <NotFoundPage /> },
+        ],
+      },
+    ],
+  },
+])
