@@ -3,7 +3,23 @@ import type {
   HrOnboardingTask,
   OnboardingAssignmentCreateResult,
   OnboardingTaskFormInput,
+  HrOnboardingTaskPage,
 } from './hrOnboardingTypes'
+
+export function fetchOnboardingTasks(
+  page = 0,
+  size = 20,
+): Promise<HrOnboardingTaskPage> {
+  return request<HrOnboardingTaskPage>(
+    `/hr/onboarding-tasks?page=${page}&size=${size}`,
+  )
+}
+
+export function fetchOnboardingTask(
+  taskId: number,
+): Promise<HrOnboardingTask> {
+  return request<HrOnboardingTask>(`/hr/onboarding-tasks/${taskId}`)
+}
 
 export function createOnboardingTask(
   input: OnboardingTaskFormInput,

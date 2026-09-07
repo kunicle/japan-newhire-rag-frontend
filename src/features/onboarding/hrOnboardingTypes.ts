@@ -10,6 +10,16 @@ export interface HrOnboardingTask {
   updatedAt: string
 }
 
+export interface HrOnboardingTaskPage {
+  content: HrOnboardingTask[]
+  page: number
+  size: number
+  totalElements: number
+  totalPages: number
+  first: boolean
+  last: boolean
+}
+
 export interface OnboardingTaskFormInput {
   departmentId: number | null
   taskTitle: string

@@ -5,6 +5,8 @@ import {
   changeOnboardingTaskActivation,
   createOnboardingTask,
   updateOnboardingTask,
+  fetchOnboardingTask,
+  fetchOnboardingTasks,
 } from './hrOnboardingApi'
 import type { OnboardingTaskFormInput } from './hrOnboardingTypes'
 
@@ -20,6 +22,31 @@ const input: OnboardingTaskFormInput = {
 
 describe('hrOnboardingApi', () => {
   beforeEach(() => requestMock.mockReset())
+
+  it('fetches onboarding tasks with default pagination', async () => {
+    requestMock.mockResolvedValueOnce({})
+    await fetchOnboardingTasks()
+
+    expect(requestMock).toHaveBeenCalledWith(
+      '/hr/onboarding-tasks?page=0&size=20',
+    )
+  })
+
+  it('fetches onboarding tasks with explicit pagination', async () => {
+    requestMock.mockResolvedValueOnce({})
+    await fetchOnboardingTasks(2, 10)
+
+    expect(requestMock).toHaveBeenCalledWith(
+      '/hr/onboarding-tasks?page=2&size=10',
+    )
+  })
+
+  it('fetches an onboarding task detail', async () => {
+    requestMock.mockResolvedValueOnce({})
+    await fetchOnboardingTask(10)
+
+    expect(requestMock).toHaveBeenCalledWith('/hr/onboarding-tasks/10')
+  })
 
   it('creates an onboarding task', async () => {
     requestMock.mockResolvedValueOnce({})
