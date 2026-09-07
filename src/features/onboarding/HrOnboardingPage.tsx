@@ -11,11 +11,13 @@ import {
   assignOnboardingTask,
   changeOnboardingTaskActivation,
   createOnboardingTask,
+  fetchOnboardingTasks,
   updateOnboardingTask,
 } from './hrOnboardingApi'
 import { mapHrOnboardingErrorMessage } from './hrOnboardingHelpers'
 import type {
   HrOnboardingTask,
+  HrOnboardingTaskPage,
   OnboardingAssignmentCreateResult,
   OnboardingTaskFormInput,
 } from './hrOnboardingTypes'
@@ -23,6 +25,8 @@ import { OnboardingTaskForm } from './OnboardingTaskForm'
 import styles from './HrOnboardingPage.module.css'
 
 const ORGANIZATION_ERROR = '조직 정보를 불러오지 못했습니다.'
+const TASK_LIST_ERROR = '온보딩 태스크 목록을 불러오지 못했습니다.'
+const PAGE_SIZE = 20
 const ASSIGN_ELIGIBILITY_ERROR =
   '선택한 대상 중 신입사원 자격 조건을 만족하지 않는 직원이 있습니다.'
 
@@ -30,7 +34,12 @@ export function HrOnboardingPage() {
   const [organization, setOrganization] = useState<OrganizationResponse | null>(null)
   const [organizationLoading, setOrganizationLoading] = useState(true)
   const [organizationError, setOrganizationError] = useState<string | null>(null)
+  const [pageData, setPageData] = useState<HrOnboardingTaskPage | null>(null)
+  const [page, setPage] = useState(0)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [activeTask, setActiveTask] = useState<HrOnboardingTask | null>(null)
+  const [showCreateForm, setShowCreateForm] = useState(false)
   const [creating, setCreating] = useState(false)
   const [createError, setCreateError] = useState<string | null>(null)
   const [editingTask, setEditingTask] = useState(false)
@@ -44,6 +53,9 @@ export function HrOnboardingPage() {
   const [assignResult, setAssignResult] =
     useState<OnboardingAssignmentCreateResult | null>(null)
   const organizationFetchIdRef = useRef(0)
+  const taskFetchIdRef = useRef(0)
+  const preferredTaskIdRef = useRef<number | null>(null)
+  const activeTaskIdRef = useRef<number | null>(null)
   const mountedRef = useRef(false)
   const creatingTaskRef = useRef(false)
   const savingTaskRef = useRef(false)
@@ -69,18 +81,71 @@ export function HrOnboardingPage() {
     }
   }, [])
 
+  const resetTaskInteractionState = useCallback(() => {
+    setEditingTask(false)
+    setSaveError(null)
+    setActivationError(null)
+    setSelectedEmployeeIds(new Set())
+    setAssignError(null)
+    setAssignResult(null)
+  }, [])
+
+  const activateTask = useCallback((task: HrOnboardingTask | null) => {
+    if (activeTaskIdRef.current !== task?.taskId) {
+      resetTaskInteractionState()
+    }
+    activeTaskIdRef.current = task?.taskId ?? null
+    setActiveTask(task)
+  }, [resetTaskInteractionState])
+
+  const loadTasks = useCallback(async (
+    requestedPage: number,
+    preferredTaskId?: number,
+  ) => {
+    const requestId = ++taskFetchIdRef.current
+    setLoading(true)
+    setError(null)
+    try {
+      const response = await fetchOnboardingTasks(requestedPage, PAGE_SIZE)
+      if (!mountedRef.current || requestId !== taskFetchIdRef.current) return
+      setPageData(response)
+      const selectedTaskId = preferredTaskId ?? activeTaskIdRef.current
+      const selectedTask = response.content.find(
+        (task) => task.taskId === selectedTaskId,
+      ) ?? response.content[0] ?? null
+      activateTask(selectedTask)
+      if (response.content.length === 0) setShowCreateForm(true)
+    } catch (fetchError) {
+      if (!mountedRef.current || requestId !== taskFetchIdRef.current) return
+      setPageData(null)
+      activateTask(null)
+      setError(mapHrOnboardingErrorMessage(fetchError, TASK_LIST_ERROR))
+    } finally {
+      if (mountedRef.current && requestId === taskFetchIdRef.current) {
+        setLoading(false)
+      }
+    }
+  }, [activateTask])
+
   useEffect(() => {
     mountedRef.current = true
     queueMicrotask(() => void loadOrganization())
     return () => {
       mountedRef.current = false
       organizationFetchIdRef.current += 1
+      taskFetchIdRef.current += 1
       creatingTaskRef.current = false
       savingTaskRef.current = false
       changingActivationRef.current = false
       assigningRef.current = false
     }
   }, [loadOrganization])
+
+  useEffect(() => {
+    const preferredTaskId = preferredTaskIdRef.current ?? undefined
+    preferredTaskIdRef.current = null
+    queueMicrotask(() => void loadTasks(page, preferredTaskId))
+  }, [loadTasks, page])
 
   const departments = useMemo(
     () => flattenDepartments(organization?.departments ?? []),
@@ -91,6 +156,28 @@ export function HrOnboardingPage() {
     [organization],
   )
 
+  function selectTask(task: HrOnboardingTask) {
+    if (task.taskId === activeTask?.taskId) {
+      setShowCreateForm(false)
+      return
+    }
+    setCreateError(null)
+    setShowCreateForm(false)
+    activateTask(task)
+  }
+
+  function synchronizeTask(task: HrOnboardingTask) {
+    setActiveTask(task)
+    setPageData((current) => current
+      ? {
+          ...current,
+          content: current.content.map((item) =>
+            item.taskId === task.taskId ? task : item,
+          ),
+        }
+      : current)
+  }
+
   async function handleCreate(input: OnboardingTaskFormInput) {
     if (creatingTaskRef.current) return
     creatingTaskRef.current = true
@@ -98,7 +185,16 @@ export function HrOnboardingPage() {
     setCreateError(null)
     try {
       const response = await createOnboardingTask(input)
-      if (mountedRef.current) setActiveTask(response)
+      if (mountedRef.current) {
+        activateTask(response)
+        setShowCreateForm(false)
+        if (page === 0) {
+          await loadTasks(0, response.taskId)
+        } else {
+          preferredTaskIdRef.current = response.taskId
+          setPage(0)
+        }
+      }
     } catch (error) {
       if (mountedRef.current) {
         setCreateError(mapHrOnboardingErrorMessage(
@@ -120,7 +216,7 @@ export function HrOnboardingPage() {
     try {
       const response = await updateOnboardingTask(activeTask.taskId, input)
       if (mountedRef.current) {
-        setActiveTask(response)
+        synchronizeTask(response)
         setEditingTask(false)
       }
     } catch (error) {
@@ -146,7 +242,7 @@ export function HrOnboardingPage() {
         activeTask.taskId,
         !activeTask.active,
       )
-      if (mountedRef.current) setActiveTask(response)
+      if (mountedRef.current) synchronizeTask(response)
     } catch (error) {
       if (mountedRef.current) {
         setActivationError(mapHrOnboardingErrorMessage(
@@ -222,7 +318,7 @@ export function HrOnboardingPage() {
           신입사원 온보딩 태스크를 만들고 직원을 배정합니다.
         </p>
         <p className={styles.limitationNotice}>
-          현재 시스템에서는 이 화면에서 새로 만든 온보딩 태스크만 이어서 관리할 수 있습니다.
+          서버에 저장된 활성·비활성 태스크를 조회하고 계속 관리할 수 있습니다.
         </p>
       </header>
 
@@ -240,7 +336,84 @@ export function HrOnboardingPage() {
         </div>
       )}
 
-      {!activeTask ? (
+      <section className={styles.section} aria-labelledby="task-list-title">
+        <div className={styles.listHeading}>
+          <div>
+            <h2 className={styles.sectionTitle} id="task-list-title">온보딩 태스크 목록</h2>
+            {pageData && (
+              <p className={styles.listSummary}>전체 {pageData.totalElements}개</p>
+            )}
+          </div>
+          <Button
+            size="sm"
+            disabled={creating || saving || changingActivation || assigning}
+            onClick={() => {
+              setCreateError(null)
+              setShowCreateForm(true)
+            }}
+          >
+            새 태스크 만들기
+          </Button>
+        </div>
+
+        {loading ? (
+          <div className={styles.taskListLoading} role="status" aria-label="온보딩 태스크 목록을 불러오는 중">
+            <Skeleton lines={3} />
+          </div>
+        ) : error ? (
+          <div className={styles.taskListError}>
+            <p className={styles.error} role="alert">{error}</p>
+            <Button variant="secondary" onClick={() => void loadTasks(page)}>
+              다시 시도
+            </Button>
+          </div>
+        ) : pageData && pageData.content.length === 0 ? (
+          <p className={styles.emptyTaskList}>등록된 온보딩 태스크가 없습니다.</p>
+        ) : pageData ? (
+          <>
+            <ul className={styles.taskList} aria-label="온보딩 태스크 목록">
+              {pageData.content.map((task) => (
+                <li key={task.taskId}>
+                  <button
+                    type="button"
+                    className={styles.taskListButton}
+                    aria-pressed={!showCreateForm && activeTask?.taskId === task.taskId}
+                    disabled={creating || saving || changingActivation || assigning}
+                    onClick={() => selectTask(task)}
+                  >
+                    <span className={styles.taskListTitle}>{task.taskTitle}</span>
+                    <Badge variant={task.active ? 'success' : 'neutral'}>
+                      {task.active ? '활성' : '비활성'}
+                    </Badge>
+                    <span className={styles.taskListMeta}>완료 기한 {task.defaultDueDays}일</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+            {pageData.totalPages > 0 && (
+              <nav className={styles.pagination} aria-label="온보딩 태스크 페이지">
+                <Button
+                  variant="secondary"
+                  disabled={pageData.first || pageData.page === 0 || loading}
+                  onClick={() => setPage(pageData.page - 1)}
+                >
+                  이전
+                </Button>
+                <span>페이지 {pageData.page + 1} / {pageData.totalPages}</span>
+                <Button
+                  variant="secondary"
+                  disabled={pageData.last || loading}
+                  onClick={() => setPage(pageData.page + 1)}
+                >
+                  다음
+                </Button>
+              </nav>
+            )}
+          </>
+        ) : null}
+      </section>
+
+      {showCreateForm ? (
         <section className={styles.section} aria-labelledby="create-task-title">
           <h2 className={styles.sectionTitle} id="create-task-title">새 온보딩 태스크 만들기</h2>
           <OnboardingTaskForm
@@ -252,7 +425,7 @@ export function HrOnboardingPage() {
           />
           {createError && <p className={styles.error} role="alert">{createError}</p>}
         </section>
-      ) : (
+      ) : activeTask ? (
         <>
           <section className={styles.section} aria-labelledby="active-task-title">
             {editingTask ? (
@@ -369,7 +542,7 @@ export function HrOnboardingPage() {
             )}
           </section>
         </>
-      )}
+      ) : null}
     </div>
   )
 }
