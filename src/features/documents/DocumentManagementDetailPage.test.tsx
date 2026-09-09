@@ -22,6 +22,7 @@ const organizationApiMock = vi.hoisted(() => ({
 
 vi.mock('./documentManagementApi', () => documentApiMock)
 vi.mock('../organization/organizationApi', () => organizationApiMock)
+vi.mock('./DocumentAccessRuleForm', () => ({ DocumentAccessRuleForm: () => null }))
 
 ;(globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean })
   .IS_REACT_ACT_ENVIRONMENT = true
