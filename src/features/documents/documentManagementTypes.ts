@@ -48,3 +48,28 @@ export interface DocumentManagementDetail {
   createdAt: string
   versions: DocumentManagementVersion[]
 }
+
+export interface DocumentRetractionResult {
+  documentId: number
+  documentVersionId: number
+  publicationStatus: string
+  isActive: boolean
+  retractedAt: string
+  retractedBy: number
+}
+
+export interface DocumentVersionAuditEvent {
+  actionType: 'DOCUMENT_VERSION_RETRACTED'
+  actorUserId: number
+  previousValue: string | null
+  changedValue: string | null
+  createdAt: string
+}
+
+export interface DocumentVersionAuditEventPage {
+  content: DocumentVersionAuditEvent[]
+  page: number
+  size: number
+  totalElements: number
+  totalPages: number
+}

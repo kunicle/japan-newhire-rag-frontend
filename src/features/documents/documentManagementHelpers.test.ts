@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { AccessRuleReferences } from './accessRuleFormHelpers'
 import {
   buildAccessRuleReadSummaryLines,
+  formatDocumentVersionAuditState,
   formatDocumentStatus,
   formatPublicationStatus,
   toAccessRuleFormSnapshot,
@@ -29,7 +30,17 @@ describe('documentManagementHelpers', () => {
   it('formats publication statuses with an unknown fallback', () => {
     expect(formatPublicationStatus('PUBLIC')).toBe('공개')
     expect(formatPublicationStatus('DRAFT')).toBe('초안')
+    expect(formatPublicationStatus('RETRACTED')).toBe('철회됨')
     expect(formatPublicationStatus('REVIEW')).toBe('REVIEW')
+  })
+
+  it('formats document version audit state without exposing malformed raw values', () => {
+    expect(formatDocumentVersionAuditState('{"publicationStatus":"PUBLIC","isActive":true}'))
+      .toBe('공개 · 활성')
+    expect(formatDocumentVersionAuditState('{"publicationStatus":"RETRACTED","isActive":false}'))
+      .toBe('철회됨 · 비활성')
+    expect(formatDocumentVersionAuditState('secret raw value')).toBe('상태 정보 없음')
+    expect(formatDocumentVersionAuditState(null)).toBe('상태 정보 없음')
   })
 
   it('summarizes ALL', () => {
