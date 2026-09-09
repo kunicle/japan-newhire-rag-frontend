@@ -12,7 +12,21 @@ export function formatDocumentStatus(status: string): string {
 export function formatPublicationStatus(status: string): string {
   if (status === 'PUBLIC') return '공개'
   if (status === 'DRAFT') return '초안'
+  if (status === 'RETRACTED') return '철회됨'
   return status
+}
+
+export function formatDocumentVersionAuditState(value: string | null): string {
+  if (!value) return '상태 정보 없음'
+  try {
+    const parsed = JSON.parse(value) as { publicationStatus?: unknown; isActive?: unknown }
+    if (typeof parsed.publicationStatus !== 'string' || typeof parsed.isActive !== 'boolean') {
+      return '상태 정보 없음'
+    }
+    return `${formatPublicationStatus(parsed.publicationStatus)} · ${parsed.isActive ? '활성' : '비활성'}`
+  } catch {
+    return '상태 정보 없음'
+  }
 }
 
 export function toAccessRuleFormSnapshot(
