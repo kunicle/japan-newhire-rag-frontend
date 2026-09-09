@@ -6,9 +6,15 @@ import { fetchJobGrades, fetchOrganization } from '../organization/organizationA
 import { flattenDepartments } from '../organization/organizationHelpers'
 import type { AccessRuleReferences } from './accessRuleFormHelpers'
 import { DocumentAccessRuleForm } from './DocumentAccessRuleForm'
-import { fetchDocument } from './documentManagementApi'
+import {
+  fetchDocument,
+  fetchDocumentVersionAuditEvents,
+  retractDocumentVersion,
+} from './documentManagementApi'
+import { mapDocumentErrorMessage } from './documentErrors'
 import {
   buildAccessRuleReadSummaryLines,
+  formatDocumentVersionAuditState,
   formatDocumentStatus,
   formatPublicationStatus,
   toAccessRuleFormSnapshot,
@@ -16,11 +22,16 @@ import {
 import type {
   DocumentAccessRuleRead,
   DocumentManagementDetail,
+  DocumentVersionAuditEventPage,
 } from './documentManagementTypes'
 import styles from './DocumentManagementDetailPage.module.css'
 
 const DETAIL_ERROR_MESSAGE = '문서 정보를 불러오지 못했습니다.'
 const REFERENCE_ERROR_MESSAGE = '접근 조건 상세를 불러오지 못했습니다.'
+const RETRACT_ERROR_MESSAGE = '문서 버전을 철회하지 못했습니다.'
+const AUDIT_ERROR_MESSAGE = '철회 이력을 불러오지 못했습니다.'
+const RETRACT_CONFIRM_MESSAGE = '이 문서 버전을 철회하시겠습니까?\n철회 후에는 일반 RAG 검색에서 제외되며,\n이번 버전은 다시 발행할 수 없습니다.'
+const AUDIT_PAGE_SIZE = 20
 const dateTimeFormatter = new Intl.DateTimeFormat('ko-KR', { dateStyle: 'medium', timeStyle: 'short' })
 const dateFormatter = new Intl.DateTimeFormat('ko-KR', { dateStyle: 'medium', timeZone: 'UTC' })
 
@@ -45,8 +56,15 @@ export function DocumentManagementDetailPage() {
   const [referencesLoading, setReferencesLoading] = useState(false)
   const [referencesError, setReferencesError] = useState<string | null>(null)
   const [editingVersionId, setEditingVersionId] = useState<number | null>(null)
+  const [retractingVersionIds, setRetractingVersionIds] = useState<Set<number>>(new Set())
+  const [actionErrorByVersionId, setActionErrorByVersionId] = useState<Map<number, string>>(new Map())
+  const [auditPageByVersionId, setAuditPageByVersionId] = useState<Map<number, DocumentVersionAuditEventPage>>(new Map())
+  const [auditLoadingVersionIds, setAuditLoadingVersionIds] = useState<Set<number>>(new Set())
+  const [auditErrorByVersionId, setAuditErrorByVersionId] = useState<Map<number, string>>(new Map())
   const latestFetchIdRef = useRef(0)
   const referenceFetchIdRef = useRef(0)
+  const auditFetchIdByVersionRef = useRef<Map<number, number>>(new Map())
+  const retractingVersionIdsRef = useRef<Set<number>>(new Set())
   const mountedRef = useRef(false)
 
   const loadReferences = useCallback(async () => {
@@ -98,13 +116,52 @@ export function DocumentManagementDetailPage() {
     }
   }, [documentId, loadReferences, validDocumentId])
 
+  const loadAuditEvents = useCallback(async (documentVersionId: number, page = 0) => {
+    const requestId = (auditFetchIdByVersionRef.current.get(documentVersionId) ?? 0) + 1
+    auditFetchIdByVersionRef.current.set(documentVersionId, requestId)
+    setAuditLoadingVersionIds((current) => new Set(current).add(documentVersionId))
+    setAuditErrorByVersionId((current) => {
+      const next = new Map(current)
+      next.delete(documentVersionId)
+      return next
+    })
+    try {
+      const response = await fetchDocumentVersionAuditEvents(
+        documentId,
+        documentVersionId,
+        page,
+        AUDIT_PAGE_SIZE,
+      )
+      if (!mountedRef.current || auditFetchIdByVersionRef.current.get(documentVersionId) !== requestId) return
+      setAuditPageByVersionId((current) => new Map(current).set(documentVersionId, response))
+    } catch (error) {
+      if (!mountedRef.current || auditFetchIdByVersionRef.current.get(documentVersionId) !== requestId) return
+      setAuditErrorByVersionId((current) => new Map(current).set(
+        documentVersionId,
+        mapDocumentErrorMessage(error, AUDIT_ERROR_MESSAGE),
+      ))
+    } finally {
+      if (mountedRef.current && auditFetchIdByVersionRef.current.get(documentVersionId) === requestId) {
+        setAuditLoadingVersionIds((current) => {
+          const next = new Set(current)
+          next.delete(documentVersionId)
+          return next
+        })
+      }
+    }
+  }, [documentId])
+
   useEffect(() => {
+    const auditFetchIds = auditFetchIdByVersionRef.current
+    const retractingIds = retractingVersionIdsRef.current
     mountedRef.current = true
     if (validDocumentId) queueMicrotask(() => void loadDetail())
     return () => {
       mountedRef.current = false
       latestFetchIdRef.current += 1
       referenceFetchIdRef.current += 1
+      auditFetchIds.clear()
+      retractingIds.clear()
     }
   }, [loadDetail, validDocumentId])
 
@@ -115,6 +172,35 @@ export function DocumentManagementDetailPage() {
   async function handleAccessRuleSaved() {
     setEditingVersionId(null)
     await loadDetail()
+  }
+
+  async function handleRetract(documentVersionId: number) {
+    if (retractingVersionIdsRef.current.has(documentVersionId)) return
+    if (!window.confirm(RETRACT_CONFIRM_MESSAGE)) return
+    retractingVersionIdsRef.current.add(documentVersionId)
+    setRetractingVersionIds(new Set(retractingVersionIdsRef.current))
+    setActionErrorByVersionId((current) => {
+      const next = new Map(current)
+      next.delete(documentVersionId)
+      return next
+    })
+    let succeeded = false
+    try {
+      await retractDocumentVersion(documentId, documentVersionId)
+      succeeded = true
+    } catch (error) {
+      if (mountedRef.current) {
+        setActionErrorByVersionId((current) => new Map(current).set(
+          documentVersionId,
+          mapDocumentErrorMessage(error, RETRACT_ERROR_MESSAGE),
+        ))
+      }
+    }
+    if (succeeded && mountedRef.current) {
+      await Promise.all([loadDetail(), loadAuditEvents(documentVersionId)])
+    }
+    retractingVersionIdsRef.current.delete(documentVersionId)
+    if (mountedRef.current) setRetractingVersionIds(new Set(retractingVersionIdsRef.current))
   }
 
   function renderAccessRule(rule: DocumentAccessRuleRead | null) {
@@ -177,12 +263,30 @@ export function DocumentManagementDetailPage() {
                 {detail.versions.map((version) => (
                   <li className={styles.versionItem} key={version.documentVersionId}>
                     <div className={styles.versionHeader}>
-                      <h3 className={styles.versionTitle}>{version.versionName}</h3>
-                      <Badge variant={version.publicationStatus === 'PUBLIC' ? 'info' : 'neutral'}>
-                        {formatPublicationStatus(version.publicationStatus)}
-                      </Badge>
-                      {version.isActive && <Badge variant="success">현재 공개 버전</Badge>}
+                      <div className={styles.versionIdentity}>
+                        <h3 className={styles.versionTitle}>{version.versionName}</h3>
+                        <Badge variant={version.publicationStatus === 'PUBLIC' ? 'info' : version.publicationStatus === 'RETRACTED' ? 'danger' : 'neutral'}>
+                          {formatPublicationStatus(version.publicationStatus)}
+                        </Badge>
+                        {version.publicationStatus === 'PUBLIC' && version.isActive && <Badge variant="success">현재 공개 버전</Badge>}
+                      </div>
+                      {version.publicationStatus === 'PUBLIC' && version.isActive && (
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          loading={retractingVersionIds.has(version.documentVersionId)}
+                          disabled={retractingVersionIds.has(version.documentVersionId)}
+                          onClick={() => void handleRetract(version.documentVersionId)}
+                        >
+                          철회
+                        </Button>
+                      )}
                     </div>
+                    {actionErrorByVersionId.has(version.documentVersionId) && (
+                      <p className={styles.error} role="alert">
+                        {actionErrorByVersionId.get(version.documentVersionId)}
+                      </p>
+                    )}
                     <dl className={styles.details}>
                       <div><dt>원본 파일</dt><dd className={styles.fileName}>{version.originalFileName}</dd></div>
                       <div><dt>적용일</dt><dd>{formatDate(version.effectiveDate)}</dd></div>
@@ -223,6 +327,53 @@ export function DocumentManagementDetailPage() {
                         />
                       ) : renderAccessRule(version.accessRule)}
                     </div>
+                    <section className={styles.auditSection} aria-label={`${version.versionName} 철회 이력`}>
+                      <div className={styles.auditHeader}>
+                        <h4 className={styles.accessTitle}>철회 이력</h4>
+                        {!auditPageByVersionId.has(version.documentVersionId) && !auditErrorByVersionId.has(version.documentVersionId) && (
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            loading={auditLoadingVersionIds.has(version.documentVersionId)}
+                            onClick={() => void loadAuditEvents(version.documentVersionId)}
+                          >
+                            철회 이력 보기
+                          </Button>
+                        )}
+                      </div>
+                      {auditLoadingVersionIds.has(version.documentVersionId) && !auditPageByVersionId.has(version.documentVersionId) ? (
+                        <p className={styles.status} role="status">철회 이력을 불러오는 중...</p>
+                      ) : auditErrorByVersionId.has(version.documentVersionId) ? (
+                        <div className={styles.auditError}>
+                          <p className={styles.error} role="alert">{auditErrorByVersionId.get(version.documentVersionId)}</p>
+                          <Button variant="secondary" size="sm" onClick={() => void loadAuditEvents(version.documentVersionId)}>다시 시도</Button>
+                        </div>
+                      ) : auditPageByVersionId.has(version.documentVersionId) ? (() => {
+                        const auditPage = auditPageByVersionId.get(version.documentVersionId)!
+                        return auditPage.content.length === 0 ? (
+                          <p className={styles.unconfigured}>철회 이력이 없습니다.</p>
+                        ) : (
+                          <>
+                            <ul className={styles.auditList}>
+                              {auditPage.content.map((event) => (
+                                <li key={`${event.createdAt}-${event.actorUserId}`}>
+                                  <time dateTime={event.createdAt}>{formatDateTime(event.createdAt)}</time>
+                                  <span>실행자 app-user ID: {event.actorUserId}</span>
+                                  <span>{formatDocumentVersionAuditState(event.previousValue)} → {formatDocumentVersionAuditState(event.changedValue)}</span>
+                                </li>
+                              ))}
+                            </ul>
+                            {auditPage.totalPages > 1 && (
+                              <nav className={styles.pagination} aria-label={`${version.versionName} 철회 이력 페이지`}>
+                                <Button variant="secondary" size="sm" disabled={auditPage.page === 0 || auditLoadingVersionIds.has(version.documentVersionId)} onClick={() => void loadAuditEvents(version.documentVersionId, auditPage.page - 1)}>이전</Button>
+                                <span>페이지 {auditPage.page + 1} / {auditPage.totalPages}</span>
+                                <Button variant="secondary" size="sm" disabled={auditPage.page + 1 >= auditPage.totalPages || auditLoadingVersionIds.has(version.documentVersionId)} onClick={() => void loadAuditEvents(version.documentVersionId, auditPage.page + 1)}>다음</Button>
+                              </nav>
+                            )}
+                          </>
+                        )
+                      })() : null}
+                    </section>
                   </li>
                 ))}
               </ul>
