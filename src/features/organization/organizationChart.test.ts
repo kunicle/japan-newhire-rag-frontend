@@ -6,11 +6,11 @@ function employee(id: number, level: number, manager: number | null = null, depa
   return { employeeId: id, employeeNumber: 'hidden-' + id, employeeName: 'Employee ' + id, departmentId, departmentName: 'Department', jobGradeId: level, jobGradeName: 'Grade', jobGradeLevel: level, hireDate: '2024-01-01', managerEmployeeId: manager }
 }
 describe('organization chart', () => {
-  it('puts smaller grade levels above lower grades without inventing edges', () => {
+  it('sorts independent roots by grade without inventing hierarchy', () => {
     const chart = buildOrganizationChart([employee(3, 5), employee(1, 1), employee(2, 3)])
     expect(chart.nodes.map(node => node.employee.employeeId)).toEqual([1, 2, 3])
-    expect(chart.nodes[0].y).toBeLessThan(chart.nodes[1].y)
-    expect(chart.nodes[1].y).toBeLessThan(chart.nodes[2].y)
+    expect(chart.nodes[0].y).toBe(0)
+    expect(chart.nodes.every(node => node.y === 0)).toBe(true)
     expect(chart.edges).toHaveLength(0)
   })
   it('prioritizes real DIRECT relations even with inconsistent legacy grades and across departments', () => {
@@ -18,6 +18,20 @@ describe('organization chart', () => {
     expect(chart.edges).toHaveLength(2)
     const parent = chart.nodes.find(node => node.employee.employeeId === 1)!
     expect(chart.nodes.filter(node => node !== parent).every(node => node.y > parent.y)).toBe(true)
+  })
+  it('uses relation depth for rows and grade ASC only for sibling order', () => {
+    const chart = buildOrganizationChart([employee(1, 1), employee(2, 4, 1), employee(3, 2, 1), employee(4, 3, 1), employee(5, 1, 2)])
+    expect(chart.edges.map(edge => [edge.from.employee.employeeId, edge.to.employee.employeeId])).toEqual([[1, 3], [1, 4], [1, 2], [2, 5]])
+    const siblings = chart.nodes.filter(node => node.employee.managerEmployeeId === 1)
+    expect(new Set(siblings.map(node => node.y)).size).toBe(1)
+    expect(siblings.map(node => node.employee.employeeId)).toEqual([3, 4, 2])
+    expect(chart.nodes.find(node => node.employee.employeeId === 5)!.y).toBeGreaterThan(siblings[0].y)
+  })
+  it('retains unassigned and unavailable-manager employees once as roots', () => {
+    const chart = buildOrganizationChart([employee(1, 1), employee(2, 4, 99), employee(2, 4, 99)])
+    expect(chart.nodes.map(node => node.employee.employeeId)).toEqual([1, 2])
+    expect(chart.nodes.every(node => node.y === 0)).toBe(true)
+    expect(chart.edges).toHaveLength(0)
   })
   it('places siblings without overlapping, including large teams', () => {
     const chart = buildOrganizationChart([employee(1, 1), ...Array.from({ length: 100 }, (_, index) => employee(index + 2, 5, 1))])

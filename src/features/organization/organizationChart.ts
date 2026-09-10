@@ -38,12 +38,12 @@ export function wouldCreateManagerCycle(employees: OrganizationViewEmployee[], e
 }
 
 // Keep real ancestors when filtering, without inventing replacement reporting lines.
-export function filterChartEmployees(employees: OrganizationViewEmployee[], departmentId: number | null, query: string): OrganizationViewEmployee[] {
+export function filterChartEmployees(employees: OrganizationViewEmployee[], departmentId: number | ReadonlySet<number> | null, query: string): OrganizationViewEmployee[] {
   const byId = new Map(employees.map(employee => [employee.employeeId, employee]))
   const selected = new Set<number>()
   const search = query.trim().toLocaleLowerCase()
   for (const employee of employees) {
-    if (departmentId != null && employee.departmentId !== departmentId) continue
+    if (departmentId != null && (typeof departmentId === 'number' ? employee.departmentId !== departmentId : !departmentId.has(employee.departmentId))) continue
     if (search && !employee.employeeName.toLocaleLowerCase().includes(search)) continue
     let cursor: OrganizationViewEmployee | undefined = employee
     while (cursor && !selected.has(cursor.employeeId)) {
@@ -80,8 +80,6 @@ export function buildOrganizationChart(employees: OrganizationViewEmployee[]): O
     children.set(manager, siblings)
   }
   const roots = unique.filter(employee => !parent.has(employee.employeeId))
-  const grades = [...new Set(unique.map(employee => employee.jobGradeLevel).filter((level): level is number => level != null))].sort((a, b) => a - b)
-  const rank = (employee: OrganizationViewEmployee) => employee.jobGradeLevel == null ? grades.length : grades.indexOf(employee.jobGradeLevel)
   const widths = new Map<number, number>()
   function measure(employee: OrganizationViewEmployee): number {
     const descendants = children.get(employee.employeeId) ?? []
@@ -93,7 +91,7 @@ export function buildOrganizationChart(employees: OrganizationViewEmployee[]): O
   const nodes: ChartNode[] = []
   const edges: ChartEdge[] = []
   function place(employee: OrganizationViewEmployee, left: number, minimumRow: number, manager?: ChartNode) {
-    const row = Math.max(minimumRow, rank(employee))
+    const row = minimumRow
     const node = { employee, x: left + (widths.get(employee.employeeId)! - CARD_WIDTH) / 2, y: row * (CARD_HEIGHT + ROW_GAP) }
     nodes.push(node)
     if (manager) edges.push({ from: manager, to: node })
