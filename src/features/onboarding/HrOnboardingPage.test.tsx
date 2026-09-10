@@ -154,8 +154,8 @@ describe('HrOnboardingPage', () => {
 
     await renderPage()
 
-    expect(container.textContent).toContain('등록된 온보딩 태스크가 없습니다.')
-    expect(container.textContent).toContain('새 온보딩 태스크 만들기')
+    expect(container.textContent).toContain('등록된 오늘 할 일가 없습니다.')
+    expect(container.textContent).toContain('새 오늘 할 일 만들기')
   })
 
   it('shows a loading error and retries the request', async () => {
@@ -166,7 +166,7 @@ describe('HrOnboardingPage', () => {
     await renderPage()
 
     expect(container.querySelector('[role="alert"]')?.textContent).toContain(
-      '온보딩 태스크 목록을 불러오지 못했습니다.',
+      '오늘 할 일 목록을 불러오지 못했습니다.',
     )
 
     await act(async () => buttonWithText('다시 시도')?.click())

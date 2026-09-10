@@ -54,6 +54,9 @@ export function EmployeeEditDialog({ employee, employees, departments, onClose, 
       .finally(() => { if (active) setLoading(false) })
     return () => { active = false }
   }, [retry])
+  const departmentOptions = flattenDepartments(departments)
+  const validDepartment = departmentId === String(employee.departmentId)
+    || departmentOptions.some(value => String(value.departmentId) === departmentId && value.parentDepartmentId !== null)
   const grade = grades.find(value => value.jobGradeId === Number(gradeId))
   const candidates = employees.filter(candidate => candidate.employeeId !== employee.employeeId
     && !wouldCreateManagerCycle(employees, employee.employeeId, candidate.employeeId)
@@ -61,7 +64,7 @@ export function EmployeeEditDialog({ employee, employees, departments, onClose, 
   const validManager = managerId === '' || candidates.some(candidate => candidate.employeeId === Number(managerId))
   async function submit(event: FormEvent) {
     event.preventDefault()
-    if (busy || loading || !grade || !validManager) return
+    if (busy || loading || !grade || !validManager || !validDepartment) return
     setBusy(true); setError('')
     try {
       await updateEmployeeOrganization(employee.employeeId, { departmentId: Number(departmentId), jobGradeId: grade.jobGradeId, managerEmployeeId: managerId === '' ? null : Number(managerId) })
@@ -70,8 +73,8 @@ export function EmployeeEditDialog({ employee, employees, departments, onClose, 
   }
   return <EditDialog title="직원 조직정보 수정" busy={busy} onClose={onClose}><form onSubmit={event => void submit(event)} className={styles.form}>
     <p className={styles.readOnlyName}>{employee.employeeName}</p>
-    <fieldset disabled={busy}><label>부서<select required value={departmentId} onChange={event => setDepartmentId(event.target.value)}>{flattenDepartments(departments).map(department =>
-      <option key={department.departmentId} value={department.departmentId}>{'　'.repeat(department.depth)}{organizationDisplayLabel(department.departmentName)}</option>)}</select></label>
+    <fieldset disabled={busy}><label>부서<select required value={departmentId} onChange={event => setDepartmentId(event.target.value)}>{departmentOptions.map(department =>
+      <option key={department.departmentId} value={department.departmentId} disabled={department.parentDepartmentId === null}>{'　'.repeat(department.depth)}{organizationDisplayLabel(department.departmentName)}</option>)}</select></label>
     <label>직급<select required disabled={loading} value={gradeId} onChange={event => setGradeId(event.target.value)}>
       <option value="">직급 선택</option>{!loading && !grades.some(value => String(value.jobGradeId) === gradeId) && gradeId && <option value={gradeId} disabled>{employee.jobGradeName} (선택 불가)</option>}
       {grades.map(value => <option key={value.jobGradeId} value={value.jobGradeId}>{organizationDisplayLabel(value.jobGradeName)}</option>)}</select></label>
@@ -83,7 +86,7 @@ export function EmployeeEditDialog({ employee, employees, departments, onClose, 
     {loading && <p role="status">직급 목록을 불러오는 중입니다.</p>}
     {error && <p className={styles.error} role="alert">{error}</p>}
     {!loading && grades.length === 0 && <Button variant="secondary" onClick={() => { setLoading(true); setError(''); setRetry(value => value + 1) }}>직급 다시 불러오기</Button>}
-    <footer className={styles.actions}><Button variant="secondary" disabled={busy} onClick={onClose}>취소</Button><Button type="submit" loading={busy} disabled={loading || !grade || !validManager}>저장</Button></footer>
+    <footer className={styles.actions}><Button variant="secondary" disabled={busy} onClick={onClose}>취소</Button><Button type="submit" loading={busy} disabled={loading || !grade || !validManager || !validDepartment}>저장</Button></footer>
   </form></EditDialog>
 }
 

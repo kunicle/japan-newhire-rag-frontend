@@ -2,6 +2,7 @@ import { request } from '../../shared/api/httpClient'
 import type {
   CourseEnrollmentCreateInput,
   CourseEnrollmentCreateResult,
+  CourseModuleAttachmentResponse,
   CoursePublicationStatus,
   HrCourse,
   HrCourseFormInput,
@@ -90,5 +91,29 @@ export function changeModuleActivation(
   return request<HrCourseModule>(`/hr/course-modules/${moduleId}/activation`, {
     method: 'PATCH',
     body: JSON.stringify({ active }),
+  })
+}
+
+export function uploadCourseModuleAttachment(
+  moduleId: number,
+  file: File,
+): Promise<CourseModuleAttachmentResponse> {
+  const body = new FormData()
+  body.append('file', file)
+  return request<CourseModuleAttachmentResponse>(
+    `/hr/course-modules/${moduleId}/attachment`,
+    { method: 'POST', body },
+  )
+}
+
+export function downloadCourseModuleAttachment(moduleId: number): Promise<Blob> {
+  return request<Blob>(`/course-modules/${moduleId}/attachment`, {
+    responseType: 'blob',
+  })
+}
+
+export function deleteCourseModuleAttachment(moduleId: number): Promise<void> {
+  return request<void>(`/hr/course-modules/${moduleId}/attachment`, {
+    method: 'DELETE',
   })
 }

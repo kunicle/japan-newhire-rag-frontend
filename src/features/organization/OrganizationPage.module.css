@@ -43,3 +43,19 @@
   .chartScroll { padding: 24px 12px; }
   .dialog { padding: 20px; }
 }
+
+.organizationLayout { display: grid; grid-template-columns: 240px minmax(0, 1fr); align-items: start; gap: var(--space-4); }
+.organizationContent { min-width: 0; }
+.departmentPanel { min-width: 0; padding: var(--space-4); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-large); }
+.departmentPanel h2 { margin: 0 0 var(--space-4); font-size: 1rem; }
+.departmentPanel ul { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--space-2); }
+.departmentPanel button { width: 100%; padding: 12px; border: 1px solid transparent; border-radius: var(--radius-small); background: transparent; color: var(--color-text-primary); font: inherit; text-align: left; cursor: pointer; overflow-wrap: anywhere; }
+.departmentPanel button:hover { background: var(--color-background); }
+.departmentPanel button[aria-current="true"] { color: var(--color-primary); background: var(--color-primary-soft); border-color: var(--color-primary); font-weight: var(--font-weight-semibold); }
+.departmentPanel button:focus-visible { outline: var(--focus-ring-width) solid var(--focus-ring-color); outline-offset: 2px; }
+.editToolbar .actions { flex-wrap: wrap; align-items: center; min-width: 0; }
+.departmentEditSelect { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2); min-width: 0; }
+.departmentEditSelect select { max-width: 100%; min-width: 0; padding: 8px; font: inherit; color: var(--color-text-primary); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-small); }
+@media (max-width: 767px) {
+  .organizationLayout { grid-template-columns: minmax(0, 1fr); }
+}

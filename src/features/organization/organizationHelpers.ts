@@ -18,8 +18,8 @@ export interface FlatEmployee {
 
 export function flattenDepartments(
   nodes: OrganizationDepartmentNode[],
-): FlatDepartment[] {
-  const result: FlatDepartment[] = []
+): (FlatDepartment & Pick<OrganizationDepartmentNode, 'parentDepartmentId'>)[] {
+  const result: (FlatDepartment & Pick<OrganizationDepartmentNode, 'parentDepartmentId'>)[] = []
   const seen = new Set<number>()
 
   function visit(items: OrganizationDepartmentNode[], depth: number) {
@@ -30,6 +30,7 @@ export function flattenDepartments(
         departmentId: node.departmentId,
         departmentCode: node.departmentCode,
         departmentName: node.departmentName,
+        parentDepartmentId: node.parentDepartmentId,
         depth,
       })
       visit(node.children, depth + 1)

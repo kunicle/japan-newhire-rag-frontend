@@ -49,6 +49,7 @@ describe('flattenDepartments', () => {
       departmentId: 1,
       departmentCode: 'D1',
       departmentName: 'First',
+      parentDepartmentId: null,
       depth: 0,
     }])
   })

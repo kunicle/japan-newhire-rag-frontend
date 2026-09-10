@@ -8,11 +8,14 @@ import {
   changeCoursePublication,
   changeModuleActivation,
   createHrCourseModule,
+  deleteCourseModuleAttachment,
   deleteHrCourse,
+  downloadCourseModuleAttachment,
   fetchHrCourse,
   fetchHrCourseModules,
   updateHrCourse,
   updateHrCourseModule,
+  uploadCourseModuleAttachment,
 } from './hrCourseApi'
 import {
   coursePublicationBadgeVariant,
@@ -31,12 +34,17 @@ import { ModuleForm } from './ModuleForm'
 import styles from './HrCourseDetailPage.module.css'
 
 const COURSE_ERROR = '교육 과정 정보를 불러오지 못했습니다.'
-const MODULE_ERROR = '학습 모듈을 불러오지 못했습니다.'
+const MODULE_ERROR = '이수 단위를 불러오지 못했습니다.'
 const MODULE_CONFLICT = '이미 사용 중인 학습 순서이거나 현재 상태에서 변경할 수 없습니다.'
 const dateFormatter = new Intl.DateTimeFormat('ko-KR', { dateStyle: 'medium', timeZone: 'UTC' })
 function formatDate(value: string) {
   const date = new Date(`${value}T00:00:00Z`)
   return Number.isNaN(date.getTime()) ? '날짜 정보 없음' : dateFormatter.format(date)
+}
+function formatFileSize(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`
+  const kilobytes = bytes / 1024
+  return `${kilobytes < 10 ? kilobytes.toFixed(1) : Math.round(kilobytes)} KB`
 }
 function publicationActionLabel(status: CoursePublicationStatus) {
   if (status === 'PUBLIC') return '공개'
@@ -163,7 +171,7 @@ export function HrCourseDetailPage() {
     if (!beginModuleWrite(moduleId)) return
     let succeeded = false
     try { await updateHrCourseModule(moduleId, input); succeeded = true }
-    catch (error) { if (mountedRef.current) setActionErrorByModuleId((current) => new Map(current).set(moduleId, mapHrCourseErrorMessage(error, '학습 모듈 수정에 실패했습니다.', MODULE_CONFLICT))) }
+    catch (error) { if (mountedRef.current) setActionErrorByModuleId((current) => new Map(current).set(moduleId, mapHrCourseErrorMessage(error, '이수 단위 수정에 실패했습니다.', MODULE_CONFLICT))) }
     if (succeeded && mountedRef.current) { setEditingModuleId(null); await loadModules() }
     finishModuleWrite(moduleId)
   }
@@ -173,7 +181,53 @@ export function HrCourseDetailPage() {
     if (!beginModuleWrite(moduleId)) return
     let succeeded = false
     try { await changeModuleActivation(moduleId, !module.active); succeeded = true }
-    catch (error) { if (mountedRef.current) setActionErrorByModuleId((current) => new Map(current).set(moduleId, mapHrCourseErrorMessage(error, '학습 모듈 상태 변경에 실패했습니다.', MODULE_CONFLICT))) }
+    catch (error) { if (mountedRef.current) setActionErrorByModuleId((current) => new Map(current).set(moduleId, mapHrCourseErrorMessage(error, '이수 단위 상태 변경에 실패했습니다.', MODULE_CONFLICT))) }
+    if (succeeded && mountedRef.current) await loadModules()
+    finishModuleWrite(moduleId)
+  }
+
+  async function handleAttachmentUpload(moduleId: number, file: File) {
+    if (!file.name.toLowerCase().endsWith('.txt')) {
+      setActionErrorByModuleId((current) => new Map(current).set(
+        moduleId,
+        'TXT 파일만 첨부할 수 있습니다.',
+      ))
+      return
+    }
+    if (!beginModuleWrite(moduleId)) return
+    let succeeded = false
+    try { await uploadCourseModuleAttachment(moduleId, file); succeeded = true }
+    catch (error) { if (mountedRef.current) setActionErrorByModuleId((current) => new Map(current).set(moduleId, mapHrCourseErrorMessage(error, '첨부 자료 업로드에 실패했습니다.'))) }
+    if (succeeded && mountedRef.current) await loadModules()
+    finishModuleWrite(moduleId)
+  }
+
+  async function handleAttachmentDownload(moduleId: number, fileName: string) {
+    if (!beginModuleWrite(moduleId)) return
+    try {
+      const attachment = await downloadCourseModuleAttachment(moduleId)
+      if (mountedRef.current) {
+        const objectUrl = URL.createObjectURL(attachment)
+        const link = document.createElement('a')
+        link.href = objectUrl
+        link.download = fileName
+        document.body.append(link)
+        link.click()
+        link.remove()
+        URL.revokeObjectURL(objectUrl)
+      }
+    } catch (error) {
+      if (mountedRef.current) setActionErrorByModuleId((current) => new Map(current).set(moduleId, mapHrCourseErrorMessage(error, '첨부 자료 다운로드에 실패했습니다.')))
+    }
+    finishModuleWrite(moduleId)
+  }
+
+  async function handleAttachmentDelete(moduleId: number) {
+    if (!window.confirm('첨부 자료를 삭제하시겠습니까?')) return
+    if (!beginModuleWrite(moduleId)) return
+    let succeeded = false
+    try { await deleteCourseModuleAttachment(moduleId); succeeded = true }
+    catch (error) { if (mountedRef.current) setActionErrorByModuleId((current) => new Map(current).set(moduleId, mapHrCourseErrorMessage(error, '첨부 자료 삭제에 실패했습니다.'))) }
     if (succeeded && mountedRef.current) await loadModules()
     finishModuleWrite(moduleId)
   }
@@ -183,7 +237,7 @@ export function HrCourseDetailPage() {
     creatingModuleRef.current = true; setCreatingModule(true); setCreateModuleError(null)
     let succeeded = false
     try { await createHrCourseModule(courseId, input); succeeded = true }
-    catch (error) { if (mountedRef.current) setCreateModuleError(mapHrCourseErrorMessage(error, '학습 모듈 생성에 실패했습니다.', MODULE_CONFLICT)) }
+    catch (error) { if (mountedRef.current) setCreateModuleError(mapHrCourseErrorMessage(error, '이수 단위 생성에 실패했습니다.', MODULE_CONFLICT)) }
     if (succeeded && mountedRef.current) { setShowCreateModule(false); await loadModules() }
     creatingModuleRef.current = false
     if (mountedRef.current) setCreatingModule(false)
@@ -206,18 +260,24 @@ export function HrCourseDetailPage() {
     </section>
 
     <section className={styles.section} aria-labelledby="modules-title">
-      <div className={styles.sectionHeader}><div className={styles.sectionTitleGroup}><h2 className={styles.sectionTitle} id="modules-title">학습 모듈</h2><p>과정에서 학습할 콘텐츠와 순서를 관리합니다.</p></div><Button leadingIcon={<Plus size={16} aria-hidden="true" />} disabled={showCreateModule} onClick={() => { setEditingModuleId(null); setShowCreateModule(true); setCreateModuleError(null) }}>모듈 추가</Button></div>
-      {showCreateModule && <div className={styles.formPanel}>{createModuleError && <p className={styles.error} role="alert">{createModuleError}</p>}<ModuleForm submitting={creatingModule} submitLabel="모듈 만들기" onSubmit={(input) => void handleModuleCreate(input)} onCancel={() => setShowCreateModule(false)} /></div>}
+      <div className={styles.sectionHeader}><div className={styles.sectionTitleGroup}><h2 className={styles.sectionTitle} id="modules-title">이수 단위</h2><p>과정에서 학습할 콘텐츠와 순서를 관리합니다.</p></div><Button leadingIcon={<Plus size={16} aria-hidden="true" />} disabled={showCreateModule} onClick={() => { setEditingModuleId(null); setShowCreateModule(true); setCreateModuleError(null) }}>이수 단위 추가</Button></div>
+      {showCreateModule && <div className={styles.formPanel}>{createModuleError && <p className={styles.error} role="alert">{createModuleError}</p>}<ModuleForm submitting={creatingModule} submitLabel="이수 단위 만들기" onSubmit={(input) => void handleModuleCreate(input)} onCancel={() => setShowCreateModule(false)} /></div>}
       {modulesError && <div className={styles.errorState}><p className={styles.error} role="alert">{modulesError}</p><Button variant="secondary" onClick={() => void loadModules()}>다시 시도</Button></div>}
-      {modulesLoading && modules.length === 0 ? <div className={styles.skeletons} role="status" aria-label="학습 모듈을 불러오는 중"><Skeleton lines={4}/><Skeleton lines={4}/></div>
-        : modules.length === 0 ? <EmptyState title="학습 모듈이 없습니다." description="모듈을 추가해 교육 내용을 구성하세요."/>
+      {modulesLoading && modules.length === 0 ? <div className={styles.skeletons} role="status" aria-label="이수 단위를 불러오는 중"><Skeleton lines={4}/><Skeleton lines={4}/></div>
+        : modules.length === 0 ? <EmptyState title="이수 단위가 없습니다." description="이수 단위를 추가해 교육 내용을 구성하세요."/>
         : <ol className={styles.moduleList}>{modules.map((module) => {
           const pending = pendingModuleIds.has(module.courseModuleId)
           const actionError = actionErrorByModuleId.get(module.courseModuleId)
           return <li className={styles.moduleItem} key={module.courseModuleId}>
             <div className={styles.moduleHeader}><h3 className={styles.moduleTitle}>{module.moduleTitle}</h3><div className={styles.badgeGroup}><Badge variant={module.required ? 'warning' : 'neutral'}>{module.required ? '필수' : '선택'}</Badge><Badge variant={module.active ? 'success' : 'neutral'}>{module.active ? '활성' : '비활성'}</Badge></div></div>
             {editingModuleId === module.courseModuleId ? <ModuleForm initialValue={{ moduleTitle: module.moduleTitle, moduleContent: module.moduleContent ?? '', referenceUrl: module.referenceUrl ?? '', moduleOrder: module.moduleOrder, required: module.required }} submitting={pending} submitLabel="수정 저장" onSubmit={(input) => void handleModuleUpdate(module.courseModuleId, input)} onCancel={() => setEditingModuleId(null)} /> : <>
-              <div className={styles.moduleBody}><p className={styles.order}>학습 순서 {module.moduleOrder}</p>{module.moduleContent?.trim() && <p className={styles.moduleContent}>{module.moduleContent}</p>}{module.referenceUrl && <a href={module.referenceUrl} target="_blank" rel="noreferrer">참고 자료 열기</a>}</div>
+              <div className={styles.moduleBody}><p className={styles.order}>학습 순서 {module.moduleOrder}</p>{module.moduleContent?.trim() && <p className={styles.moduleContent}>{module.moduleContent}</p>}{module.referenceUrl && <a href={module.referenceUrl} target="_blank" rel="noreferrer">참고 자료 열기</a>}
+                <div className={styles.attachmentPanel}>
+                  {module.attachmentFileName && module.attachmentFileSize !== null ? <div className={styles.attachmentSummary}><span>TXT 자료: {module.attachmentFileName} ({formatFileSize(module.attachmentFileSize)})</span><div className={styles.attachmentActions}><Button size="sm" variant="secondary" loading={pending} disabled={pending} onClick={() => void handleAttachmentDownload(module.courseModuleId, module.attachmentFileName!)}>다운로드</Button><Button size="sm" variant="danger" disabled={pending} onClick={() => void handleAttachmentDelete(module.courseModuleId)}>첨부 삭제</Button></div></div> : <p className={styles.noAttachment}>등록된 TXT 자료가 없습니다.</p>}
+                  <label className={styles.fileLabel} htmlFor={`module-attachment-${module.courseModuleId}`}>{module.attachmentFileName ? 'TXT 자료 교체' : 'TXT 자료 첨부'}</label>
+                  <input id={`module-attachment-${module.courseModuleId}`} className={styles.fileInput} type="file" accept=".txt,text/plain" disabled={pending} onChange={(event) => { const file = event.currentTarget.files?.[0]; event.currentTarget.value = ''; if (file) void handleAttachmentUpload(module.courseModuleId, file) }} />
+                </div>
+              </div>
               <div className={styles.moduleActions}><Button size="sm" variant="secondary" disabled={pending} onClick={() => { setShowCreateModule(false); setEditingModuleId(module.courseModuleId) }}>수정</Button><Button size="sm" variant="secondary" loading={pending} disabled={pending} onClick={() => void handleModuleActivation(module)}>{module.active ? '비활성화' : '활성화'}</Button></div>
             </>}
             {actionError && <p className={styles.error} role="alert">{actionError}</p>}

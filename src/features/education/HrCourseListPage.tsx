@@ -50,7 +50,7 @@ export function HrCourseListPage() {
 
   return <div className={styles.page}>
     <header className={styles.header}>
-      <div><h1 className={styles.title}>교육 과정 관리</h1><p className={styles.description}>교육 과정과 학습 모듈을 만들고 관리합니다.</p></div>
+      <div><h1 className={styles.title}>교육 과정 관리</h1><p className={styles.description}>교육 과정과 이수 단위를 만들고 관리합니다.</p></div>
       <Link className={styles.primaryLink} to="/hr/courses/new">새 과정</Link>
     </header>
     {loading ? <div className={styles.skeletons} role="status" aria-label="교육 과정 목록을 불러오는 중"><Skeleton lines={4}/><Skeleton lines={4}/></div>
