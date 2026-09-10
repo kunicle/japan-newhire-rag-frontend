@@ -218,6 +218,12 @@ describe('MyEducationDetailPage', () => {
   })
 
   it('downloads an attached TXT file using its original file name', async () => {
+    let downloadedFileName = ''
+    vi.mocked(HTMLAnchorElement.prototype.click).mockImplementation(function (
+      this: HTMLAnchorElement,
+    ) {
+      downloadedFileName = this.download
+    })
     const attachment = new Blob(['교육 자료'], { type: 'text/plain' })
     educationApiMock.fetchMyCourseDetail.mockResolvedValue({
       ...courseDetail,
@@ -238,6 +244,7 @@ describe('MyEducationDetailPage', () => {
       attachmentModule.moduleId,
     )
     expect(URL.createObjectURL).toHaveBeenCalledWith(attachment)
+    expect(downloadedFileName).toBe(attachmentModule.attachmentFileName)
     expect(URL.revokeObjectURL).toHaveBeenCalledWith(
       'blob:course-module-attachment',
     )
