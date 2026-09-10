@@ -6,12 +6,15 @@ import {
   createCourseEnrollments,
   createHrCourse,
   createHrCourseModule,
+  deleteCourseModuleAttachment,
   deleteHrCourse,
+  downloadCourseModuleAttachment,
   fetchHrCourse,
   fetchHrCourseModules,
   fetchHrCourses,
   updateHrCourse,
   updateHrCourseModule,
+  uploadCourseModuleAttachment,
 } from './hrCourseApi'
 import type { HrCourseFormInput, HrCourseModuleFormInput } from './hrCourseTypes'
 
@@ -93,6 +96,38 @@ describe('hrCourseApi', () => {
     expect(requestMock).toHaveBeenCalledWith('/hr/course-modules/5/activation', {
       method: 'PATCH', body: JSON.stringify({ active: false }),
     })
+  })
+
+  it('uploads a TXT attachment as FormData', async () => {
+    const file = new File(['attachment'], 'guide.txt', { type: 'text/plain' })
+    requestMock.mockResolvedValueOnce({})
+    await uploadCourseModuleAttachment(5, file)
+
+    expect(requestMock).toHaveBeenCalledWith(
+      '/hr/course-modules/5/attachment',
+      expect.objectContaining({ method: 'POST' }),
+    )
+    const body = requestMock.mock.calls[0]?.[1]?.body
+    expect(body).toBeInstanceOf(FormData)
+    expect((body as FormData).get('file')).toBe(file)
+  })
+
+  it('downloads an attachment as a Blob', async () => {
+    requestMock.mockResolvedValueOnce(new Blob(['attachment']))
+    await downloadCourseModuleAttachment(5)
+    expect(requestMock).toHaveBeenCalledWith(
+      '/course-modules/5/attachment',
+      { responseType: 'blob' },
+    )
+  })
+
+  it('deletes an attachment without a body', async () => {
+    requestMock.mockResolvedValueOnce(undefined)
+    await deleteCourseModuleAttachment(5)
+    expect(requestMock).toHaveBeenCalledWith(
+      '/hr/course-modules/5/attachment',
+      { method: 'DELETE' },
+    )
   })
 
   it('creates course enrollments with an exact body', async () => {
