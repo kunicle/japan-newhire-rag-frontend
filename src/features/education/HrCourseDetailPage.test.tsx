@@ -79,6 +79,10 @@ describe('HrCourseDetailPage attachments', () => {
       configurable: true,
       value: vi.fn(),
     })
+    Object.defineProperty(window, 'confirm', {
+      configurable: true,
+      value: vi.fn(),
+    })
     vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
     root = null
     container = document.createElement('div')
@@ -171,7 +175,7 @@ describe('HrCourseDetailPage attachments', () => {
   })
 
   it('deletes an attachment after confirmation and reloads the module list', async () => {
-    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    vi.mocked(window.confirm).mockReturnValue(true)
     hrCourseApiMock.deleteCourseModuleAttachment.mockResolvedValue(undefined)
     await renderPage()
 
