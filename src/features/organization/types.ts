@@ -7,6 +7,8 @@ export interface OrganizationEmployee {
   jobGradeName: string | null
   jobGradeLevel: number | null
   hireDate: string
+  departmentName?: string
+  managerEmployeeId?: number | null
 }
 
 export interface OrganizationDepartmentNode {
