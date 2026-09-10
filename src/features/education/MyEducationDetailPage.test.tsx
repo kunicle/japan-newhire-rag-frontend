@@ -376,4 +376,26 @@ describe('MyEducationDetailPage', () => {
 
     expect(container.textContent?.match(/날짜 정보 없음/g)).toHaveLength(5)
   })
+  it('does not render the quiz before completing the course', async () => {
+    await renderPage()
+
+    expect(container.textContent).not.toContain('교육 이수 확인 퀴즈')
+  })
+
+  it('renders the quiz after completing the course', async () => {
+    educationApiMock.fetchMyCourseDetail.mockResolvedValue({
+      ...courseDetail,
+      progressRate: 100,
+      status: 'COMPLETED',
+      completedAt: '2026-09-10T18:00:00+09:00',
+      modules: [completedModule],
+    })
+
+    await renderPage()
+
+    expect(container.textContent).toContain('교육 이수 확인 퀴즈')
+    expect(container.textContent).toContain(
+      '결과는 저장되지 않습니다.',
+    )
+  })
 })
