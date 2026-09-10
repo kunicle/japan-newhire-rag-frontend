@@ -7,10 +7,10 @@ import type { AuditActionType, AuditLogEntry, AuditLogFilters, AuditTargetType }
 import styles from './AuditPage.module.css'
 
 const PAGE_SIZE = 20
-const ACTIONS: AuditActionType[] = ['USER_CREATED', 'ACCOUNT_ACTIVATED', 'ACCOUNT_DEACTIVATED', 'ROLE_GRANTED', 'ROLE_REVOKED', 'DIRECT_MANAGER_CHANGED', 'EVALUATION_RESULT_PUBLISHED']
-const TARGETS: AuditTargetType[] = ['APP_USER', 'USER_ROLE', 'EMPLOYEE', 'EVALUATION']
+const ACTIONS: AuditActionType[] = ['USER_CREATED', 'ACCOUNT_ACTIVATED', 'ACCOUNT_DEACTIVATED', 'ROLE_GRANTED', 'ROLE_REVOKED', 'DIRECT_MANAGER_CHANGED', 'EMPLOYEE_DEPARTMENT_CHANGED', 'EMPLOYEE_JOB_GRADE_CHANGED', 'DEPARTMENT_CREATED', 'DEPARTMENT_UPDATED', 'EVALUATION_RESULT_PUBLISHED']
+const TARGETS: AuditTargetType[] = ['APP_USER', 'USER_ROLE', 'EMPLOYEE', 'DEPARTMENT', 'EVALUATION']
 const dateFormatter = new Intl.DateTimeFormat('ko-KR', { dateStyle: 'medium', timeStyle: 'short' })
-const KEY_LABELS: Record<string, string> = { roleType: '역할', managerEmployeeId: '관리자 직원 ID', cycleId: '평가 주기 ID', visibleManagerFeedbackIds: '공개 관리자 피드백 ID' }
+const KEY_LABELS: Record<string, string> = { departmentId: '부서 ID', jobGradeId: '직급 ID', departmentCode: '부서 코드', departmentName: '부서명', parentDepartmentId: '상위 부서 ID', roleType: '역할', managerEmployeeId: '관리자 직원 ID', cycleId: '평가 주기 ID', visibleManagerFeedbackIds: '공개 관리자 피드백 ID' }
 interface DraftFilters { actionType: '' | AuditActionType; targetType: '' | AuditTargetType; actorUserIdText: string; targetIdText: string; from: string; to: string }
 const EMPTY_DRAFT: DraftFilters = { actionType: '', targetType: '', actorUserIdText: '', targetIdText: '', from: '', to: '' }
 

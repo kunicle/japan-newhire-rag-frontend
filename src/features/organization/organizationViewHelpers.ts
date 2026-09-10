@@ -19,6 +19,7 @@ export interface OrganizationViewEmployee {
   jobGradeName: string | null
   jobGradeLevel: number | null
   hireDate: string
+  managerEmployeeId?: number | null
 }
 
 export function flattenOrganizationViewEmployees(nodes: OrganizationDepartmentNode[]): OrganizationViewEmployee[] {
