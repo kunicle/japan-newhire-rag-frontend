@@ -33,6 +33,13 @@
 .moduleBody { display: flex; min-width: 0; flex-direction: column; gap: var(--space-3); }
 .order { align-self: flex-start; margin: 0; padding: var(--space-1) var(--space-2); color: var(--color-text-tertiary); background: var(--color-background); border-radius: var(--radius-small); font-size: var(--font-size-caption); font-weight: var(--font-weight-semibold); }
 .moduleContent { margin: 0; color: var(--color-text-secondary); white-space: pre-wrap; }
+.attachmentPanel { display: flex; min-width: 0; padding: var(--space-3); flex-direction: column; align-items: flex-start; gap: var(--space-3); background: var(--color-background); border: 1px solid var(--color-border); border-radius: var(--radius-small); }
+.attachmentSummary { display: flex; width: 100%; min-width: 0; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3); color: var(--color-text-secondary); font-size: var(--font-size-secondary); overflow-wrap: anywhere; }
+.attachmentActions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.noAttachment { margin: 0; color: var(--color-text-tertiary); font-size: var(--font-size-secondary); }
+.fileLabel { display: inline-flex; min-height: var(--space-8); padding: var(--space-2) var(--space-3); align-items: center; color: var(--color-primary); background: var(--color-surface); border: 1px solid var(--color-primary); border-radius: var(--radius-small); font-size: var(--font-size-button); font-weight: var(--font-weight-semibold); cursor: pointer; }
+.fileLabel:focus-within { outline: var(--focus-ring-width) solid var(--focus-ring-color); outline-offset: var(--focus-ring-offset); }
+.fileInput { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; clip-path: inset(50%); }
 .moduleActions { padding-block-start: var(--space-4); justify-content: flex-end; border-block-start: 1px solid var(--color-border); }
 .error { margin: 0; color: var(--color-danger); font-weight: var(--font-weight-medium); }
 .title, .description, .moduleContent, .error { overflow-wrap: anywhere; }
@@ -43,6 +50,6 @@
   .summaryCard, .publication, .formPanel, .moduleItem { padding: var(--space-5); }
   .summaryGrid { grid-template-columns: minmax(0, 1fr); }
   .badgeGroup { align-self: flex-start; }
-  .actions, .moduleActions { align-items: stretch; flex-direction: column; }
-  .actions > *, .moduleActions > *, .errorState > *, .sectionHeader > button, .dangerZone > button { width: 100%; }
+  .actions, .moduleActions, .attachmentActions { align-items: stretch; flex-direction: column; }
+  .actions > *, .moduleActions > *, .attachmentActions > *, .errorState > *, .sectionHeader > button, .dangerZone > button { width: 100%; }
 }
