@@ -26,6 +26,8 @@ const notStartedModule: MyCourseModule = {
   moduleTitle: '정보보안 기본',
   moduleContent: '비밀번호와 사내 정보보안 수칙을 학습합니다.',
   referenceUrl: 'https://example.test/security-guide',
+  attachmentFileName: null,
+  attachmentFileSize: null,
   moduleOrder: 1,
   required: true,
   completionStatus: 'NOT_STARTED',
