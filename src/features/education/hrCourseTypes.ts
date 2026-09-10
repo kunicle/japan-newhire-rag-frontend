@@ -37,6 +37,8 @@ export interface HrCourseModule {
   moduleTitle: string
   moduleContent: string | null
   referenceUrl: string | null
+  attachmentFileName: string | null
+  attachmentFileSize: number | null
   moduleOrder: number
   required: boolean
   active: boolean
@@ -50,6 +52,12 @@ export interface HrCourseModuleFormInput {
   referenceUrl: string
   moduleOrder: number
   required: boolean
+}
+
+export interface CourseModuleAttachmentResponse {
+  moduleId: number
+  fileName: string
+  fileSize: number
 }
 
 export type AssignmentTargetType =

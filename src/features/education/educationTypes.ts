@@ -35,6 +35,8 @@ export interface MyCourseModule {
   moduleTitle: string
   moduleContent: string | null
   referenceUrl: string | null
+  attachmentFileName: string | null
+  attachmentFileSize: number | null
   moduleOrder: number
   required: boolean
   completionStatus: LearningCompletionStatus

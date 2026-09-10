@@ -9,8 +9,8 @@ export function mapHrOnboardingErrorMessage(
 ): string {
   if (!(error instanceof AppError)) return fallback
   if (error.status === 400) return '입력 내용을 확인해 주세요.'
-  if (error.status === 403) return '온보딩 관리 권한이 없습니다.'
-  if (error.status === 404) return '요청한 온보딩 정보를 찾을 수 없습니다.'
+  if (error.status === 403) return '오늘 할 일 관리 권한이 없습니다.'
+  if (error.status === 404) return '요청한 오늘 할 일 정보를 찾을 수 없습니다.'
   if (error.status === 409) return conflictMessage
   return fallback
 }

@@ -26,8 +26,8 @@ export function mapOnboardingErrorMessage(
 ): string {
   if (!(error instanceof AppError)) return fallback
   if (error.status === 400) return '요청 정보를 확인해 주세요.'
-  if (error.status === 403) return '본인의 온보딩 정보만 처리할 수 있습니다.'
-  if (error.status === 404) return '요청한 온보딩 정보를 찾을 수 없습니다.'
+  if (error.status === 403) return '본인의 오늘 할 일 정보만 처리할 수 있습니다.'
+  if (error.status === 404) return '요청한 오늘 할 일 정보를 찾을 수 없습니다.'
   if (error.status === 409) return conflictMessage
   return fallback
 }

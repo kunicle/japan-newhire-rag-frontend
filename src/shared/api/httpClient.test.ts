@@ -57,6 +57,23 @@ describe('request', () => {
     )
   })
 
+  it('parses a successful Blob response when requested', async () => {
+    const content = '교육 이수 단위 첨부 자료'
+    fetchMock.mockResolvedValueOnce(
+      new Response(content, {
+        status: 200,
+        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+      }),
+    )
+    const { request } = await loadModules()
+
+    const blob = await request<Blob>('/course-modules/10/attachment', {
+      responseType: 'blob',
+    })
+
+    await expect(blob.text()).resolves.toBe(content)
+  })
+
   it('returns undefined for a 204 response', async () => {
     fetchMock.mockResolvedValueOnce(new Response(null, { status: 204 }))
     const { request } = await loadModules()
@@ -80,6 +97,21 @@ describe('request', () => {
     expect(fetchMock).toHaveBeenCalledTimes(2)
     expect(requestHeaders(0).get('Authorization')).toBe('Bearer old-token')
     expect(requestHeaders(1).get('Authorization')).toBe('Bearer new-token')
+  })
+
+  it('preserves Blob response parsing after a successful refresh', async () => {
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse({ status: 401 }, 401))
+      .mockResolvedValueOnce(new Response('attachment', { status: 200 }))
+    const { request, refreshMock } = await loadModules()
+    refreshMock.mockResolvedValueOnce(true)
+
+    const blob = await request<Blob>('/course-modules/10/attachment', {
+      responseType: 'blob',
+    })
+
+    await expect(blob.text()).resolves.toBe('attachment')
+    expect(fetchMock).toHaveBeenCalledTimes(2)
   })
 
   it('throws the original 401 without retry when refresh fails', async () => {

@@ -25,7 +25,7 @@ import { OnboardingTaskForm } from './OnboardingTaskForm'
 import styles from './HrOnboardingPage.module.css'
 
 const ORGANIZATION_ERROR = '조직 정보를 불러오지 못했습니다.'
-const TASK_LIST_ERROR = '온보딩 태스크 목록을 불러오지 못했습니다.'
+const TASK_LIST_ERROR = '오늘 할 일 목록을 불러오지 못했습니다.'
 const PAGE_SIZE = 20
 const ASSIGN_ELIGIBILITY_ERROR =
   '선택한 대상 중 신입사원 자격 조건을 만족하지 않는 직원이 있습니다.'
@@ -199,7 +199,7 @@ export function HrOnboardingPage() {
       if (mountedRef.current) {
         setCreateError(mapHrOnboardingErrorMessage(
           error,
-          '온보딩 태스크 생성에 실패했습니다.',
+          '오늘 할 일 생성에 실패했습니다.',
         ))
       }
     } finally {
@@ -223,7 +223,7 @@ export function HrOnboardingPage() {
       if (mountedRef.current) {
         setSaveError(mapHrOnboardingErrorMessage(
           error,
-          '온보딩 태스크 수정에 실패했습니다.',
+          '오늘 할 일 수정에 실패했습니다.',
         ))
       }
     } finally {
@@ -247,7 +247,7 @@ export function HrOnboardingPage() {
       if (mountedRef.current) {
         setActivationError(mapHrOnboardingErrorMessage(
           error,
-          '온보딩 태스크 활성 상태 변경에 실패했습니다.',
+          '오늘 할 일 활성 상태 변경에 실패했습니다.',
         ))
       }
     } finally {
@@ -293,8 +293,8 @@ export function HrOnboardingPage() {
             ? ASSIGN_ELIGIBILITY_ERROR
             : mapHrOnboardingErrorMessage(
                 error,
-                '온보딩 배정에 실패했습니다.',
-                '현재 상태에서는 온보딩을 배정할 수 없습니다.',
+                '오늘 할 일 배정에 실패했습니다.',
+                '현재 상태에서는 오늘 할 일을 배정할 수 없습니다.',
               ),
         )
       }
@@ -313,9 +313,9 @@ export function HrOnboardingPage() {
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <h1 className={styles.title}>온보딩 관리</h1>
+        <h1 className={styles.title}>오늘 할 일 관리</h1>
         <p className={styles.description}>
-          신입사원 온보딩 태스크를 만들고 직원을 배정합니다.
+          직원에게 오늘 할 일을 만들고 배정합니다.
         </p>
         <p className={styles.limitationNotice}>
           서버에 저장된 활성·비활성 태스크를 조회하고 계속 관리할 수 있습니다.
@@ -339,7 +339,7 @@ export function HrOnboardingPage() {
       <section className={styles.section} aria-labelledby="task-list-title">
         <div className={styles.listHeading}>
           <div>
-            <h2 className={styles.sectionTitle} id="task-list-title">온보딩 태스크 목록</h2>
+            <h2 className={styles.sectionTitle} id="task-list-title">오늘 할 일 목록</h2>
             {pageData && (
               <p className={styles.listSummary}>전체 {pageData.totalElements}개</p>
             )}
@@ -357,7 +357,7 @@ export function HrOnboardingPage() {
         </div>
 
         {loading ? (
-          <div className={styles.taskListLoading} role="status" aria-label="온보딩 태스크 목록을 불러오는 중">
+          <div className={styles.taskListLoading} role="status" aria-label="오늘 할 일 목록을 불러오는 중">
             <Skeleton lines={3} />
           </div>
         ) : error ? (
@@ -368,10 +368,10 @@ export function HrOnboardingPage() {
             </Button>
           </div>
         ) : pageData && pageData.content.length === 0 ? (
-          <p className={styles.emptyTaskList}>등록된 온보딩 태스크가 없습니다.</p>
+          <p className={styles.emptyTaskList}>등록된 오늘 할 일가 없습니다.</p>
         ) : pageData ? (
           <>
-            <ul className={styles.taskList} aria-label="온보딩 태스크 목록">
+            <ul className={styles.taskList} aria-label="오늘 할 일 목록">
               {pageData.content.map((task) => (
                 <li key={task.taskId}>
                   <button
@@ -391,7 +391,7 @@ export function HrOnboardingPage() {
               ))}
             </ul>
             {pageData.totalPages > 0 && (
-              <nav className={styles.pagination} aria-label="온보딩 태스크 페이지">
+              <nav className={styles.pagination} aria-label="오늘 할 일 페이지">
                 <Button
                   variant="secondary"
                   disabled={pageData.first || pageData.page === 0 || loading}
@@ -415,7 +415,7 @@ export function HrOnboardingPage() {
 
       {showCreateForm ? (
         <section className={styles.section} aria-labelledby="create-task-title">
-          <h2 className={styles.sectionTitle} id="create-task-title">새 온보딩 태스크 만들기</h2>
+          <h2 className={styles.sectionTitle} id="create-task-title">새 오늘 할 일 만들기</h2>
           <OnboardingTaskForm
             departments={departments}
             departmentsLoading={organizationLoading}
@@ -430,7 +430,7 @@ export function HrOnboardingPage() {
           <section className={styles.section} aria-labelledby="active-task-title">
             {editingTask ? (
               <>
-                <h2 className={styles.sectionTitle} id="active-task-title">온보딩 태스크 수정</h2>
+                <h2 className={styles.sectionTitle} id="active-task-title">오늘 할 일 수정</h2>
                 <OnboardingTaskForm
                   departments={departments}
                   departmentsLoading={organizationLoading}
@@ -491,7 +491,7 @@ export function HrOnboardingPage() {
           <section className={styles.section} aria-labelledby="assignment-title">
             <h2 className={styles.sectionTitle} id="assignment-title">직원 배정</h2>
             {!activeTask.active ? (
-              <p className={styles.notice}>비활성 온보딩 태스크에는 직원을 배정할 수 없습니다.</p>
+              <p className={styles.notice}>비활성 오늘 할 일에는 직원을 배정할 수 없습니다.</p>
             ) : organizationError ? (
               <p className={styles.notice}>조직 정보를 불러온 후 직원을 선택할 수 있습니다.</p>
             ) : organizationLoading ? (

@@ -13,6 +13,12 @@ export function fetchMyCourseDetail(enrollmentId: number): Promise<MyCourseDetai
   return request<MyCourseDetail>(`/me/courses/${enrollmentId}`)
 }
 
+export function downloadCourseModuleAttachment(moduleId: number): Promise<Blob> {
+  return request<Blob>(`/course-modules/${moduleId}/attachment`, {
+    responseType: 'blob',
+  })
+}
+
 export function startLearningProgress(
   progressId: number,
 ): Promise<LearningProgressUpdateResult> {

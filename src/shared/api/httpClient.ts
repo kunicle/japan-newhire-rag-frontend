@@ -4,8 +4,11 @@ import { AppError } from './errors'
 import { refreshAccessToken } from './refreshCoordinator'
 import { getAccessToken } from './tokenStore'
 
+type ResponseType = 'json' | 'blob'
+
 interface RequestOptions extends RequestInit {
   skipAuthRetry?: boolean
+  responseType?: ResponseType
 }
 
 interface ErrorBody {
@@ -35,7 +38,11 @@ export async function request<T>(
   path: string,
   options?: RequestOptions,
 ): Promise<T> {
-  const { skipAuthRetry = false, ...requestOptions } = options ?? {}
+  const {
+    skipAuthRetry = false,
+    responseType = 'json',
+    ...requestOptions
+  } = options ?? {}
   const headers = new Headers(requestOptions.headers)
   const accessToken = getAccessToken()
 
@@ -78,6 +85,10 @@ export async function request<T>(
   }
 
   if (!response.ok) throw await toAppError(response)
+
+  if (responseType === 'blob') {
+    return (await response.blob()) as T
+  }
 
   return (await response.json()) as T
 }

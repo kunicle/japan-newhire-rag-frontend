@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { request } from '../../shared/api/httpClient'
 import {
   completeLearningProgress,
+  downloadCourseModuleAttachment,
   fetchMyCourseDetail,
   fetchMyCourses,
   startLearningProgress,
@@ -30,6 +31,15 @@ describe('educationApi', () => {
     requestMock.mockResolvedValueOnce({})
     await fetchMyCourseDetail(100)
     expect(requestMock).toHaveBeenCalledWith('/me/courses/100')
+  })
+
+  it('downloads one course module attachment as a Blob', async () => {
+    requestMock.mockResolvedValueOnce(new Blob(['attachment']))
+    await downloadCourseModuleAttachment(301)
+    expect(requestMock).toHaveBeenCalledWith(
+      '/course-modules/301/attachment',
+      { responseType: 'blob' },
+    )
   })
 
   it('starts progress with an empty PATCH', async () => {

@@ -19,8 +19,10 @@
 .moduleTitle { min-width: 0; margin: 0; font-size: var(--font-size-body); line-height: var(--line-height-body); }
 .moduleContent { margin: 0; color: var(--color-text-secondary); white-space: pre-wrap; }
 .referenceLink { font-weight: var(--font-weight-semibold); }
+.attachment { display: flex; width: 100%; min-width: 0; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3); padding: var(--space-3); background-color: var(--color-background); border: 1px solid var(--color-border); border-radius: var(--radius-small); }
+.attachmentName { min-width: 0; color: var(--color-text-secondary); font-size: var(--font-size-secondary); overflow-wrap: anywhere; }
 .moduleDates { color: var(--color-text-tertiary); font-size: var(--font-size-caption); }
 .errorState { align-items: flex-start; }
 .error { margin: 0; color: var(--color-danger); font-weight: var(--font-weight-medium); }
 .title, .description, .courseDetails dd, .progressText, .progressNote, .moduleTitle, .moduleContent, .moduleDates, .error { overflow-wrap: anywhere; }
-@media (max-width: 479px) { .courseDetails { grid-template-columns: minmax(0, 1fr); } .moduleItem > button, .errorState > * { width: 100%; } }
+@media (max-width: 479px) { .courseDetails { grid-template-columns: minmax(0, 1fr); } .moduleItem > button, .attachment > button, .errorState > * { width: 100%; } }

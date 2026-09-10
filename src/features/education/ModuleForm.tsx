@@ -39,7 +39,7 @@ export function ModuleForm({
 
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
-      <Input label="모듈명" required value={value.moduleTitle} disabled={submitting}
+      <Input label="이수 단위명" required value={value.moduleTitle} disabled={submitting}
         onChange={(event) => setValue({ ...value, moduleTitle: event.target.value })} />
       <div className={styles.field}>
         <label htmlFor="module-content">학습 내용</label>
@@ -54,7 +54,7 @@ export function ModuleForm({
       <label className={styles.checkboxRow}>
         <input type="checkbox" checked={value.required} disabled={submitting}
           onChange={(event) => setValue({ ...value, required: event.target.checked })} />
-        <span>필수 모듈</span>
+        <span>필수 이수 단위</span>
       </label>
       {validationError && <p className={styles.error} role="alert">{validationError}</p>}
       <div className={styles.actions}>
