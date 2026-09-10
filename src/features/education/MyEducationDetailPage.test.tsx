@@ -11,6 +11,7 @@ import type {
 
 const educationApiMock = vi.hoisted(() => ({
   completeLearningProgress: vi.fn(),
+  downloadCourseModuleAttachment: vi.fn(),
   fetchMyCourseDetail: vi.fn(),
   startLearningProgress: vi.fn(),
 }))
@@ -55,6 +56,15 @@ const completedModule: MyCourseModule = {
   completionStatus: 'COMPLETED',
   startedAt: '2026-09-01T09:00:00+09:00',
   completedAt: '2026-09-02T18:00:00+09:00',
+}
+
+const attachmentModule: MyCourseModule = {
+  ...notStartedModule,
+  progressId: 204,
+  moduleId: 304,
+  moduleTitle: '첨부 자료 학습',
+  attachmentFileName: '신입사원-교육자료.txt',
+  attachmentFileSize: 2048,
 }
 
 const courseDetail: MyCourseDetail = {
@@ -103,6 +113,15 @@ describe('MyEducationDetailPage', () => {
   beforeEach(() => {
     Object.values(educationApiMock).forEach((mock) => mock.mockReset())
     educationApiMock.fetchMyCourseDetail.mockResolvedValue(courseDetail)
+    Object.defineProperty(URL, 'createObjectURL', {
+      configurable: true,
+      value: vi.fn(() => 'blob:course-module-attachment'),
+    })
+    Object.defineProperty(URL, 'revokeObjectURL', {
+      configurable: true,
+      value: vi.fn(),
+    })
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
     root = null
     container = document.createElement('div')
     document.body.append(container)
@@ -113,6 +132,7 @@ describe('MyEducationDetailPage', () => {
       await act(async () => root?.unmount())
     }
     container.remove()
+    vi.restoreAllMocks()
   })
 
   async function renderPage(path = `/me/education/${courseDetail.enrollmentId}`) {
@@ -195,6 +215,81 @@ describe('MyEducationDetailPage', () => {
     expect(referenceLink?.textContent).toContain('참고 자료 열기')
     expect(referenceLink?.getAttribute('href')).toBe(notStartedModule.referenceUrl)
     expect(referenceLink?.getAttribute('target')).toBe('_blank')
+  })
+
+  it('downloads an attached TXT file using its original file name', async () => {
+    const attachment = new Blob(['교육 자료'], { type: 'text/plain' })
+    educationApiMock.fetchMyCourseDetail.mockResolvedValue({
+      ...courseDetail,
+      modules: [attachmentModule],
+    })
+    educationApiMock.downloadCourseModuleAttachment.mockResolvedValue(attachment)
+
+    await renderPage()
+    const moduleItem = moduleItemWithTitle(attachmentModule.moduleTitle)
+    expect(moduleItem?.textContent).toContain('신입사원-교육자료.txt')
+    expect(moduleItem?.textContent).toContain('2.0 KB')
+
+    await act(async () => {
+      moduleItem?.querySelector<HTMLButtonElement>('button')?.click()
+    })
+
+    expect(educationApiMock.downloadCourseModuleAttachment).toHaveBeenCalledWith(
+      attachmentModule.moduleId,
+    )
+    expect(URL.createObjectURL).toHaveBeenCalledWith(attachment)
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith(
+      'blob:course-module-attachment',
+    )
+  })
+
+  it('renders a module-scoped error when attachment download fails', async () => {
+    educationApiMock.fetchMyCourseDetail.mockResolvedValue({
+      ...courseDetail,
+      modules: [attachmentModule],
+    })
+    educationApiMock.downloadCourseModuleAttachment.mockRejectedValue(
+      new Error('HTTP 500'),
+    )
+
+    await renderPage()
+    await act(async () => {
+      moduleItemWithTitle(attachmentModule.moduleTitle)
+        ?.querySelector<HTMLButtonElement>('button')
+        ?.click()
+    })
+
+    expect(
+      moduleItemWithTitle(attachmentModule.moduleTitle)
+        ?.querySelector('[role="alert"]')?.textContent,
+    ).toContain('첨부 자료를 다운로드하지 못했습니다.')
+  })
+
+  it('downloads an attachment only once while a request is pending', async () => {
+    const pendingDownload = deferred<Blob>()
+    educationApiMock.fetchMyCourseDetail.mockResolvedValue({
+      ...courseDetail,
+      modules: [attachmentModule],
+    })
+    educationApiMock.downloadCourseModuleAttachment.mockReturnValue(
+      pendingDownload.promise,
+    )
+
+    await renderPage()
+    const downloadButton = moduleItemWithTitle(attachmentModule.moduleTitle)
+      ?.querySelector<HTMLButtonElement>('button')
+    if (!downloadButton) throw new Error('Download button was not rendered')
+
+    act(() => {
+      downloadButton.click()
+      downloadButton.click()
+    })
+
+    expect(educationApiMock.downloadCourseModuleAttachment).toHaveBeenCalledOnce()
+
+    await act(async () => {
+      pendingDownload.resolve(new Blob(['교육 자료'], { type: 'text/plain' }))
+    })
   })
 
   it('renders an empty state when the course has no modules', async () => {

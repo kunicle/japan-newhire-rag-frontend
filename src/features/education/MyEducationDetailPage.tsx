@@ -5,6 +5,7 @@ import { SelfCheckQuiz } from './SelfCheckQuiz'
 import { SELF_CHECK_QUESTIONS } from './selfCheckQuizData'
 import {
   completeLearningProgress,
+  downloadCourseModuleAttachment,
   fetchMyCourseDetail,
   startLearningProgress,
 } from './educationApi'
@@ -42,6 +43,12 @@ function formatDateTime(value: string): string {
   return Number.isNaN(date.getTime()) ? '날짜 정보 없음' : dateTimeFormatter.format(date)
 }
 
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`
+  const kilobytes = bytes / 1024
+  return `${kilobytes < 10 ? kilobytes.toFixed(1) : Math.round(kilobytes)} KB`
+}
+
 export function MyEducationDetailPage() {
   const { enrollmentId: enrollmentIdParam } = useParams()
   const enrollmentId = Number(enrollmentIdParam)
@@ -52,8 +59,13 @@ export function MyEducationDetailPage() {
   const [pendingProgressIds, setPendingProgressIds] = useState<Set<number>>(new Set())
   const [actionErrorByProgressId, setActionErrorByProgressId] =
     useState<Map<number, string>>(new Map())
+  const [pendingAttachmentModuleIds, setPendingAttachmentModuleIds] =
+    useState<Set<number>>(new Set())
+  const [attachmentErrorByModuleId, setAttachmentErrorByModuleId] =
+    useState<Map<number, string>>(new Map())
   const latestFetchIdRef = useRef(0)
   const pendingProgressIdsRef = useRef<Set<number>>(new Set())
+  const pendingAttachmentModuleIdsRef = useRef<Set<number>>(new Set())
   const mountedRef = useRef(false)
 
   const loadDetail = useCallback(async () => {
@@ -78,11 +90,14 @@ export function MyEducationDetailPage() {
 
   useEffect(() => {
     const pendingIds = pendingProgressIdsRef.current
+    const pendingAttachmentIds = pendingAttachmentModuleIdsRef.current
     mountedRef.current = true
     if (validEnrollmentId) {
       queueMicrotask(() => {
         setPendingProgressIds(new Set())
         setActionErrorByProgressId(new Map())
+        setPendingAttachmentModuleIds(new Set())
+        setAttachmentErrorByModuleId(new Map())
         void loadDetail()
       })
     }
@@ -90,6 +105,7 @@ export function MyEducationDetailPage() {
       mountedRef.current = false
       latestFetchIdRef.current += 1
       pendingIds.clear()
+      pendingAttachmentIds.clear()
     }
   }, [loadDetail, validEnrollmentId])
 
@@ -129,6 +145,50 @@ export function MyEducationDetailPage() {
     pendingProgressIdsRef.current.delete(progressId)
     if (mountedRef.current) {
       setPendingProgressIds(new Set(pendingProgressIdsRef.current))
+    }
+  }
+
+  async function handleAttachmentDownload(moduleId: number, fileName: string) {
+    if (pendingAttachmentModuleIdsRef.current.has(moduleId)) return
+
+    pendingAttachmentModuleIdsRef.current.add(moduleId)
+    setPendingAttachmentModuleIds(new Set(pendingAttachmentModuleIdsRef.current))
+    setAttachmentErrorByModuleId((current) => {
+      const next = new Map(current)
+      next.delete(moduleId)
+      return next
+    })
+
+    try {
+      const attachment = await downloadCourseModuleAttachment(moduleId)
+      if (!mountedRef.current) return
+
+      const objectUrl = URL.createObjectURL(attachment)
+      const link = document.createElement('a')
+      link.href = objectUrl
+      link.download = fileName
+      document.body.append(link)
+      link.click()
+      link.remove()
+      URL.revokeObjectURL(objectUrl)
+    } catch (downloadError) {
+      if (mountedRef.current) {
+        setAttachmentErrorByModuleId((current) => {
+          const next = new Map(current)
+          next.set(
+            moduleId,
+            mapEducationErrorMessage(downloadError, '첨부 자료를 다운로드하지 못했습니다.'),
+          )
+          return next
+        })
+      }
+    } finally {
+      pendingAttachmentModuleIdsRef.current.delete(moduleId)
+      if (mountedRef.current) {
+        setPendingAttachmentModuleIds(
+          new Set(pendingAttachmentModuleIdsRef.current),
+        )
+      }
     }
   }
 
@@ -202,6 +262,8 @@ export function MyEducationDetailPage() {
                 {detail.modules.map((module) => {
                   const pending = pendingProgressIds.has(module.progressId)
                   const actionError = actionErrorByProgressId.get(module.progressId)
+                  const attachmentPending = pendingAttachmentModuleIds.has(module.moduleId)
+                  const attachmentError = attachmentErrorByModuleId.get(module.moduleId)
                   return (
                     <li className={styles.moduleItem} key={module.progressId}>
                       <div className={styles.moduleHeader}>
@@ -220,6 +282,25 @@ export function MyEducationDetailPage() {
                         <a className={styles.referenceLink} href={module.referenceUrl} target="_blank" rel="noreferrer">
                           참고 자료 열기
                         </a>
+                      )}
+                      {module.attachmentFileName && module.attachmentFileSize !== null && (
+                        <div className={styles.attachment}>
+                          <span className={styles.attachmentName}>
+                            TXT 자료: {module.attachmentFileName} ({formatFileSize(module.attachmentFileSize)})
+                          </span>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            loading={attachmentPending}
+                            disabled={attachmentPending}
+                            onClick={() => void handleAttachmentDownload(
+                              module.moduleId,
+                              module.attachmentFileName!,
+                            )}
+                          >
+                            TXT 자료 다운로드
+                          </Button>
+                        </div>
                       )}
                       <div className={styles.moduleDates}>
                         {module.startedAt && <time dateTime={module.startedAt}>시작 {formatDateTime(module.startedAt)}</time>}
@@ -254,6 +335,7 @@ export function MyEducationDetailPage() {
                         </Button>
                       )}
                       {actionError && <p className={styles.error} role="alert">{actionError}</p>}
+                      {attachmentError && <p className={styles.error} role="alert">{attachmentError}</p>}
                     </li>
                   )
                 })}
