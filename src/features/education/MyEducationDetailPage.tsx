@@ -188,13 +188,13 @@ export function MyEducationDetailPage() {
             >
               <div className={styles.progressFill} style={{ width: `${detail.progressRate}%` }} />
             </div>
-            <p className={styles.progressNote}>진행률은 필수 모듈을 기준으로 계산됩니다.</p>
+            <p className={styles.progressNote}>진행률은 필수 이수 단위를 기준으로 계산됩니다.</p>
           </header>
 
           <section aria-labelledby="modules-title">
-            <h2 className={styles.sectionTitle} id="modules-title">학습 모듈</h2>
+            <h2 className={styles.sectionTitle} id="modules-title">이수 단위  </h2>
             {detail.modules.length === 0 ? (
-              <EmptyState title="학습 모듈이 없습니다." description="등록된 학습 모듈이 없습니다." />
+              <EmptyState title="이수 단위가 없습니다." description="등록된 이수 단위가 없습니다." />
             ) : (
               <ol className={styles.moduleList}>
                 {detail.modules.map((module) => {

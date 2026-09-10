@@ -22,7 +22,7 @@ const courseInput: HrCourseFormInput = {
   trainingStartDate: '2026-01-01', trainingEndDate: '2026-01-31',
 }
 const moduleInput: HrCourseModuleFormInput = {
-  moduleTitle: '모듈', moduleContent: '내용', referenceUrl: '', moduleOrder: 1,
+  moduleTitle: '이수 단위', moduleContent: '내용', referenceUrl: '', moduleOrder: 1,
   required: true,
 }
 

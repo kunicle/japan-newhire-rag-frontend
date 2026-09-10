@@ -13,7 +13,7 @@ import {
 import type { MyOnboardingItem } from './onboardingTypes'
 import styles from './MyOnboardingPage.module.css'
 
-const LOAD_ERROR_MESSAGE = '온보딩 정보를 불러오지 못했습니다.'
+const LOAD_ERROR_MESSAGE = '오늘 할 일 정보를 불러오지 못했습니다.'
 const dateFormatter = new Intl.DateTimeFormat('ko-KR', {
   dateStyle: 'medium',
   timeZone: 'UTC',
@@ -119,12 +119,12 @@ export function MyOnboardingPage() {
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <h1 className={styles.title}>내 온보딩</h1>
-        <p className={styles.description}>배정된 온보딩 할 일을 확인하고 진행합니다.</p>
+        <h1 className={styles.title}>오늘 할 일</h1>
+        <p className={styles.description}>배정된 오늘 할 일을 확인하고 진행합니다.</p>
       </header>
 
       {loading && items.length === 0 ? (
-        <div className={styles.skeletons} role="status" aria-label="온보딩 정보를 불러오는 중">
+        <div className={styles.skeletons} role="status" aria-label="오늘 할 일 정보를 불러오는 중">
           <Skeleton lines={3} />
           <Skeleton lines={5} />
           <Skeleton lines={5} />
@@ -136,8 +136,8 @@ export function MyOnboardingPage() {
         </div>
       ) : items.length === 0 ? (
         <EmptyState
-          title="배정된 온보딩이 없습니다."
-          description="새로운 온보딩 할 일이 배정되면 이곳에서 확인할 수 있습니다."
+          title="배정된 오늘 할 일이 없습니다."
+          description="새로운 오늘 할 일이 배정되면 이곳에서 확인할 수 있습니다."
         />
       ) : (
         <>
@@ -151,7 +151,7 @@ export function MyOnboardingPage() {
           )}
           <p className={styles.summary}>완료 {completedCount} / 전체 {items.length}</p>
           <section aria-labelledby="onboarding-tasks-title">
-            <h2 className={styles.sectionTitle} id="onboarding-tasks-title">온보딩 할 일</h2>
+            <h2 className={styles.sectionTitle} id="onboarding-tasks-title">오늘 할 일</h2>
             <ol className={styles.taskList}>
               {items.map((item) => {
                 const assignmentId = item.onboardingAssignmentId
@@ -185,7 +185,7 @@ export function MyOnboardingPage() {
                         onClick={() => void handleTaskAction(
                           assignmentId,
                           startOnboardingTask,
-                          '온보딩 시작에 실패했습니다.',
+                          '오늘 할 일 시작에 실패했습니다.',
                         )}
                       >
                         시작
@@ -199,7 +199,7 @@ export function MyOnboardingPage() {
                         onClick={() => void handleTaskAction(
                           assignmentId,
                           completeOnboardingTask,
-                          '온보딩 완료 처리에 실패했습니다.',
+                          '오늘 할 일 완료 처리에 실패했습니다.',
                         )}
                       >
                         완료

@@ -49,10 +49,10 @@ const SHORTCUT_CONFIG: Record<HomeShortcutId, {
     description: '배정된 교육 과정을 확인하고 학습을 진행합니다.',
   },
   onboarding: {
-    title: '내 온보딩',
+    title: '오늘 할 일',
     path: '/me/onboarding',
     icon: ClipboardCheck,
-    description: '배정된 온보딩 할 일을 확인하고 진행합니다.',
+    description: '배정된 오늘 할 일을 확인하고 진행합니다.',
   },
   evaluation: {
     title: '내 평가',
@@ -94,13 +94,13 @@ const SHORTCUT_CONFIG: Record<HomeShortcutId, {
     title: '교육 과정 관리',
     path: '/hr/courses',
     icon: GraduationCap,
-    description: '교육 과정과 학습 모듈을 만들고 관리합니다.',
+    description: '교육 과정과 이수 단위를 만들고 관리합니다.',
   },
   hrOnboarding: {
-    title: '온보딩 관리',
+    title: '오늘 할 일 관리',
     path: '/hr/onboarding',
     icon: UserPlus,
-    description: '신입사원 온보딩 태스크를 만들고 배정합니다.',
+    description: '신입사원의 오늘 할 일들을 만들고 배정합니다.',
   },
   hrEvaluation: {
     title: '평가 관리',
@@ -148,7 +148,7 @@ export function HomePage() {
         <h1 className={styles.title}>주식회사 SLDK 업무 포털</h1>
         {user && (
           <p className={styles.welcome}>
-            {user.employeeName}님, 안녕하세요. 사내 문서, 교육, 평가와 온보딩 업무를 한 곳에서 관리하세요.
+            {user.employeeName}님, 안녕하세요. 사내 문서, 교육, 오늘 할 일을 한 곳에서 관리하세요.
           </p>
         )}
         <div className={styles.roleList} aria-label="현재 역할">

@@ -41,7 +41,7 @@ export function LoginPage() {
           </div>
           <h1 className={styles.title}>로그인</h1>
           <p className={styles.description}>
-            사내 문서, 교육, 평가와 온보딩 업무를 한 곳에서 관리하세요.
+            사내 문서, 교육, 평가와 오늘 할 업무를 한 곳에서 관리하세요.
           </p>
         </header>
 

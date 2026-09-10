@@ -203,8 +203,8 @@ describe('MyEducationDetailPage', () => {
 
     await renderPage()
 
-    expect(container.textContent).toContain('학습 모듈이 없습니다.')
-    expect(container.textContent).toContain('등록된 학습 모듈이 없습니다.')
+    expect(container.textContent).toContain('이수 단위가 없습니다.')
+    expect(container.textContent).toContain('등록된 이수 단위가 없습니다.')
   })
 
   it('renders a detail error and retries the request', async () => {

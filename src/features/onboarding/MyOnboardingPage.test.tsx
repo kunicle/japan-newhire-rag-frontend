@@ -119,9 +119,9 @@ describe('MyOnboardingPage', () => {
 
     await renderPage()
 
-    expect(container.textContent).toContain('배정된 온보딩이 없습니다.')
+    expect(container.textContent).toContain('배정된 오늘 할 일이 없습니다.')
     expect(container.textContent).toContain(
-      '새로운 온보딩 할 일이 배정되면 이곳에서 확인할 수 있습니다.',
+      '새로운 오늘 할 일이 배정되면 이곳에서 확인할 수 있습니다.',
     )
   })
 
@@ -133,7 +133,7 @@ describe('MyOnboardingPage', () => {
     await renderPage()
 
     expect(container.querySelector('[role="alert"]')?.textContent).toContain(
-      '온보딩 정보를 불러오지 못했습니다.',
+      '오늘 할 일 정보를 불러오지 못했습니다.',
     )
 
     await act(async () => buttonWithText('다시 시도')?.click())
@@ -190,7 +190,7 @@ describe('MyOnboardingPage', () => {
 
     const taskItem = taskItemWithTitle(notStartedTask.taskTitle)
     expect(taskItem?.querySelector('[role="alert"]')?.textContent).toContain(
-      '온보딩 시작에 실패했습니다.',
+      '오늘 할 일 시작에 실패했습니다.',
     )
     expect(onboardingApiMock.fetchMyOnboarding).toHaveBeenCalledOnce()
   })
@@ -204,7 +204,7 @@ describe('MyOnboardingPage', () => {
 
     const taskItem = taskItemWithTitle(inProgressTask.taskTitle)
     expect(taskItem?.querySelector('[role="alert"]')?.textContent).toContain(
-      '온보딩 완료 처리에 실패했습니다.',
+      '오늘 할 일 완료 처리에 실패했습니다.',
     )
     expect(onboardingApiMock.fetchMyOnboarding).toHaveBeenCalledOnce()
   })

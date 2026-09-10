@@ -31,7 +31,7 @@ import { ModuleForm } from './ModuleForm'
 import styles from './HrCourseDetailPage.module.css'
 
 const COURSE_ERROR = '교육 과정 정보를 불러오지 못했습니다.'
-const MODULE_ERROR = '학습 모듈을 불러오지 못했습니다.'
+const MODULE_ERROR = '이수 단위를 불러오지 못했습니다.'
 const MODULE_CONFLICT = '이미 사용 중인 학습 순서이거나 현재 상태에서 변경할 수 없습니다.'
 const dateFormatter = new Intl.DateTimeFormat('ko-KR', { dateStyle: 'medium', timeZone: 'UTC' })
 function formatDate(value: string) {
@@ -163,7 +163,7 @@ export function HrCourseDetailPage() {
     if (!beginModuleWrite(moduleId)) return
     let succeeded = false
     try { await updateHrCourseModule(moduleId, input); succeeded = true }
-    catch (error) { if (mountedRef.current) setActionErrorByModuleId((current) => new Map(current).set(moduleId, mapHrCourseErrorMessage(error, '학습 모듈 수정에 실패했습니다.', MODULE_CONFLICT))) }
+    catch (error) { if (mountedRef.current) setActionErrorByModuleId((current) => new Map(current).set(moduleId, mapHrCourseErrorMessage(error, '이수 단위 수정에 실패했습니다.', MODULE_CONFLICT))) }
     if (succeeded && mountedRef.current) { setEditingModuleId(null); await loadModules() }
     finishModuleWrite(moduleId)
   }
@@ -173,7 +173,7 @@ export function HrCourseDetailPage() {
     if (!beginModuleWrite(moduleId)) return
     let succeeded = false
     try { await changeModuleActivation(moduleId, !module.active); succeeded = true }
-    catch (error) { if (mountedRef.current) setActionErrorByModuleId((current) => new Map(current).set(moduleId, mapHrCourseErrorMessage(error, '학습 모듈 상태 변경에 실패했습니다.', MODULE_CONFLICT))) }
+    catch (error) { if (mountedRef.current) setActionErrorByModuleId((current) => new Map(current).set(moduleId, mapHrCourseErrorMessage(error, '이수 단위 상태 변경에 실패했습니다.', MODULE_CONFLICT))) }
     if (succeeded && mountedRef.current) await loadModules()
     finishModuleWrite(moduleId)
   }
@@ -183,7 +183,7 @@ export function HrCourseDetailPage() {
     creatingModuleRef.current = true; setCreatingModule(true); setCreateModuleError(null)
     let succeeded = false
     try { await createHrCourseModule(courseId, input); succeeded = true }
-    catch (error) { if (mountedRef.current) setCreateModuleError(mapHrCourseErrorMessage(error, '학습 모듈 생성에 실패했습니다.', MODULE_CONFLICT)) }
+    catch (error) { if (mountedRef.current) setCreateModuleError(mapHrCourseErrorMessage(error, '이수 단위 생성에 실패했습니다.', MODULE_CONFLICT)) }
     if (succeeded && mountedRef.current) { setShowCreateModule(false); await loadModules() }
     creatingModuleRef.current = false
     if (mountedRef.current) setCreatingModule(false)
@@ -206,11 +206,11 @@ export function HrCourseDetailPage() {
     </section>
 
     <section className={styles.section} aria-labelledby="modules-title">
-      <div className={styles.sectionHeader}><div className={styles.sectionTitleGroup}><h2 className={styles.sectionTitle} id="modules-title">학습 모듈</h2><p>과정에서 학습할 콘텐츠와 순서를 관리합니다.</p></div><Button leadingIcon={<Plus size={16} aria-hidden="true" />} disabled={showCreateModule} onClick={() => { setEditingModuleId(null); setShowCreateModule(true); setCreateModuleError(null) }}>모듈 추가</Button></div>
-      {showCreateModule && <div className={styles.formPanel}>{createModuleError && <p className={styles.error} role="alert">{createModuleError}</p>}<ModuleForm submitting={creatingModule} submitLabel="모듈 만들기" onSubmit={(input) => void handleModuleCreate(input)} onCancel={() => setShowCreateModule(false)} /></div>}
+      <div className={styles.sectionHeader}><div className={styles.sectionTitleGroup}><h2 className={styles.sectionTitle} id="modules-title">이수 단위</h2><p>과정에서 학습할 콘텐츠와 순서를 관리합니다.</p></div><Button leadingIcon={<Plus size={16} aria-hidden="true" />} disabled={showCreateModule} onClick={() => { setEditingModuleId(null); setShowCreateModule(true); setCreateModuleError(null) }}>이수 단위 추가</Button></div>
+      {showCreateModule && <div className={styles.formPanel}>{createModuleError && <p className={styles.error} role="alert">{createModuleError}</p>}<ModuleForm submitting={creatingModule} submitLabel="이수 단위 만들기" onSubmit={(input) => void handleModuleCreate(input)} onCancel={() => setShowCreateModule(false)} /></div>}
       {modulesError && <div className={styles.errorState}><p className={styles.error} role="alert">{modulesError}</p><Button variant="secondary" onClick={() => void loadModules()}>다시 시도</Button></div>}
-      {modulesLoading && modules.length === 0 ? <div className={styles.skeletons} role="status" aria-label="학습 모듈을 불러오는 중"><Skeleton lines={4}/><Skeleton lines={4}/></div>
-        : modules.length === 0 ? <EmptyState title="학습 모듈이 없습니다." description="모듈을 추가해 교육 내용을 구성하세요."/>
+      {modulesLoading && modules.length === 0 ? <div className={styles.skeletons} role="status" aria-label="이수 단위를 불러오는 중"><Skeleton lines={4}/><Skeleton lines={4}/></div>
+        : modules.length === 0 ? <EmptyState title="이수 단위가 없습니다." description="이수 단위를 추가해 교육 내용을 구성하세요."/>
         : <ol className={styles.moduleList}>{modules.map((module) => {
           const pending = pendingModuleIds.has(module.courseModuleId)
           const actionError = actionErrorByModuleId.get(module.courseModuleId)
