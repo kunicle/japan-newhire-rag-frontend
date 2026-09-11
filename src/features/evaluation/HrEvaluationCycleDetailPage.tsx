@@ -21,18 +21,18 @@ interface ItemsState { loading: boolean; data: EvaluationItem[] | null; error: s
 interface ItemForm { itemName: string; itemDescription: string; itemOrder: string; weight: string; isRequired: boolean }
 const EMPTY_ITEM: ItemForm = { itemName: '', itemDescription: '', itemOrder: '1', weight: '1', isRequired: true }
 const TEMPLATE_META: Array<{ type: EvaluationType; title: string }> = [
-  { type: 'SELF', title: '자기 평가 내용 설정' }, { type: 'MANAGER', title: '관리자 평가 내용 설정' },
+  { type: 'SELF', title: '자기 평가' }, { type: 'MANAGER', title: '관리자 평가' },
 ]
 
 function conflictMessage(error: unknown, kind: 'template-create' | 'template-update' | 'item-create' | 'item-update'): string {
   if (error instanceof AppError) {
-    if (error.code === 'EVALUATION_TEMPLATE_DUPLICATE_TYPE') return '이미 해당 평가 유형의 평가 내용이 있습니다.'
-    if (error.code === 'EVALUATION_TEMPLATE_NOT_EDITABLE') return '이미 평가에 사용된 평가 내용은 수정할 수 없습니다.'
+    if (error.code === 'EVALUATION_TEMPLATE_DUPLICATE_TYPE') return '이미 해당 평가 유형의 평가가 있습니다.'
+    if (error.code === 'EVALUATION_TEMPLATE_NOT_EDITABLE') return '이미 평가에 사용된 평가는 수정할 수 없습니다.'
     if (error.code === 'EVALUATION_ITEM_DUPLICATE_ORDER') return '같은 순서의 평가 질문이 이미 있습니다.'
     if (error.code === 'EVALUATION_ITEM_NOT_EDITABLE') return '이미 평가에 사용된 질문은 수정할 수 없습니다.'
   }
-  if (kind === 'template-create') return '이미 해당 평가 유형의 평가 내용이 있습니다.'
-  if (kind === 'template-update') return '이미 평가에 사용된 평가 내용은 수정할 수 없습니다.'
+  if (kind === 'template-create') return '이미 해당 평가 유형의 평가가 있습니다.'
+  if (kind === 'template-update') return '이미 평가에 사용된 평가는 수정할 수 없습니다.'
   if (kind === 'item-create') return '같은 순서의 평가 질문이 이미 있습니다.'
   return '이미 평가에 사용된 질문은 수정할 수 없습니다.'
 }
@@ -144,7 +144,7 @@ function HrEvaluationCycleDetailContent({ cycleId }: { cycleId: number }) {
   const loadTemplates = useCallback(async () => {
     const requestId = ++latestTemplatesFetchIdRef.current; setTemplatesLoading(true); setTemplatesError(null)
     try { const response = await fetchEvaluationTemplates(cycleId); if (!mountedRef.current || requestId !== latestTemplatesFetchIdRef.current) return; setTemplates(response); for (const template of response) void loadItems(template.evaluationTemplateId) }
-    catch (error) { if (mountedRef.current && requestId === latestTemplatesFetchIdRef.current) setTemplatesError(mapHrEvaluationErrorMessage(error, '평가 내용을 불러오지 못했습니다.')) }
+    catch (error) { if (mountedRef.current && requestId === latestTemplatesFetchIdRef.current) setTemplatesError(mapHrEvaluationErrorMessage(error, '평가 설정을 불러오지 못했습니다.')) }
     finally { if (mountedRef.current && requestId === latestTemplatesFetchIdRef.current) setTemplatesLoading(false) }
   }, [cycleId, loadItems])
 
@@ -231,8 +231,8 @@ function HrEvaluationCycleDetailContent({ cycleId }: { cycleId: number }) {
         {cycleSaveError && <p className={styles.error} role="alert">{cycleSaveError}</p>}{cycleSaveSuccess && <p className={styles.success} role="status">{cycleSaveSuccess}</p>}
         {editable && <div className={styles.actions}><Button loading={cycleSaving} onClick={() => void saveCycle()}>주기 수정</Button></div>}
       </section>
-      <section aria-labelledby="templates-title"><h2 id="templates-title" className={styles.sectionTitle}>평가 내용 설정</h2>
-        {templatesLoading && templates.length === 0 ? <div role="status" aria-label="평가 내용을 불러오는 중"><Skeleton lines={4} /></div> : templatesError ? <div className={styles.errorState}><p className={styles.error} role="alert">{templatesError}</p><Button variant="secondary" onClick={() => void loadTemplates()}>평가 내용 다시 불러오기</Button></div> : (
+      <section aria-labelledby="templates-title"><h2 id="templates-title" className={styles.sectionTitle}>평가 설정</h2>
+        {templatesLoading && templates.length === 0 ? <div role="status" aria-label="평가 설정을 불러오는 중"><Skeleton lines={4} /></div> : templatesError ? <div className={styles.errorState}><p className={styles.error} role="alert">{templatesError}</p><Button variant="secondary" onClick={() => void loadTemplates()}>평가 설정 다시 불러오기</Button></div> : (
           <div className={styles.templateList}>{TEMPLATE_META.map(({ type, title }) => <TemplateSection key={type} title={title} type={type} template={templates.find((entry) => entry.evaluationType === type)} writable={setupWritable} itemsState={templates.find((entry) => entry.evaluationType === type) ? itemsByTemplate.get(templates.find((entry) => entry.evaluationType === type)!.evaluationTemplateId) : undefined} onWrite={writeTemplate} onRetryItems={loadItems} onCreateItem={createItem} onSaveItem={saveItem} />)}</div>
         )}
       </section>
@@ -253,12 +253,12 @@ function TemplateSection({ title, type, template, writable, itemsState, onWrite,
   const [newItem, setNewItem] = useState<ItemForm>(EMPTY_ITEM)
   const [itemError, setItemError] = useState<string | null>(null)
   const [itemWriting, setItemWriting] = useState(false)
-  async function submitTemplate() { if (!name.trim() || name.length > 100 || description.length > 1000) { setTemplateError('평가명과 평가 설명을 확인해 주세요.'); return } setTemplateWriting(true); setTemplateError(null); setTemplateSuccess(null); try { await onWrite(type, template, name, description, active); setTemplateSuccess(template ? '평가 내용이 수정되었습니다.' : '평가 내용이 생성되었습니다. 이어서 평가 질문을 추가하세요.') } catch (error) { setTemplateError(mapHrEvaluationErrorMessage(error, '평가 내용을 저장하지 못했습니다.', conflictMessage(error, template ? 'template-update' : 'template-create'))) } finally { setTemplateWriting(false) } }
+  async function submitTemplate() { if (!name.trim() || name.length > 100 || description.length > 1000) { setTemplateError('평가명과 평가 설명을 확인해 주세요.'); return } setTemplateWriting(true); setTemplateError(null); setTemplateSuccess(null); try { await onWrite(type, template, name, description, active); setTemplateSuccess(template ? '평가가 수정되었습니다.' : '평가가 생성되었습니다. 이어서 평가 질문을 추가하세요.') } catch (error) { setTemplateError(mapHrEvaluationErrorMessage(error, '평가를 저장하지 못했습니다.', conflictMessage(error, template ? 'template-update' : 'template-create'))) } finally { setTemplateWriting(false) } }
   async function submitItem() { if (!template || !itemInput(newItem)) { setItemError('질문 내용, 순서와 가중치를 확인해 주세요.'); return } setItemWriting(true); setItemError(null); try { await onCreateItem(template.evaluationTemplateId, newItem); setNewItem(EMPTY_ITEM) } catch (error) { setItemError(mapHrEvaluationErrorMessage(error, '평가 질문을 추가하지 못했습니다.', conflictMessage(error, 'item-create'))) } finally { setItemWriting(false) } }
   return (
     <article className={styles.panel}><h3>{title}</h3>
-      {writable ? <div className={styles.formGrid}><Field label="평가명" id={`template-name-${type}`} wide><input id={`template-name-${type}`} maxLength={100} value={name} onChange={(e) => setName(e.target.value)} /></Field><Field label="평가 설명" id={`template-description-${type}`} wide><textarea id={`template-description-${type}`} maxLength={1000} value={description} onChange={(e) => setDescription(e.target.value)} /></Field><label className={styles.checkbox}><input type="checkbox" checked={active} onChange={(e) => setActive(e.target.checked)} />사용 여부</label>{templateError && <p className={styles.error} role="alert">{templateError}</p>}{templateSuccess && <p className={styles.success} role="status">{templateSuccess}</p>}<div className={styles.actions}><Button loading={templateWriting} onClick={() => void submitTemplate()}>{template ? '평가 내용 수정' : '평가 내용 생성'}</Button></div></div> : template ? <><p>{template.templateName}</p><p className={styles.meta}>{template.templateDescription ?? '평가 설명이 없습니다.'} · {template.isActive ? '사용' : '미사용'}</p></> : <p className={styles.meta}>설정된 평가 내용이 없습니다.</p>}
-      {!template && writable && <p className={styles.meta}>평가 내용을 생성한 뒤 평가 질문을 추가할 수 있습니다.</p>}
+      {writable ? <div className={styles.formGrid}><Field label="평가명" id={`template-name-${type}`} wide><input id={`template-name-${type}`} maxLength={100} value={name} onChange={(e) => setName(e.target.value)} /></Field><Field label="평가 설명" id={`template-description-${type}`} wide><textarea id={`template-description-${type}`} maxLength={1000} value={description} onChange={(e) => setDescription(e.target.value)} /></Field><label className={styles.checkbox}><input type="checkbox" checked={active} onChange={(e) => setActive(e.target.checked)} />사용 여부</label>{templateError && <p className={styles.error} role="alert">{templateError}</p>}{templateSuccess && <p className={styles.success} role="status">{templateSuccess}</p>}<div className={styles.actions}><Button loading={templateWriting} onClick={() => void submitTemplate()}>{template ? '평가 수정' : '평가 생성'}</Button></div></div> : template ? <><p>{template.templateName}</p><p className={styles.meta}>{template.templateDescription ?? '평가 설명이 없습니다.'} · {template.isActive ? '사용' : '미사용'}</p></> : <p className={styles.meta}>설정된 평가가 없습니다.</p>}
+      {!template && writable && <p className={styles.meta}>평가를 생성한 뒤 평가 질문을 추가할 수 있습니다.</p>}
       {template && <section className={styles.itemsSection} aria-labelledby={`items-${type}`}><h4 id={`items-${type}`}>평가 질문</h4>
         {itemsState?.loading && !itemsState.data ? <div role="status" aria-label={`${title} 평가 질문을 불러오는 중`}><Skeleton lines={3} /></div> : itemsState?.error ? <div className={styles.errorState}><p className={styles.error} role="alert">{itemsState.error}</p><Button size="sm" variant="secondary" onClick={() => void onRetryItems(template.evaluationTemplateId)}>평가 질문 다시 불러오기</Button></div> : <><ul className={styles.itemList}>{(itemsState?.data ?? []).map((item) => <ItemEditor key={item.evaluationItemId} item={item} disabled={!writable || itemWriting} onSave={async (target, form) => { setItemWriting(true); setItemError(null); try { await onSaveItem(target, form) } catch (error) { setItemError(mapHrEvaluationErrorMessage(error, '평가 질문을 수정하지 못했습니다.', conflictMessage(error, 'item-update'))) } finally { setItemWriting(false) } }} />)}</ul>{itemsState?.data?.length === 0 && <p className={styles.meta}>등록된 평가 질문이 없습니다.</p>}</>}
         {itemsState?.warning && <p className={styles.warning} role="alert">{itemsState.warning}</p>}
