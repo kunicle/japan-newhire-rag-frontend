@@ -2,17 +2,17 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AppError } from '../../shared/api/errors'
 import { Badge, Button, EmptyState, Skeleton } from '../../shared/ui'
 import { useAuth } from '../auth/AuthContext'
-import { fetchOrganization } from '../organization/organizationApi'
-import type { OrganizationDepartmentNode } from '../organization/types'
 import {
   assignManagedOnboardingTask,
   completeManagedOnboarding,
+  fetchAssignableOnboardingEmployees,
   fetchManagedOnboardingProgress,
   fetchManagedOnboardingTasks,
   startManagedOnboarding,
 } from './onboardingManagementApi'
 import type {
   ManagedOnboardingTask,
+  OnboardingAssignableEmployee,
   OnboardingManagementItem,
   OnboardingManagementPage,
 } from './onboardingManagementTypes'
@@ -32,32 +32,13 @@ function errorMessage(error: unknown, fallback: string): string {
   return fallback
 }
 
-function findDirectReports(
-  nodes: OrganizationDepartmentNode[],
-  managerEmployeeId: number,
-): { employeeId: number; label: string }[] {
-  const result: { employeeId: number; label: string }[] = []
-  for (const node of nodes) {
-    for (const employee of node.employees) {
-      if (employee.managerEmployeeId === managerEmployeeId) {
-        result.push({
-          employeeId: employee.employeeId,
-          label: `${employee.employeeName} · ${node.departmentName}`,
-        })
-      }
-    }
-    result.push(...findDirectReports(node.children, managerEmployeeId))
-  }
-  return result
-}
-
 export function OnboardingManagementPage() {
-  const { user, roles } = useAuth()
+  const { roles } = useAuth()
   const isManager = roles.includes('MANAGER')
   const [progress, setProgress] = useState<OnboardingManagementPage | null>(null)
   const [page, setPage] = useState(0)
   const [tasks, setTasks] = useState<ManagedOnboardingTask[]>([])
-  const [directReports, setDirectReports] = useState<{ employeeId: number; label: string }[]>([])
+  const [directReports, setDirectReports] = useState<OnboardingAssignableEmployee[]>([])
   const [selectedTaskId, setSelectedTaskId] = useState('')
   const [selectedEmployeeId, setSelectedEmployeeId] = useState('')
   const [loading, setLoading] = useState(true)
@@ -96,18 +77,15 @@ export function OnboardingManagementPage() {
   }, [loadProgress, page])
 
   useEffect(() => {
-    if (!isManager || !user) return
+    if (!isManager) return
     let cancelled = false
     Promise.all([
       fetchManagedOnboardingTasks(0, 100),
-      fetchOrganization(),
-    ]).then(([taskPage, organization]) => {
+      fetchAssignableOnboardingEmployees(),
+    ]).then(([taskPage, employees]) => {
       if (cancelled) return
       setTasks(taskPage.content)
-      setDirectReports(findDirectReports(
-        organization.departments,
-        user.employeeId,
-      ))
+      setDirectReports(employees)
     }).catch((error) => {
       if (!cancelled) {
         setActionError(errorMessage(
@@ -119,7 +97,7 @@ export function OnboardingManagementPage() {
     return () => {
       cancelled = true
     }
-  }, [isManager, user])
+  }, [isManager])
 
   async function runAction(
     action: () => Promise<unknown>,
@@ -211,7 +189,7 @@ export function OnboardingManagementPage() {
                 <option value="">선택</option>
                 {directReports.map((employee) => (
                   <option key={employee.employeeId} value={employee.employeeId}>
-                    {employee.label}
+                    {employee.employeeName} · {employee.departmentName}
                   </option>
                 ))}
               </select>
