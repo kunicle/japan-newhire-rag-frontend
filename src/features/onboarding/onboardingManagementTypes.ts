@@ -8,6 +8,15 @@ import type {
   OnboardingCompletionStatus,
 } from './onboardingTypes'
 
+export interface OnboardingAssignableEmployee {
+  employeeId: number
+  employeeName: string
+  departmentId: number
+  departmentName: string
+  jobGradeId: number | null
+  jobGradeName: string | null
+}
+
 export interface OnboardingManagementItem {
   employeeId: number
   employeeName: string
