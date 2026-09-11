@@ -1,9 +1,9 @@
 import type { OrganizationViewEmployee } from './organizationViewHelpers'
 
-export const CARD_WIDTH = 224
-export const CARD_HEIGHT = 210
-const COLUMN_GAP = 28
-const ROW_GAP = 64
+export const CARD_WIDTH = 160
+export const CARD_HEIGHT = 144
+const COLUMN_GAP = 16
+export const ROW_GAP = 36
 
 export interface ChartNode {
   employee: OrganizationViewEmployee
@@ -37,13 +37,14 @@ export function wouldCreateManagerCycle(employees: OrganizationViewEmployee[], e
   return false
 }
 
-// Keep real ancestors when filtering, without inventing replacement reporting lines.
+// Keep real ancestors inside the selected scope, without inventing replacement reporting lines.
 export function filterChartEmployees(employees: OrganizationViewEmployee[], departmentId: number | ReadonlySet<number> | null, query: string): OrganizationViewEmployee[] {
-  const byId = new Map(employees.map(employee => [employee.employeeId, employee]))
+  const scoped = employees.filter(employee => departmentId == null
+    || (typeof departmentId === 'number' ? employee.departmentId === departmentId : departmentId.has(employee.departmentId)))
+  const byId = new Map(scoped.map(employee => [employee.employeeId, employee]))
   const selected = new Set<number>()
   const search = query.trim().toLocaleLowerCase()
-  for (const employee of employees) {
-    if (departmentId != null && (typeof departmentId === 'number' ? employee.departmentId !== departmentId : !departmentId.has(employee.departmentId))) continue
+  for (const employee of scoped) {
     if (search && !employee.employeeName.toLocaleLowerCase().includes(search)) continue
     let cursor: OrganizationViewEmployee | undefined = employee
     while (cursor && !selected.has(cursor.employeeId)) {
@@ -51,7 +52,7 @@ export function filterChartEmployees(employees: OrganizationViewEmployee[], depa
       cursor = cursor.managerEmployeeId == null ? undefined : byId.get(cursor.managerEmployeeId)
     }
   }
-  return employees.filter(employee => selected.has(employee.employeeId))
+  return scoped.filter(employee => selected.has(employee.employeeId))
 }
 
 export function buildOrganizationChart(employees: OrganizationViewEmployee[]): OrganizationChart {

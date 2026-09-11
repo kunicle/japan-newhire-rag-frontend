@@ -6,8 +6,10 @@ import { fetchOrganization } from './organizationApi'
 import { flattenDepartments } from './organizationHelpers'
 import type { OrganizationDepartmentNode, OrganizationResponse } from './types'
 import { flattenOrganizationViewEmployees, organizationDisplayLabel, type OrganizationViewEmployee } from './organizationViewHelpers'
-import { buildOrganizationChart, CARD_HEIGHT, CARD_WIDTH, filterChartEmployees } from './organizationChart'
+import { buildOrganizationChart, filterChartEmployees } from './organizationChart'
 import { DepartmentEditDialog, EmployeeEditDialog } from './OrganizationEditDialog'
+import { HeadquartersChart } from './HeadquartersChart'
+import { OrganizationSummary } from './OrganizationSummary'
 import styles from './OrganizationPage.module.css'
 
 function findDepartment(nodes: OrganizationDepartmentNode[], id: number): OrganizationDepartmentNode | undefined {
@@ -26,6 +28,7 @@ export function OrganizationPage() {
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState('')
   const [selectedDepartmentId, setSelectedDepartmentId] = useState<number | null>(null)
+  const [expandedDepartments, setExpandedDepartments] = useState<ReadonlySet<number>>(new Set())
   const [searchQuery, setSearchQuery] = useState('')
   const [editing, setEditing] = useState(false)
   const [editingEmployee, setEditingEmployee] = useState<OrganizationViewEmployee | null>(null)
@@ -56,10 +59,20 @@ export function OrganizationPage() {
   const employees = useMemo(() => flattenOrganizationViewEmployees(organization?.departments ?? []), [organization])
   const selectedDepartment = selectedDepartmentId == null ? undefined : findDepartment(organization?.departments ?? [], selectedDepartmentId)
   const selectedDepartmentIds = useMemo(() => selectedDepartment
-    ? new Set(flattenDepartments([selectedDepartment]).map(department => department.departmentId))
+    ? new Set(selectedDepartment.parentDepartmentId === null
+      ? flattenDepartments([selectedDepartment]).map(department => department.departmentId)
+      : [selectedDepartment.departmentId])
     : null, [selectedDepartment])
   const visible = useMemo(() => filterChartEmployees(employees, selectedDepartmentIds, searchQuery), [employees, selectedDepartmentIds, searchQuery])
-  const chart = useMemo(() => buildOrganizationChart(visible), [visible])
+  const showSummary = selectedDepartmentId === null && !searchQuery.trim()
+  const chart = useMemo(() => buildOrganizationChart(showSummary ? [] : visible), [visible, showSummary])
+  const totalEmployees = useMemo(() => new Set(employees.map(employee => employee.employeeId)).size, [employees])
+  function selectSummaryDepartment(departmentId: number) {
+    setSelectedDepartmentId(departmentId)
+    const headquarters = organization?.departments.find(department =>
+      flattenDepartments([department]).some(child => child.departmentId === departmentId))
+    if (headquarters) setExpandedDepartments(current => new Set([...current, headquarters.departmentId]))
+  }
   async function saved() {
     setEditingEmployee(null); setEditingDepartment(undefined)
     setNotice('조직 정보를 저장했습니다.')
@@ -77,15 +90,36 @@ export function OrganizationPage() {
         <h2>회사 조직</h2>
         <ul>
           <li><button type="button" aria-current={selectedDepartmentId === null ? 'true' : undefined} onClick={() => setSelectedDepartmentId(null)}>전체</button></li>
-          {departments.filter(department => department.parentDepartmentId === null).map(department =>
-            <li key={department.departmentId}><button type="button" aria-current={selectedDepartmentId === department.departmentId ? 'true' : undefined} onClick={() => setSelectedDepartmentId(department.departmentId)}>{organizationDisplayLabel(department.departmentName)}</button></li>)}
+          {departments.filter(department => department.parentDepartmentId === null).map(department => {
+            const expanded = expandedDepartments.has(department.departmentId)
+            const node = findDepartment(organization.departments, department.departmentId)
+            const teams = node ? flattenDepartments(node.children) : []
+            return <li key={department.departmentId}>
+              <button type="button" aria-expanded={expanded} aria-controls={'department-teams-' + department.departmentId}
+                aria-current={selectedDepartmentId === department.departmentId ? 'true' : undefined} onClick={() => {
+                  setSelectedDepartmentId(department.departmentId)
+                  setExpandedDepartments(current => {
+                    const next = new Set(current)
+                    if (next.has(department.departmentId)) next.delete(department.departmentId)
+                    else next.add(department.departmentId)
+                    return next
+                  })
+                }}>{organizationDisplayLabel(department.departmentName)}</button>
+              <ul id={'department-teams-' + department.departmentId} hidden={!expanded} className={styles.teamMenu}>
+                {teams.map(team => <li key={team.departmentId} style={{ paddingInlineStart: team.depth * 12 }}>
+                  <button type="button" aria-current={selectedDepartmentId === team.departmentId ? 'true' : undefined}
+                    onClick={() => setSelectedDepartmentId(team.departmentId)}>{organizationDisplayLabel(team.departmentName)}</button>
+                </li>)}
+              </ul>
+            </li>
+          })}
         </ul>
       </nav>
       <div className={styles.organizationContent}>
       <section className={styles.toolbar} aria-label="조직도 검색">
         <label className={styles.search}>이름 검색<input type="search" placeholder="직원 이름 검색" value={searchQuery} onChange={event => setSearchQuery(event.target.value)} /></label>
       </section>
-      {canEdit && editing && <div className={styles.editToolbar}><p>직원 카드에서 조직정보를 수정할 수 있습니다.</p><div className={styles.actions}>
+      {canEdit && editing && <div className={styles.editToolbar}><p>{showSummary ? '본부·팀을 선택하거나 이름을 검색하면 직원 조직정보를 수정할 수 있습니다.' : '직원 카드에서 조직정보를 수정할 수 있습니다.'}</p><div className={styles.actions}>
         <Button variant="secondary" size="sm" disabled={loading} onClick={() => setEditingDepartment(null)}>부서 생성</Button>
         <label className={styles.departmentEditSelect}>수정할 부서<select value="" disabled={loading} onChange={event => {
           const department = findDepartment(organization.departments, Number(event.target.value))
@@ -95,27 +129,11 @@ export function OrganizationPage() {
         {selectedDepartment && <Button variant="secondary" size="sm" disabled={loading} onClick={() => setEditingDepartment(selectedDepartment)}>부서 수정</Button>}
       </div></div>}
       <section className={styles.chartSection} aria-label="직속 상급자 조직도">
-        <div className={styles.chartHeader}><h2>{selectedDepartment ? organizationDisplayLabel(selectedDepartment.departmentName) : '전체 조직'}</h2><span>{chart.nodes.length}명의 구성원 · {selectedDepartmentIds?.size ?? departments.length}개 부서</span></div>
-        {(selectedDepartmentId != null || searchQuery.trim()) && <p className={styles.meta}>검색된 직원의 보고 체계를 확인할 수 있도록 상급자도 함께 표시합니다.</p>}
+        <div className={styles.chartHeader}><h2>{selectedDepartment ? organizationDisplayLabel(selectedDepartment.departmentName) : '전체 조직도'}</h2><span>{showSummary ? totalEmployees : chart.nodes.length}명의 구성원{(!selectedDepartment || selectedDepartment.parentDepartmentId === null) && <> · {selectedDepartment ? (selectedDepartmentIds?.size ?? 1) - 1 : departments.length}개 {selectedDepartment ? '팀' : '부서'}</>}</span></div>
         {loading && <p className={styles.meta} role="status">조직 정보를 다시 불러오는 중입니다.</p>}
         {chart.hasCycle && <p className={styles.error} role="alert">순환 보고 관계가 있어 일부 연결선을 표시하지 못했습니다. 인사 관리자에게 확인해주세요.</p>}
-        {chart.nodes.length === 0 ? <p className={styles.empty}>{employees.length ? '검색 결과가 없습니다.' : '등록된 직원이 없습니다.'}</p> :
-          <div className={styles.chartScroll} tabIndex={0} role="region" aria-label="조직도 — 좌우로 스크롤할 수 있습니다">
-            <div className={styles.chart} style={{ width: chart.width, height: chart.height }}>
-              <svg className={styles.connections} width={chart.width} height={chart.height} aria-hidden="true">{chart.edges.map(({ from, to }) => {
-                const startX = from.x + CARD_WIDTH / 2, startY = from.y + CARD_HEIGHT, endX = to.x + CARD_WIDTH / 2
-                const bendY = to.y - 32
-                return <path key={to.employee.employeeId} d={'M ' + startX + ' ' + startY + ' V ' + bendY + ' H ' + endX + ' V ' + to.y} />
-              })}</svg>
-              <ul className={styles.employeeList}>{chart.nodes.map(({ employee, x, y }) => <li className={styles.employeeCard} key={employee.employeeId} style={{ left: x, top: y, width: CARD_WIDTH, height: CARD_HEIGHT }}>
-                <p className={styles.departmentName} title={employee.departmentName}>{organizationDisplayLabel(employee.departmentName)}</p>
-                <p className={styles.grade}>{employee.jobGradeName ? organizationDisplayLabel(employee.jobGradeName) : '직급 미지정'}</p>
-                <h3 title={employee.employeeName}>{employee.employeeName}</h3>
-                <p className={styles.hireDate}>입사일 <time dateTime={employee.hireDate}>{employee.hireDate}</time></p>
-                {canEdit && editing && <Button variant="ghost" size="sm" disabled={loading} aria-label={employee.employeeName + ' 조직정보 편집'} onClick={() => setEditingEmployee(employee)}>편집</Button>}
-              </li>)}</ul>
-            </div>
-          </div>}
+        {showSummary ? <OrganizationSummary departments={organization.departments} employees={employees} onSelect={selectSummaryDepartment} /> : chart.nodes.length === 0 ? <p className={styles.empty}>{employees.length ? '검색 결과가 없습니다.' : '등록된 직원이 없습니다.'}</p> :
+          <HeadquartersChart chart={chart} department={selectedDepartment} editing={canEdit && editing} busy={loading} onEdit={setEditingEmployee} />}
       </section>
       </div>
     </div>}
