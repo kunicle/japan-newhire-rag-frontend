@@ -3,6 +3,7 @@ import { request } from '../../shared/api/httpClient'
 import {
   assignManagedOnboardingTask,
   completeManagedOnboarding,
+  fetchAssignableOnboardingEmployees,
   fetchManagedOnboardingProgress,
   fetchManagedOnboardingTasks,
   startManagedOnboarding,
@@ -21,6 +22,15 @@ describe('onboardingManagementApi', () => {
 
     expect(requestMock).toHaveBeenCalledWith(
       '/onboarding-management/progress?page=1&size=20&employeeId=101',
+    )
+  })
+
+  it('fetches assignable direct new hires', async () => {
+    requestMock.mockResolvedValueOnce([])
+    await fetchAssignableOnboardingEmployees()
+
+    expect(requestMock).toHaveBeenCalledWith(
+      '/onboarding-management/employees',
     )
   })
 
