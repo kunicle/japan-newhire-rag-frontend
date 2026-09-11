@@ -1,6 +1,7 @@
 import { request } from '../../shared/api/httpClient'
 import type {
   ManagedOnboardingTaskPage,
+  OnboardingAssignableEmployee,
   OnboardingAssignmentCreateResult,
   OnboardingManagementItem,
   OnboardingManagementPage,
@@ -16,6 +17,12 @@ export function fetchManagedOnboardingProgress(
     : `&employeeId=${employeeId}`
   return request<OnboardingManagementPage>(
     `/onboarding-management/progress?page=${page}&size=${size}${employeeQuery}`,
+  )
+}
+
+export function fetchAssignableOnboardingEmployees(): Promise<OnboardingAssignableEmployee[]> {
+  return request<OnboardingAssignableEmployee[]>(
+    '/onboarding-management/employees',
   )
 }
 
