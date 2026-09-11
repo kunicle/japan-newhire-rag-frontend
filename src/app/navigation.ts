@@ -53,6 +53,7 @@ export const navigationGroups: NavGroup[] = [
     requiredRoles: ['MANAGER'],
     items: [
       { label: '팀 교육 현황', path: '/manager/education', icon: Users },
+      { label: '팀 오늘 할 일', path: '/onboarding-management', icon: ClipboardCheck },
       { label: '팀 평가', path: '/manager/evaluations', icon: ClipboardPenLine },
     ],
   },
@@ -76,6 +77,7 @@ export const navigationGroups: NavGroup[] = [
       { label: '교육 과정 관리', path: '/hr/courses', icon: GraduationCap },
       { label: '신입사원 등록', path: '/hr/new-hires', icon: UserPlus },
       { label: '오늘 할 일 관리', path: '/hr/onboarding', icon: UserPlus },
+      { label: '오늘 할 일 진행', path: '/onboarding-management', icon: ClipboardCheck },
       { label: '평가 관리', path: '/hr/evaluations', icon: CalendarCog },
     ],
   },
@@ -83,6 +85,7 @@ export const navigationGroups: NavGroup[] = [
     label: '시스템 관리',
     requiredRoles: ['SYSTEM_ADMIN'],
     items: [
+      { label: '시스템 오류', path: '/admin/system-errors', icon: FileClock },
       { label: '감사 로그', path: '/admin/audit', icon: FileClock },
       { label: '사용자 관리', path: '/admin/users', icon: Users },
     ],

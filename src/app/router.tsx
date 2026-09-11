@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { LoginPage } from '../features/auth/LoginPage'
 import { AdminUsersPage } from '../features/admin/AdminUsersPage'
 import { AuditPage } from '../features/audit/AuditPage'
+import { SystemErrorsPage } from '../features/systemErrors/SystemErrorsPage'
 import { HomePage } from '../features/home/HomePage'
 import { DocumentUploadPage } from '../features/documents/DocumentUploadPage'
 import { DocumentProcessingPage } from '../features/documents/DocumentProcessingPage'
@@ -25,6 +26,7 @@ import { NewHireRegistrationPage } from '../features/newHire/NewHireRegistration
 import { OrganizationPage } from '../features/organization/OrganizationPage'
 import { MyOnboardingPage } from '../features/onboarding/MyOnboardingPage'
 import { HrOnboardingPage } from '../features/onboarding/HrOnboardingPage'
+import { OnboardingManagementPage } from '../features/onboarding/OnboardingManagementPage'
 import { RagPage } from '../features/rag/RagPage'
 import { AccessDeniedPage } from '../pages/AccessDeniedPage'
 import { NotFoundPage } from '../pages/NotFoundPage'
@@ -63,6 +65,12 @@ export const router = createBrowserRouter([
             ],
           },
           {
+            element: <RoleRoute allow={['HR_MANAGER', 'MANAGER']} />,
+            children: [
+              { path: 'onboarding-management', element: <OnboardingManagementPage /> },
+            ],
+          },
+          {
             element: <RoleRoute allow={['MANAGER']} />,
             children: [
               { path: 'manager/education', element: <ManagerEducationPage /> },
@@ -88,6 +96,7 @@ export const router = createBrowserRouter([
             element: <RoleRoute allow={['SYSTEM_ADMIN']} />,
             children: [
               { path: 'admin/audit', element: <AuditPage /> },
+              { path: 'admin/system-errors', element: <SystemErrorsPage /> },
               { path: 'admin/users', element: <AdminUsersPage /> },
             ],
           },

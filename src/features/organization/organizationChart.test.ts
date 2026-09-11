@@ -47,9 +47,9 @@ describe('organization chart', () => {
     expect(chart.nodes).toHaveLength(3)
     expect(chart.edges).toHaveLength(2)
   })
-  it('retains ancestors across department filters and name searches', () => {
+  it('retains only in-scope ancestors during department filtering and name searches', () => {
     const employees = [employee(1, 1), employee(2, 3, 1, 2), employee(3, 5, 2, 2), employee(4, 5)]
-    expect(filterChartEmployees(employees, 2, 'Employee 3').map(value => value.employeeId)).toEqual([1, 2, 3])
+    expect(filterChartEmployees(employees, 2, 'Employee 3').map(value => value.employeeId)).toEqual([2, 3])
     expect(filterChartEmployees(employees, null, 'missing')).toEqual([])
   })
   it('rejects self and indirect subordinate manager candidates', () => {
