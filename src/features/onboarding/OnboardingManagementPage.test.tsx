@@ -6,19 +6,16 @@ import { OnboardingManagementPage } from './OnboardingManagementPage'
 const apiMock = vi.hoisted(() => ({
   assignManagedOnboardingTask: vi.fn(),
   completeManagedOnboarding: vi.fn(),
+  fetchAssignableOnboardingEmployees: vi.fn(),
   fetchManagedOnboardingProgress: vi.fn(),
   fetchManagedOnboardingTasks: vi.fn(),
   startManagedOnboarding: vi.fn(),
-}))
-const organizationApiMock = vi.hoisted(() => ({
-  fetchOrganization: vi.fn(),
 }))
 const authMock = vi.hoisted(() => ({
   useAuth: vi.fn(),
 }))
 
 vi.mock('./onboardingManagementApi', () => apiMock)
-vi.mock('../organization/organizationApi', () => organizationApiMock)
 vi.mock('../auth/AuthContext', () => authMock)
 
 ;(globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean })
@@ -59,7 +56,6 @@ describe('OnboardingManagementPage', () => {
 
   beforeEach(() => {
     Object.values(apiMock).forEach((mock) => mock.mockReset())
-    organizationApiMock.fetchOrganization.mockReset()
     authMock.useAuth.mockReset()
     authMock.useAuth.mockReturnValue({
       user: {
@@ -88,27 +84,14 @@ describe('OnboardingManagementPage', () => {
       first: true,
       last: true,
     })
-    organizationApiMock.fetchOrganization.mockResolvedValue({
-      departments: [{
-        departmentId: 10,
-        departmentCode: 'DEV',
-        departmentName: '개발팀',
-        parentDepartmentId: null,
-        displayOrder: 1,
-        employees: [{
-          employeeId: 101,
-          employeeNumber: 'N001',
-          employeeName: '김신입',
-          departmentId: 10,
-          jobGradeId: null,
-          jobGradeName: null,
-          jobGradeLevel: null,
-          hireDate: '2026-09-01',
-          managerEmployeeId: 200,
-        }],
-        children: [],
-      }],
-    })
+    apiMock.fetchAssignableOnboardingEmployees.mockResolvedValue([{
+      employeeId: 101,
+      employeeName: '김신입',
+      departmentId: 10,
+      departmentName: '개발팀',
+      jobGradeId: null,
+      jobGradeName: null,
+    }])
     root = null
     container = document.createElement('div')
     document.body.append(container)
@@ -139,6 +122,8 @@ describe('OnboardingManagementPage', () => {
       .toHaveBeenCalledWith(0, 20)
     expect(apiMock.fetchManagedOnboardingTasks)
       .toHaveBeenCalledWith(0, 100)
+    expect(apiMock.fetchAssignableOnboardingEmployees)
+      .toHaveBeenCalledOnce()
     expect(container.textContent).toContain('김신입 · 개발팀')
     expect(container.textContent).toContain('개발 환경 설정')
   })
