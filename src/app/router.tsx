@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { LoginPage } from '../features/auth/LoginPage'
 import { AdminUsersPage } from '../features/admin/AdminUsersPage'
 import { AuditPage } from '../features/audit/AuditPage'
+import { SystemErrorsPage } from '../features/systemErrors/SystemErrorsPage'
 import { HomePage } from '../features/home/HomePage'
 import { DocumentUploadPage } from '../features/documents/DocumentUploadPage'
 import { DocumentProcessingPage } from '../features/documents/DocumentProcessingPage'
@@ -95,6 +96,7 @@ export const router = createBrowserRouter([
             element: <RoleRoute allow={['SYSTEM_ADMIN']} />,
             children: [
               { path: 'admin/audit', element: <AuditPage /> },
+              { path: 'admin/system-errors', element: <SystemErrorsPage /> },
               { path: 'admin/users', element: <AdminUsersPage /> },
             ],
           },

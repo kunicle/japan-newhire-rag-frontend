@@ -181,7 +181,11 @@ export function DocumentProcessingPage() {
                       {formatCreatedAt(job.createdAt)}
                     </time>
                     {job.status === 'FAILED' && (
-                      <p className={styles.failureMessage}>{FAILED_MESSAGE}</p>
+                      <p className={styles.failureMessage}>
+                        {job.failureReason?.trim()
+                          ? `실패 사유: ${job.failureReason}`
+                          : FAILED_MESSAGE}
+                      </p>
                     )}
                     <div className={styles.itemFooter}>
                       {retryEligible && (

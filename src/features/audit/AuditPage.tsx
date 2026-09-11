@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+﻿import { useCallback, useEffect, useRef, useState } from 'react'
 import { AppError } from '../../shared/api/errors'
 import { Badge, Button, Skeleton } from '../../shared/ui'
 import { fetchAuditLogs } from './auditApi'
@@ -7,10 +7,10 @@ import type { AuditActionType, AuditLogEntry, AuditLogFilters, AuditTargetType }
 import styles from './AuditPage.module.css'
 
 const PAGE_SIZE = 20
-const ACTIONS: AuditActionType[] = ['USER_CREATED', 'ACCOUNT_ACTIVATED', 'ACCOUNT_DEACTIVATED', 'ROLE_GRANTED', 'ROLE_REVOKED', 'DIRECT_MANAGER_CHANGED', 'EMPLOYEE_DEPARTMENT_CHANGED', 'EMPLOYEE_JOB_GRADE_CHANGED', 'DEPARTMENT_CREATED', 'DEPARTMENT_UPDATED', 'EVALUATION_RESULT_PUBLISHED']
-const TARGETS: AuditTargetType[] = ['APP_USER', 'USER_ROLE', 'EMPLOYEE', 'DEPARTMENT', 'EVALUATION']
+const ACTIONS: AuditActionType[] = ['USER_CREATED', 'ACCOUNT_ACTIVATED', 'ACCOUNT_DEACTIVATED', 'ROLE_GRANTED', 'ROLE_REVOKED', 'DIRECT_MANAGER_CHANGED', 'EMPLOYEE_DEPARTMENT_CHANGED', 'EMPLOYEE_JOB_GRADE_CHANGED', 'DEPARTMENT_CREATED', 'DEPARTMENT_UPDATED', 'DOCUMENT_VERSION_RETRACTED', 'DOCUMENT_VERSION_PUBLISHED', 'DOCUMENT_ACCESS_RULE_CHANGED', 'EVALUATION_RESULT_PUBLISHED']
+const TARGETS: AuditTargetType[] = ['APP_USER', 'USER_ROLE', 'EMPLOYEE', 'DEPARTMENT', 'EVALUATION', 'DOCUMENT_VERSION']
 const dateFormatter = new Intl.DateTimeFormat('ko-KR', { dateStyle: 'medium', timeStyle: 'short' })
-const KEY_LABELS: Record<string, string> = { departmentId: '부서 ID', jobGradeId: '직급 ID', departmentCode: '부서 코드', departmentName: '부서명', parentDepartmentId: '상위 부서 ID', roleType: '역할', managerEmployeeId: '관리자 직원 ID', cycleId: '평가 주기 ID', visibleManagerFeedbackIds: '공개 관리자 피드백 ID' }
+const KEY_LABELS: Record<string, string> = { departmentId: '부서 ID', jobGradeId: '직급 ID', departmentCode: '부서 코드', departmentName: '부서명', parentDepartmentId: '상위 부서 ID', roleType: '역할', managerEmployeeId: '관리자 직원 ID', cycleId: '평가 주기 ID', visibleManagerFeedbackIds: '공개 관리자 피드백 ID', publicationStatus: '공개 상태', accessScope: '접근 범위', conditionOperator: '조건 연산자', roleIds: '역할 ID', departmentIds: '부서 ID', minimumJobGradeId: '최소 직급 ID', newEmployeeOnly: '신입사원 전용', isActive: '활성 여부' }
 interface DraftFilters { actionType: '' | AuditActionType; targetType: '' | AuditTargetType; actorUserIdText: string; targetIdText: string; from: string; to: string }
 const EMPTY_DRAFT: DraftFilters = { actionType: '', targetType: '', actorUserIdText: '', targetIdText: '', from: '', to: '' }
 
