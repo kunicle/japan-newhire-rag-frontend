@@ -25,6 +25,7 @@ import { NewHireRegistrationPage } from '../features/newHire/NewHireRegistration
 import { OrganizationPage } from '../features/organization/OrganizationPage'
 import { MyOnboardingPage } from '../features/onboarding/MyOnboardingPage'
 import { HrOnboardingPage } from '../features/onboarding/HrOnboardingPage'
+import { OnboardingManagementPage } from '../features/onboarding/OnboardingManagementPage'
 import { RagPage } from '../features/rag/RagPage'
 import { AccessDeniedPage } from '../pages/AccessDeniedPage'
 import { NotFoundPage } from '../pages/NotFoundPage'
@@ -60,6 +61,12 @@ export const router = createBrowserRouter([
               { path: 'hr/documents', element: <DocumentManagementPage /> },
               { path: 'hr/documents/:documentId', element: <DocumentManagementDetailPage /> },
               { path: 'hr/documents/upload', element: <DocumentUploadPage /> },
+            ],
+          },
+          {
+            element: <RoleRoute allow={['HR_MANAGER', 'MANAGER']} />,
+            children: [
+              { path: 'onboarding-management', element: <OnboardingManagementPage /> },
             ],
           },
           {
