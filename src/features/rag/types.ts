@@ -5,6 +5,8 @@ export type RagQuestionStatus =
   | 'REJECTED'
   | 'FAILED'
 
+export type RagAnswerStatus = 'ANSWERED' | 'INSUFFICIENT_EVIDENCE'
+
 export interface RagCitation {
   documentChunkId: number
   documentName: string
@@ -14,7 +16,7 @@ export interface RagCitation {
 }
 
 export interface RagQueryResult {
-  hasSufficientEvidence: boolean
+  status: RagAnswerStatus
   answer: string | null
   validCitedChunkIds: number[]
   citations: RagCitation[]

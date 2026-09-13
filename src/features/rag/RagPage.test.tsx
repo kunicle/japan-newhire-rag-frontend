@@ -15,7 +15,7 @@ vi.mock('./ragApi', () => ragApiMock)
   .IS_REACT_ACT_ENVIRONMENT = true
 
 const answeredResult = {
-  hasSufficientEvidence: true,
+  status: 'ANSWERED' as const,
   answer: '연차는 입사일을 기준으로 부여됩니다.',
   validCitedChunkIds: [101],
   citations: [
@@ -30,7 +30,7 @@ const answeredResult = {
 }
 
 const insufficientResult = {
-  hasSufficientEvidence: false,
+  status: 'INSUFFICIENT_EVIDENCE' as const,
   answer: null,
   validCitedChunkIds: [],
   citations: [],
@@ -132,6 +132,24 @@ describe('RagPage', () => {
     expect(container.textContent).not.toContain('AI 답변을 불러오지 못했습니다.')
     expect(container.textContent).not.toContain('근거 문서')
     expect(container.querySelector('[role="status"]')).not.toBeNull()
+    expect(container.querySelector('[role="alert"]')).toBeNull()
+  })
+
+  it.each([
+    ['null', null],
+    ['blank', '   '],
+  ])('renders a system error for an ANSWERED response with a %s answer', async (_, answer) => {
+    ragApiMock.askQuestion.mockResolvedValue({
+      ...answeredResult,
+      answer,
+    })
+
+    await submitQuestion()
+
+    expect(container.textContent).toContain('AI 답변을 불러오지 못했습니다.')
+    expect(container.querySelector('[role="alert"]')).not.toBeNull()
+    expect(container.textContent).not.toContain('근거 문서')
+    expect(container.textContent).not.toContain('취업규칙')
   })
 
   it('renders a retryable system error for an HTTP failure', async () => {

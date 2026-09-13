@@ -231,13 +231,13 @@ export function RagPage() {
     try {
       const result = await askQuestion(trimmedQuestion)
       if (interactionId === latestInteractionId.current) {
-        if (!result.hasSufficientEvidence) {
+        if (result.status === 'INSUFFICIENT_EVIDENCE') {
           setUiState({
             status: 'INSUFFICIENT_EVIDENCE',
             question: trimmedQuestion,
             result,
           })
-        } else if (result.answer?.trim()) {
+        } else if (result.status === 'ANSWERED' && result.answer?.trim()) {
           setUiState({ status: 'ANSWERED', question: trimmedQuestion, result })
         } else {
           setUiState({ status: 'ERROR', question: trimmedQuestion })
