@@ -32,6 +32,7 @@ import type {
 } from './hrCourseTypes'
 import { ModuleForm } from './ModuleForm'
 import styles from './HrCourseDetailPage.module.css'
+import { HrQuizManagementSection } from './HrQuizManagementSection'
 
 const COURSE_ERROR = '교육 과정 정보를 불러오지 못했습니다.'
 const MODULE_ERROR = '이수 단위를 불러오지 못했습니다.'
@@ -284,6 +285,10 @@ export function HrCourseDetailPage() {
           </li>
         })}</ol>}
     </section>
+    {course && (
+      <HrQuizManagementSection courseId={course.courseId} />
+    )}
+
     {course && <CourseAssignmentSection course={course} />}
   </div>
 }
