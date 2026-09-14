@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { Badge, Button, EmptyState, Skeleton } from '../../shared/ui'
-import { SelfCheckQuiz } from './SelfCheckQuiz'
-import { SELF_CHECK_QUESTIONS } from './selfCheckQuizData'
+import { QuizTakingSection } from './QuizTakingSection'
 import {
   completeLearningProgress,
   downloadCourseModuleAttachment,
@@ -343,9 +342,10 @@ export function MyEducationDetailPage() {
             )}
           </section>
           {(detail.status === 'COMPLETED' || detail.progressRate >= 100) && (
-            <SelfCheckQuiz
+            <QuizTakingSection
               key={detail.enrollmentId}
-              questions={SELF_CHECK_QUESTIONS}
+              enrollmentId={detail.enrollmentId}
+              quizzes={detail.quizzes}
             />
           )}
         </>
