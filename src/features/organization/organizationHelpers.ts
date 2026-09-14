@@ -14,6 +14,7 @@ export interface FlatEmployee {
   departmentName: string
   jobGradeId: number | null
   jobGradeName: string | null
+  employeeType: 'NEW_HIRE' | 'GENERAL'
 }
 
 export function flattenDepartments(
@@ -56,6 +57,7 @@ export function flattenEmployees(
           departmentName: node.departmentName,
           jobGradeId: employee.jobGradeId,
           jobGradeName: employee.jobGradeName,
+          employeeType: employee.employeeType,
         })
       }
       visit(node.children)

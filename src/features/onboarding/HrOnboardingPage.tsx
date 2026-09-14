@@ -11,6 +11,7 @@ import {
   assignOnboardingTask,
   changeOnboardingTaskActivation,
   createOnboardingTask,
+  fetchOnboardingAssignments,
   fetchOnboardingTasks,
   updateOnboardingTask,
 } from './hrOnboardingApi'
@@ -19,6 +20,7 @@ import type {
   HrOnboardingTask,
   HrOnboardingTaskPage,
   OnboardingAssignmentCreateResult,
+  OnboardingAssignmentResponse,
   OnboardingTaskFormInput,
 } from './hrOnboardingTypes'
 import { OnboardingTaskForm } from './OnboardingTaskForm'
@@ -48,10 +50,14 @@ export function HrOnboardingPage() {
   const [changingActivation, setChangingActivation] = useState(false)
   const [activationError, setActivationError] = useState<string | null>(null)
   const [selectedEmployeeIds, setSelectedEmployeeIds] = useState<Set<number>>(new Set())
+  const [selectedDepartmentId, setSelectedDepartmentId] = useState<number | 'ALL'>('ALL')
+  const [newHireOnly, setNewHireOnly] = useState(false)
   const [assigning, setAssigning] = useState(false)
   const [assignError, setAssignError] = useState<string | null>(null)
   const [assignResult, setAssignResult] =
     useState<OnboardingAssignmentCreateResult | null>(null)
+  const [assignments, setAssignments] =
+    useState<OnboardingAssignmentResponse[]>([])
   const organizationFetchIdRef = useRef(0)
   const taskFetchIdRef = useRef(0)
   const preferredTaskIdRef = useRef<number | null>(null)
@@ -128,6 +134,20 @@ export function HrOnboardingPage() {
   }, [activateTask])
 
   useEffect(() => {
+    if (!activeTask) {
+      return
+    }
+
+    fetchOnboardingAssignments(activeTask.taskId)
+      .then((response) => {
+        setAssignments(response)
+      })
+      .catch(() => {
+        setAssignments([])
+      })
+  }, [activeTask])
+
+  useEffect(() => {
     mountedRef.current = true
     queueMicrotask(() => void loadOrganization())
     return () => {
@@ -155,6 +175,34 @@ export function HrOnboardingPage() {
     () => flattenEmployees(organization?.departments ?? []),
     [organization],
   )
+
+  const filteredEmployees = useMemo(() => {
+    return employees.filter((employee) => {
+      const matchesDepartment =
+        selectedDepartmentId === 'ALL' ||
+        employee.departmentId === selectedDepartmentId
+
+      const matchesNewHire =
+        !newHireOnly || employee.employeeType === 'NEW_HIRE'
+
+      return matchesDepartment && matchesNewHire
+    })
+  }, [employees, selectedDepartmentId, newHireOnly])
+
+  const assignedEmployees = useMemo(() => {
+    return assignments
+      .filter((assignment) => assignment.status !== 'CANCELLED')
+      .map((assignment) => {
+        const employee = employees.find(
+          (employee) => employee.employeeId === assignment.employeeId,
+        )
+
+        return {
+          assignment,
+          employee,
+        }
+      })
+  }, [assignments, employees])
 
   function selectTask(task: HrOnboardingTask) {
     if (task.taskId === activeTask?.taskId) {
@@ -285,6 +333,11 @@ export function HrOnboardingPage() {
       if (mountedRef.current) {
         setAssignResult(response)
         setSelectedEmployeeIds(new Set())
+
+        const updatedAssignments =
+          await fetchOnboardingAssignments(activeTask.taskId)
+
+        setAssignments(updatedAssignments)
       }
     } catch (error) {
       if (mountedRef.current) {
@@ -499,13 +552,81 @@ export function HrOnboardingPage() {
             ) : (
               <>
                 <p className={styles.notice}>신입사원만 배정할 수 있습니다.</p>
-                {employees.length === 0 ? (
+                <label>
+                부서
+
+                <select
+                  value={selectedDepartmentId}
+                  onChange={(event) => {
+                    const value = event.target.value
+                    setSelectedDepartmentId(
+                      value === 'ALL' ? 'ALL' : Number(value),
+                    )
+                  }}
+                >
+                  <option value="ALL">전체 부서</option>
+
+                  {departments.map((department) => (
+                    <option
+                      key={department.departmentId}
+                      value={department.departmentId}
+                    >
+                      {department.departmentName}
+                    </option>
+                  ))}
+                </select>
+
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={newHireOnly}
+                  onChange={(event) => setNewHireOnly(event.target.checked)}
+                />
+                신입사원만 보기
+              </label>
+
+              <div>
+                <strong>현재 배정된 직원 ({assignedEmployees.length}명)</strong>
+
+                {assignedEmployees.length === 0 ? (
+                  <p>현재 배정된 직원이 없습니다.</p>
+                ) : (
+                  <ul>
+                    {assignedEmployees.map(({ assignment, employee }) => (
+                      <li key={assignment.onboardingAssignmentId}>
+                        {employee ? (
+                          <>
+                            {employee.employeeName}
+                            {employee.employeeType === 'NEW_HIRE' && ' · 신입'}
+                            {' · '}
+                            {employee.departmentName}
+                            {employee.jobGradeName
+                              ? ` · ${employee.jobGradeName}`
+                              : ''}
+                            {' · 마감 '}
+                            {assignment.dueDate}
+                          </>
+                        ) : (
+                          <>
+                            직원 ID {assignment.employeeId}
+                            {' · 마감 '}
+                            {assignment.dueDate}
+                          </>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+                {filteredEmployees.length === 0 ? (
                   <p className={styles.notice}>선택 가능한 직원이 없습니다.</p>
                 ) : (
                   <fieldset className={styles.employeeFieldset} disabled={assigning}>
                     <legend>배정할 직원 선택</legend>
                     <div className={styles.employeeList}>
-                      {employees.map((employee) => (
+                      {filteredEmployees.map((employee) => (
                         <label className={styles.employeeOption} key={employee.employeeId}>
                           <input
                             type="checkbox"
@@ -516,7 +637,10 @@ export function HrOnboardingPage() {
                             )}
                           />
                           <span>
-                            {employee.employeeName} · {employee.departmentName}
+                            {employee.employeeName}
+                            {employee.employeeType === 'NEW_HIRE' && ' · 신입'}
+                            {' · '}
+                            {employee.departmentName}
                             {employee.jobGradeName ? ` · ${employee.jobGradeName}` : ''}
                           </span>
                         </label>

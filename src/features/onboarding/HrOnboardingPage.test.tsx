@@ -9,6 +9,7 @@ const onboardingApiMock = vi.hoisted(() => ({
   assignOnboardingTask: vi.fn(),
   changeOnboardingTaskActivation: vi.fn(),
   createOnboardingTask: vi.fn(),
+  fetchOnboardingAssignments: vi.fn(),
   fetchOnboardingTasks: vi.fn(),
   updateOnboardingTask: vi.fn(),
 }))
@@ -86,6 +87,7 @@ describe('HrOnboardingPage', () => {
     onboardingApiMock.fetchOnboardingTasks.mockResolvedValue(
       taskPage([firstTask, secondTask]),
     )
+    onboardingApiMock.fetchOnboardingAssignments.mockResolvedValue([])
     root = null
     container = document.createElement('div')
     document.body.append(container)
