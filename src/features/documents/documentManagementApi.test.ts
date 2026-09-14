@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { request } from '../../shared/api/httpClient'
 import {
+  deleteDocument,
   fetchDocument,
   fetchDocuments,
   fetchDocumentVersionAuditEvents,
@@ -10,14 +11,35 @@ import {
 vi.mock('../../shared/api/httpClient', () => ({ request: vi.fn() }))
 
 const requestMock = vi.mocked(request)
+const emptyPage = { content: [], page: 0, size: 10, totalElements: 0, totalPages: 0 }
 
 describe('documentManagementApi', () => {
   beforeEach(() => requestMock.mockReset())
 
-  it('fetches the document list', async () => {
-    requestMock.mockResolvedValueOnce([])
-    await fetchDocuments()
-    expect(requestMock).toHaveBeenCalledWith('/documents')
+  it('fetches the document list with page and size', async () => {
+    requestMock.mockResolvedValueOnce(emptyPage)
+    await fetchDocuments({ page: 0, size: 10 })
+    expect(requestMock).toHaveBeenCalledWith('/documents?page=0&size=10')
+  })
+
+  it('includes a non-blank keyword in the document list query', async () => {
+    requestMock.mockResolvedValueOnce(emptyPage)
+    await fetchDocuments({ keyword: '취업규칙', page: 0, size: 10 })
+    expect(requestMock).toHaveBeenCalledWith(
+      `/documents?keyword=${encodeURIComponent('취업규칙')}&page=0&size=10`,
+    )
+  })
+
+  it('omits the keyword query parameter when blank', async () => {
+    requestMock.mockResolvedValueOnce(emptyPage)
+    await fetchDocuments({ keyword: '', page: 1, size: 10 })
+    expect(requestMock).toHaveBeenCalledWith('/documents?page=1&size=10')
+  })
+
+  it('deletes a document', async () => {
+    requestMock.mockResolvedValueOnce(undefined)
+    await deleteDocument(5)
+    expect(requestMock).toHaveBeenCalledWith('/documents/5', { method: 'DELETE' })
   })
 
   it('fetches one document without a body', async () => {

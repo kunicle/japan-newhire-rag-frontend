@@ -1,17 +1,31 @@
 import { request } from '../../shared/api/httpClient'
 import type {
   DocumentManagementDetail,
-  DocumentManagementListItem,
+  DocumentManagementListPage,
   DocumentRetractionResult,
   DocumentVersionAuditEventPage,
 } from './documentManagementTypes'
 
-export function fetchDocuments(): Promise<DocumentManagementListItem[]> {
-  return request<DocumentManagementListItem[]>('/documents')
+export function fetchDocuments(params: {
+  keyword?: string
+  page: number
+  size: number
+}): Promise<DocumentManagementListPage> {
+  const query = new URLSearchParams()
+  if (params.keyword) {
+    query.set('keyword', params.keyword)
+  }
+  query.set('page', String(params.page))
+  query.set('size', String(params.size))
+  return request<DocumentManagementListPage>(`/documents?${query.toString()}`)
 }
 
 export function fetchDocument(documentId: number): Promise<DocumentManagementDetail> {
   return request<DocumentManagementDetail>(`/documents/${documentId}`)
+}
+
+export function deleteDocument(documentId: number): Promise<void> {
+  return request<void>(`/documents/${documentId}`, { method: 'DELETE' })
 }
 
 export function retractDocumentVersion(
