@@ -29,7 +29,7 @@
 .referenceLoading, .referenceError { margin-block-end: var(--space-5); }
 .employeeFieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
 .employeeFieldset legend { margin-block-end: var(--space-3); font-weight: var(--font-weight-semibold); }
-.employeeList { display: grid; min-width: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); }
+.employeeList { display: grid; min-width: 0; max-height: 280px; overflow-y: auto; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); }
 .employeeOption { display: flex; min-width: 0; padding: var(--space-3); align-items: flex-start; gap: var(--space-2); border: 1px solid var(--color-border); border-radius: var(--radius-small); }
 .employeeOption input { flex: 0 0 auto; margin-block-start: var(--space-1); }
 .employeeOption span { min-width: 0; overflow-wrap: anywhere; }

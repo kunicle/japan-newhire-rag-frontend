@@ -18,7 +18,7 @@ vi.mock('./organizationApi', () => mocks)
 const employee = (id: number, name: string, level: number, managerEmployeeId: number | null) => ({
   employeeId: id, employeeNumber: 'PRIVATE-NUMBER-' + id, employeeName: name, departmentId: 1,
   jobGradeId: level, jobGradeName: level === 1 ? '부장' : '신입사원', jobGradeLevel: level,
-  hireDate: '2024-03-04', managerEmployeeId,
+  hireDate: '2024-03-04', employeeType: 'GENERAL' as const, managerEmployeeId,
 })
 describe('OrganizationPage', () => {
   let container: HTMLDivElement

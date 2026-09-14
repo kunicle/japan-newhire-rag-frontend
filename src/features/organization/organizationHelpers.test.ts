@@ -75,18 +75,19 @@ describe('flattenEmployees', () => {
     jobGradeName,
     jobGradeLevel: jobGradeId,
     hireDate: '2026-01-01',
+    employeeType: 'GENERAL',
   })
 
   it('preserves root and nested traversal order with department names', () => {
     const nodes = [department(1, '본사', [
       department(2, '인사팀', [], [employee(2, '김인사', 2, null, null)]),
-    ], [employee(1, '홍길동', 1, 3, '선임')])]
+    ], [employee(1, '홍길동', 1, 3, '선임',)])]
 
     expect(flattenEmployees(nodes)).toEqual([
       { employeeId: 1, employeeName: '홍길동', departmentId: 1,
-        departmentName: '본사', jobGradeId: 3, jobGradeName: '선임' },
+        departmentName: '본사', jobGradeId: 3, jobGradeName: '선임', employeeType: 'GENERAL', },
       { employeeId: 2, employeeName: '김인사', departmentId: 2,
-        departmentName: '인사팀', jobGradeId: null, jobGradeName: null },
+        departmentName: '인사팀', jobGradeId: null, jobGradeName: null, employeeType: 'GENERAL', },
     ])
   })
 

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { OrganizationDepartmentNode, OrganizationEmployee } from './types'
 import { countEmployeesByDepartment, filterEmployeesByName, flattenOrganizationViewEmployees, organizationDisplayLabel } from './organizationViewHelpers'
 
-function employee(employeeId: number, employeeNumber: string, employeeName: string, departmentId: number): OrganizationEmployee { return { employeeId, employeeNumber, employeeName, departmentId, jobGradeId: null, jobGradeName: null, jobGradeLevel: null, hireDate: `2024-01-0${employeeId}` } }
+function employee(employeeId: number, employeeNumber: string, employeeName: string, departmentId: number): OrganizationEmployee { return { employeeId, employeeNumber, employeeName, departmentId, jobGradeId: null, jobGradeName: null, jobGradeLevel: null, hireDate: `2024-01-0${employeeId}`, employeeType: 'GENERAL' } }
 function department(departmentId: number, departmentName: string, employees: OrganizationEmployee[], children: OrganizationDepartmentNode[] = []): OrganizationDepartmentNode { return { departmentId, departmentCode: `D${departmentId}`, departmentName, parentDepartmentId: null, displayOrder: departmentId, employees, children } }
 
 describe('organization view helpers', () => {

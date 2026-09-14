@@ -7,6 +7,7 @@ export interface OrganizationEmployee {
   jobGradeName: string | null
   jobGradeLevel: number | null
   hireDate: string
+  employeeType: 'NEW_HIRE' | 'GENERAL'
   departmentName?: string
   managerEmployeeId?: number | null
 }
