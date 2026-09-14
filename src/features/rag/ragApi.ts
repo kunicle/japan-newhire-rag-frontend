@@ -1,7 +1,7 @@
 import { request } from '../../shared/api/httpClient'
 import type {
   RagHistoryDetail,
-  RagHistoryItem,
+  RagHistoryPage,
   RagQueryResult,
 } from './types'
 
@@ -12,8 +12,21 @@ export function askQuestion(question: string): Promise<RagQueryResult> {
   })
 }
 
-export function fetchHistory(): Promise<RagHistoryItem[]> {
-  return request<RagHistoryItem[]>('/rag/questions/me')
+export function fetchHistory(params: {
+  keyword?: string
+  page: number
+  size: number
+}): Promise<RagHistoryPage> {
+  const query = new URLSearchParams()
+
+  if (params.keyword) {
+    query.set('keyword', params.keyword)
+  }
+
+  query.set('page', String(params.page))
+  query.set('size', String(params.size))
+
+  return request<RagHistoryPage>(`/rag/questions/me?${query.toString()}`)
 }
 
 export function fetchHistoryDetail(
