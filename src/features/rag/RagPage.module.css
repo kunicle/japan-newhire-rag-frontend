@@ -168,6 +168,25 @@
   gap: var(--space-3);
 }
 
+.citationToggle {
+  display: inline-flex;
+  width: fit-content;
+  padding: 0;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--color-primary);
+  font-size: var(--font-size-secondary);
+  font-weight: var(--font-weight-medium);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.citationToggle:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
 .citationList,
 .historyList {
   margin: 0;
@@ -208,11 +227,60 @@
   white-space: pre-wrap;
 }
 
+.historyHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.historyHeader .sectionTitle {
+  margin: 0;
+}
+
 .historySkeleton,
 .historyList {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.pageButton {
+  display: inline-flex;
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 var(--space-2);
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-secondary);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-medium);
+  cursor: pointer;
+}
+
+.pageButton:hover {
+  border-color: var(--color-primary);
+}
+
+.pageButton:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.pageButton[aria-current='page'] {
+  color: var(--color-surface);
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
 }
 
 .historyButton {

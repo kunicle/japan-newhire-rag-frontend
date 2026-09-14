@@ -32,4 +32,14 @@ export interface RagHistoryItem {
 export interface RagHistoryDetail extends RagHistoryItem {
   answer: string | null
   citations: RagCitation[]
+  failureType: string | null
+  failureReason: string | null
+}
+
+export interface RagHistoryPage {
+  content: RagHistoryItem[]
+  page: number
+  size: number
+  totalElements: number
+  totalPages: number
 }
