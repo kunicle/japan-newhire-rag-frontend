@@ -1,5 +1,5 @@
 import { request } from '../../shared/api/httpClient'
-import type { JobGradeReference, OrganizationResponse } from './types'
+import type { EmploymentStatus, JobGradeReference, OrganizationResponse } from './types'
 
 export function fetchOrganization(): Promise<OrganizationResponse> {
   return request<OrganizationResponse>('/organization')
@@ -13,6 +13,7 @@ export interface EmployeeOrganizationUpdate {
   departmentId: number
   jobGradeId: number
   managerEmployeeId: number | null
+  employmentStatus: EmploymentStatus
 }
 
 export interface DepartmentUpdate {

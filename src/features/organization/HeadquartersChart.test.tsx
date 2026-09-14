@@ -8,7 +8,7 @@ import type { OrganizationViewEmployee } from './organizationViewHelpers'
 function employee(id: number, departmentId: number, level: number, managerEmployeeId: number | null): OrganizationViewEmployee {
   return { employeeId: id, employeeNumber: String(id), employeeName: '직원 ' + id, departmentId,
     departmentName: '팀 ' + departmentId, jobGradeId: level, jobGradeName: '직급 ' + level,
-    jobGradeLevel: level, managerEmployeeId, hireDate: '2024-03-04' }
+    jobGradeLevel: level, managerEmployeeId, employmentStatus: 'EMPLOYED' as const, hireDate: '2024-03-04' }
 }
 
 const department: OrganizationDepartmentNode = {
@@ -30,7 +30,7 @@ describe('HeadquartersChart', () => {
     const container = document.createElement('div')
     container.innerHTML = renderToStaticMarkup(<HeadquartersChart department={department} chart={chart} editing busy={false} onEdit={() => {}} />)
     const cards = [...container.querySelectorAll('[data-employee-id]')]
-    expect(cards.map(card => Number(card.getAttribute('data-employee-id')))).toEqual([1, 2, 4, 3, 5, 6])
+   expect(cards.map(card => Number(card.getAttribute('data-employee-id')))).toEqual([1, 2, 4, 3, 6, 5])
     expect(cards).toHaveLength(6)
     expect(container.querySelectorAll('[data-team-id]')).toHaveLength(3)
     expect([...container.querySelectorAll('section header span')].map(node => node.textContent)).toEqual(['1명', '2명', '3명'])

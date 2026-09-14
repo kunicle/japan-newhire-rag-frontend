@@ -1,17 +1,21 @@
+import { useRef } from 'react'
+import { OrganizationConnectors } from './OrganizationConnectors'
 import { Button } from '../../shared/ui'
 import { flattenDepartments } from './organizationHelpers'
-import { compareEmployees, type ChartNode, type OrganizationChart } from './organizationChart'
+import { compareEmployees, findUnassignedEmployeeIds, type ChartNode, type OrganizationChart } from './organizationChart'
 import type { OrganizationDepartmentNode } from './types'
 import { organizationDisplayLabel, type OrganizationViewEmployee } from './organizationViewHelpers'
 import styles from './OrganizationPage.module.css'
 
-export function HeadquartersChart({ chart, department, editing, busy, onEdit }: {
+export function HeadquartersChart({ chart, department, editing, busy, onEdit, unassignedEmployeeIds = findUnassignedEmployeeIds(chart.nodes.map(node => node.employee)) }: {
   chart: OrganizationChart
+  unassignedEmployeeIds?: ReadonlySet<number>
   department?: OrganizationDepartmentNode
   editing: boolean
   busy: boolean
   onEdit: (employee: OrganizationViewEmployee) => void
 }) {
+  const containerRef = useRef<HTMLDivElement>(null)
   const children = new Map<number, ChartNode[]>()
   const managers = new Map<number, ChartNode>()
   for (const edge of chart.edges) {
@@ -29,13 +33,29 @@ export function HeadquartersChart({ chart, department, editing, busy, onEdit }: 
   }
   const headquarters = department?.parentDepartmentId === null
   const teams = headquarters ? flattenDepartments(department.children) : []
-  const roots = chart.nodes.filter(node => !managers.has(node.employee.employeeId))
+  const roots = chart.nodes.filter(node => !unassignedEmployeeIds.has(node.employee.employeeId) && !managers.has(node.employee.employeeId))
     .sort((a, b) => compareEmployees(a.employee, b.employee))
   const representative = headquarters ? roots[0] : undefined
   const topNodes = headquarters ? chart.nodes.filter(node =>
-    node.employee.departmentId === department.departmentId || node === representative) : []
+    !unassignedEmployeeIds.has(node.employee.employeeId) && (node.employee.departmentId === department.departmentId || node === representative)) : []
   const topIds = new Set(topNodes.map(node => node.employee.employeeId))
 
+  function unassignedGroups(nodes: ChartNode[]) {
+    const departments = new Map<number, ChartNode[]>()
+    for (const node of nodes.filter(node => unassignedEmployeeIds.has(node.employee.employeeId))) {
+      const members = departments.get(node.employee.departmentId) ?? []
+      members.push(node); departments.set(node.employee.departmentId, members)
+    }
+    return [...departments].map(([departmentId, members]) => <section key={departmentId}
+      className={styles.unassignedGroup} aria-label={organizationDisplayLabel(members[0].employee.departmentName) + ' 상급자 미지정'}
+      data-unassigned-department-id={departmentId}>
+      <h4>{organizationDisplayLabel(members[0].employee.departmentName)} · 상급자 미지정</h4>
+      {tree(members)}
+    </section>)
+  }
+  function assignedTree(nodes: ChartNode[]) {
+    return tree(nodes.filter(node => !unassignedEmployeeIds.has(node.employee.employeeId)))
+  }
   function tree(nodes: ChartNode[], label?: string) {
     const allowed = new Set(nodes.map(node => node.employee.employeeId))
     const localRoots = nodes.filter(node => !allowed.has(managers.get(node.employee.employeeId)?.employee.employeeId ?? -1))
@@ -52,6 +72,7 @@ export function HeadquartersChart({ chart, department, editing, busy, onEdit }: 
       <article className={styles.employeeCard + ' ' + styles.teamEmployeeCard} data-employee-id={employee.employeeId} title={externalManager ? '직속 관리자: ' + externalManager.employeeName : undefined}>
         <p className={styles.grade}>{employee.jobGradeName ? organizationDisplayLabel(employee.jobGradeName) : '직급 미지정'}</p>
         <h3>{employee.employeeName}</h3>
+        {employee.employmentStatus === 'LEAVE' && <span className={styles.leaveBadge}>휴직</span>}
         <p className={styles.hireDate}>입사일 <time dateTime={employee.hireDate}>{employee.hireDate}</time></p>
         {editing && <Button variant="ghost" size="sm" disabled={busy} aria-label={employee.employeeName + ' 조직정보 편집'} onClick={() => onEdit(employee)}>편집</Button>}
       </article>
@@ -61,18 +82,15 @@ export function HeadquartersChart({ chart, department, editing, busy, onEdit }: 
     </li>
   }
 
-  if (!headquarters) return <div className={styles.singleTeamChart} aria-label="직원 상세 조직도">
-    {tree(chart.nodes)}
+  if (!headquarters) return <div ref={containerRef} className={styles.singleTeamChart} aria-label="직원 상세 조직도">
+    {assignedTree(chart.nodes)}{unassignedGroups(chart.nodes)}<OrganizationConnectors containerRef={containerRef} edges={chart.edges} />
   </div>
 
-  return <div aria-label="본부 직원 조직도" className={styles.headquartersDetail}>
+  return <div ref={containerRef} aria-label="본부 직원 조직도" className={styles.headquartersDetail}>
     {topNodes.length > 0 && <div className={styles.headquartersLeaders} aria-label="본부 상단 관리자">
       {tree(topNodes)}
     </div>}
-    {topNodes.length === 1 && <svg className={styles.leaderConnections} viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true">
-      {teams.map((team, index) => chart.edges.some(edge => edge.from === topNodes[0] && edge.to.employee.departmentId === team.departmentId)
-        ? <path key={team.departmentId} d={'M 50 0 V 12 H ' + ((index + 0.5) * 100 / Math.min(3, teams.length)) + ' V 24'} /> : null)}
-    </svg>}
+    {topNodes.length === 1 && <div className={styles.leaderConnectorSpace} aria-hidden="true" />}
     <div className={styles.headquartersTeams}
       style={{ gridTemplateColumns: 'repeat(' + Math.min(3, Math.max(1, teams.length)) + ', minmax(0, 1fr))' }}>
       {teams.map(team => {
@@ -81,9 +99,11 @@ export function HeadquartersChart({ chart, department, editing, busy, onEdit }: 
         const linked = chart.edges.some(edge => topIds.has(edge.from.employee.employeeId) && edge.to.employee.departmentId === team.departmentId && !topIds.has(edge.to.employee.employeeId))
         return <section key={team.departmentId} className={styles.teamPanel} data-team-id={team.departmentId} data-linked-to-leader={linked || undefined}>
           <header className={styles.teamPanelHeader}><h4>{organizationDisplayLabel(team.departmentName)}</h4><span>{members.length}명</span></header>
-          {localMembers.length ? tree(localMembers) : <p className={styles.teamEmpty}>{members.length ? '상단에 표시된 구성원입니다.' : '표시할 직원이 없습니다.'}</p>}
+          {localMembers.length ? <>{assignedTree(localMembers)}{unassignedGroups(localMembers)}</> : <p className={styles.teamEmpty}>{members.length ? '상단에 표시된 구성원입니다.' : '표시할 직원이 없습니다.'}</p>}
         </section>
       })}
     </div>
+    {unassignedGroups(groups.get(department.departmentId) ?? [])}
+    <OrganizationConnectors containerRef={containerRef} edges={chart.edges} />
   </div>
 }
