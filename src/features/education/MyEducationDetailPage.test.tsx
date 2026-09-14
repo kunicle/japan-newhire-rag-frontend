@@ -18,6 +18,11 @@ const educationApiMock = vi.hoisted(() => ({
 
 vi.mock('./educationApi', () => educationApiMock)
 
+vi.mock('./quizApi', () => ({
+  fetchQuiz: vi.fn(),
+  submitQuizAttempt: vi.fn(),
+}))
+
 ;(globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean })
   .IS_REACT_ACT_ENVIRONMENT = true
 
