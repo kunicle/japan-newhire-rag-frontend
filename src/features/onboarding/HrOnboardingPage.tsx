@@ -51,7 +51,6 @@ export function HrOnboardingPage() {
   const [activationError, setActivationError] = useState<string | null>(null)
   const [selectedEmployeeIds, setSelectedEmployeeIds] = useState<Set<number>>(new Set())
   const [selectedDepartmentId, setSelectedDepartmentId] = useState<number | 'ALL'>('ALL')
-  const [newHireOnly, setNewHireOnly] = useState(false)
   const [assigning, setAssigning] = useState(false)
   const [assignError, setAssignError] = useState<string | null>(null)
   const [assignResult, setAssignResult] =
@@ -182,12 +181,9 @@ export function HrOnboardingPage() {
         selectedDepartmentId === 'ALL' ||
         employee.departmentId === selectedDepartmentId
 
-      const matchesNewHire =
-        !newHireOnly || employee.employeeType === 'NEW_HIRE'
-
-      return matchesDepartment && matchesNewHire
+      return matchesDepartment && employee.employeeType === 'NEW_HIRE'
     })
-  }, [employees, selectedDepartmentId, newHireOnly])
+  }, [employees, selectedDepartmentId])
 
   const assignedEmployees = useMemo(() => {
     return assignments
@@ -577,15 +573,6 @@ export function HrOnboardingPage() {
                 </select>
 
               </label>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={newHireOnly}
-                  onChange={(event) => setNewHireOnly(event.target.checked)}
-                />
-                신입사원만 보기
-              </label>
-
               <div>
                 <strong>현재 배정된 직원 ({assignedEmployees.length}명)</strong>
 
