@@ -15,6 +15,14 @@ export interface DocumentManagementListItem {
   createdAt: string
 }
 
+export interface DocumentManagementListPage {
+  content: DocumentManagementListItem[]
+  page: number
+  size: number
+  totalElements: number
+  totalPages: number
+}
+
 export interface DocumentAccessRuleRead {
   accessScope: AccessScope
   conditionOperator: ConditionOperator
