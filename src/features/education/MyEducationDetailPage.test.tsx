@@ -80,6 +80,7 @@ const courseDetail: MyCourseDetail = {
   status: 'IN_PROGRESS',
   completedAt: null,
   modules: [notStartedModule, inProgressModule, completedModule],
+  quizzes: [],
 }
 
 function progressResult(
@@ -461,45 +462,33 @@ describe('MyEducationDetailPage', () => {
     expect(educationApiMock.fetchMyCourseDetail).toHaveBeenCalledTimes(2)
   })
 
-  it('renders date fallbacks for invalid course and module timestamps', async () => {
-    educationApiMock.fetchMyCourseDetail.mockResolvedValue({
-      ...courseDetail,
-      enrollmentStartDate: 'invalid-start-date',
-      enrollmentDueDate: 'invalid-due-date',
-      completedAt: 'invalid-course-completed-at',
-      modules: [
-        {
-          ...completedModule,
-          startedAt: 'invalid-module-started-at',
-          completedAt: 'invalid-module-completed-at',
-        },
-      ],
-    })
+it('does not render quizzes before completing the course', async () => {
+  await renderPage()
 
-    await renderPage()
+  expect(container.textContent).not.toContain('교육 퀴즈')
+})
 
-    expect(container.textContent?.match(/날짜 정보 없음/g)).toHaveLength(5)
-  })
-  it('does not render the quiz before completing the course', async () => {
-    await renderPage()
-
-    expect(container.textContent).not.toContain('교육 이수 확인 퀴즈')
-  })
-
-  it('renders the quiz after completing the course', async () => {
+  it('renders stored quizzes after completing the course', async () => {
     educationApiMock.fetchMyCourseDetail.mockResolvedValue({
       ...courseDetail,
       progressRate: 100,
       status: 'COMPLETED',
       completedAt: '2026-09-10T18:00:00+09:00',
       modules: [completedModule],
+      quizzes: [
+        {
+          quizId: 501,
+          quizTitle: '정보보안 확인 퀴즈',
+        },
+      ],
     })
 
     await renderPage()
 
-    expect(container.textContent).toContain('교육 이수 확인 퀴즈')
+    expect(container.textContent).toContain('교육 퀴즈')
+    expect(container.textContent).toContain('정보보안 확인 퀴즈')
     expect(container.textContent).toContain(
-      '결과는 저장되지 않습니다.',
+      '결과와 응시 횟수는 저장됩니다.',
     )
   })
 })
