@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react'
 import { Badge, Button, Card, EmptyState, Input, Skeleton, Spinner } from '../../shared/ui'
 import { askQuestion, fetchHistory, fetchHistoryDetail } from './ragApi'
 import { getRagStatusLabel, getRagStatusVariant } from './ragPresentation'
@@ -16,6 +16,11 @@ const DETAIL_ERROR_MESSAGE = '질문 상세 내용을 불러오지 못했습니�
 const NO_EVIDENCE_MESSAGE = '답변에 사용할 충분한 근거를 찾지 못했습니다.'
 const NO_EVIDENCE_GUIDANCE =
   '질문을 조금 더 구체적으로 작성하거나, 관련 문서의 용어를 포함해 다시 질문해 주세요.'
+const NO_SEARCH_RESULTS_MESSAGE = '검색 결과가 없습니다.'
+const NO_HISTORY_MESSAGE = '이전 질문이 없습니다.'
+const SEARCH_PLACEHOLDER = '이전 질문 검색'
+const HISTORY_PAGE_SIZE = 10
+const SEARCH_DEBOUNCE_MS = 400
 
 type RagUiState =
   | { status: 'IDLE' }
@@ -39,38 +44,68 @@ function formatAskedAt(value: string): string {
   return Number.isNaN(date.getTime()) ? '날짜 정보 없음' : dateFormatter.format(date)
 }
 
-function Citations({ citations }: { citations: RagCitation[] }) {
+function Citations({
+  citations,
+  expanded,
+  onToggle,
+}: {
+  citations: RagCitation[]
+  expanded: boolean
+  onToggle: () => void
+}) {
   if (citations.length === 0) return null
 
   return (
     <section className={styles.citations} aria-labelledby="citations-title">
-      <h3 className={styles.sectionTitle} id="citations-title">
-        근거 문서
-      </h3>
-      <ul className={styles.citationList}>
-        {citations.map((citation) => (
-          <li key={citation.documentChunkId}>
-            <Card padding="sm" className={styles.citationCard}>
-              <p className={styles.citationDocument}>{citation.documentName}</p>
-              <p className={styles.citationMeta}>
-                <span>{citation.versionName}</span>
-                {citation.articleNumber && <span>{citation.articleNumber}</span>}
-              </p>
-              <p className={styles.citedText}>{citation.citedText}</p>
-            </Card>
-          </li>
-        ))}
-      </ul>
+      <button
+        type="button"
+        id="citations-title"
+        className={styles.citationToggle}
+        aria-expanded={expanded}
+        onClick={onToggle}
+      >
+        {expanded ? '근거 문서 접기 ▲' : `근거 문서 ${citations.length}개 보기 ▼`}
+      </button>
+      {expanded && (
+        <ul className={styles.citationList} aria-label="근거 문서">
+          {citations.map((citation) => (
+            <li key={citation.documentChunkId}>
+              <Card padding="sm" className={styles.citationCard}>
+                <p className={styles.citationDocument}>{citation.documentName}</p>
+                <p className={styles.citationMeta}>
+                  <span>{citation.versionName}</span>
+                  {citation.articleNumber && <span>{citation.articleNumber}</span>}
+                </p>
+                <p className={styles.citedText}>{citation.citedText}</p>
+              </Card>
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   )
 }
 
-function AnsweredResult({ question, result }: { question: string; result: RagQueryResult }) {
+function AnsweredResult({
+  question,
+  result,
+  citationsExpanded,
+  onToggleCitations,
+}: {
+  question: string
+  result: RagQueryResult
+  citationsExpanded: boolean
+  onToggleCitations: () => void
+}) {
   return (
     <Card className={styles.resultCard}>
       <p className={styles.resultQuestion}>{question}</p>
       <p className={styles.answer}>{result.answer}</p>
-      <Citations citations={result.citations} />
+      <Citations
+        citations={result.citations}
+        expanded={citationsExpanded}
+        onToggle={onToggleCitations}
+      />
     </Card>
   )
 }
@@ -110,7 +145,15 @@ function SystemError({ onRetry }: { onRetry: () => void }) {
   )
 }
 
-function HistoryResult({ detail }: { detail: RagHistoryDetail }) {
+function HistoryResult({
+  detail,
+  citationsExpanded,
+  onToggleCitations,
+}: {
+  detail: RagHistoryDetail
+  citationsExpanded: boolean
+  onToggleCitations: () => void
+}) {
   let content
 
   if (detail.status === 'ANSWERED') {
@@ -119,7 +162,11 @@ function HistoryResult({ detail }: { detail: RagHistoryDetail }) {
         <p className={styles.answer}>
           {detail.answer ?? '답변 내용을 표시할 수 없습니다.'}
         </p>
-        <Citations citations={detail.citations} />
+        <Citations
+          citations={detail.citations}
+          expanded={citationsExpanded}
+          onToggle={onToggleCitations}
+        />
       </>
     )
   } else if (detail.status === 'REJECTED') {
@@ -132,7 +179,9 @@ function HistoryResult({ detail }: { detail: RagHistoryDetail }) {
     )
   } else if (detail.status === 'FAILED') {
     content = (
-      <p className={styles.errorMessage}>질문 처리 중 오류가 발생했습니다.</p>
+      <p className={styles.errorMessage}>
+        {detail.failureReason ?? '질문 처리 중 오류가 발생했습니다.'}
+      </p>
     )
   } else {
     content = (
@@ -156,57 +205,84 @@ function HistoryResult({ detail }: { detail: RagHistoryDetail }) {
   )
 }
 
+function HistoryPagination({
+  page,
+  totalPages,
+  onPageChange,
+}: {
+  page: number
+  totalPages: number
+  onPageChange: (page: number) => void
+}) {
+  if (totalPages <= 1) return null
+
+  return (
+    <nav className={styles.pagination} aria-label="이전 질문 페이지">
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        disabled={page === 0}
+        onClick={() => onPageChange(page - 1)}
+      >
+        이전
+      </Button>
+      {Array.from({ length: totalPages }, (_, index) => index).map((pageNumber) => (
+        <button
+          key={pageNumber}
+          type="button"
+          className={styles.pageButton}
+          aria-current={pageNumber === page ? 'page' : undefined}
+          onClick={() => onPageChange(pageNumber)}
+        >
+          {pageNumber + 1}
+        </button>
+      ))}
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        disabled={page + 1 >= totalPages}
+        onClick={() => onPageChange(page + 1)}
+      >
+        다음
+      </Button>
+    </nav>
+  )
+}
+
 export function RagPage() {
   const [history, setHistory] = useState<RagHistoryItem[]>([])
   const [historyLoading, setHistoryLoading] = useState(true)
   const [historyError, setHistoryError] = useState<string | null>(null)
+  const [historyExpanded, setHistoryExpanded] = useState(true)
+  const [historyKeyword, setHistoryKeyword] = useState('')
+  const [debouncedKeyword, setDebouncedKeyword] = useState('')
+  const [historyPage, setHistoryPage] = useState(0)
+  const [historyTotalPages, setHistoryTotalPages] = useState(0)
   const [question, setQuestion] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [validationError, setValidationError] = useState<string | null>(null)
   const [selectedQuestionId, setSelectedQuestionId] = useState<number | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
   const [detailError, setDetailError] = useState<string | null>(null)
+  const [citationsExpanded, setCitationsExpanded] = useState(false)
   const [uiState, setUiState] = useState<RagUiState>({ status: 'IDLE' })
   const latestInteractionId = useRef(0)
   const latestHistoryFetchId = useRef(0)
+  const previousKeywordRef = useRef(debouncedKeyword)
 
-  useEffect(() => {
-    let cancelled = false
-
-    async function loadInitialHistory() {
-      const requestId = ++latestHistoryFetchId.current
-      setHistoryLoading(true)
-
-      try {
-        const response = await fetchHistory()
-        if (cancelled || requestId !== latestHistoryFetchId.current) return
-        setHistory(response)
-        setHistoryError(null)
-      } catch {
-        if (cancelled || requestId !== latestHistoryFetchId.current) return
-        setHistoryError(HISTORY_ERROR_MESSAGE)
-      } finally {
-        if (!cancelled && requestId === latestHistoryFetchId.current) {
-          setHistoryLoading(false)
-        }
-      }
-    }
-
-    void loadInitialHistory()
-    return () => {
-      cancelled = true
-    }
-  }, [])
-
-  async function refreshHistory() {
+  async function loadHistory(keyword: string, page: number) {
     const requestId = ++latestHistoryFetchId.current
     setHistoryLoading(true)
     setHistoryError(null)
 
     try {
-      const response = await fetchHistory()
+      const response = await fetchHistory({ keyword, page, size: HISTORY_PAGE_SIZE })
       if (requestId !== latestHistoryFetchId.current) return
-      setHistory(response)
+      setHistory(response.content)
+      setHistoryPage(response.page)
+      setHistoryTotalPages(response.totalPages)
       setHistoryError(null)
     } catch {
       if (requestId !== latestHistoryFetchId.current) return
@@ -218,6 +294,25 @@ export function RagPage() {
     }
   }
 
+  useEffect(() => {
+    const handle = setTimeout(() => setDebouncedKeyword(historyKeyword), SEARCH_DEBOUNCE_MS)
+    return () => clearTimeout(handle)
+  }, [historyKeyword])
+
+  useEffect(() => {
+    // Runs on mount (loading the initial page) and whenever the debounced
+    // keyword or the requested page changes. A keyword change always resets
+    // back to page 0, both in the request and in the displayed page state.
+    const keywordChanged = previousKeywordRef.current !== debouncedKeyword
+    previousKeywordRef.current = debouncedKeyword
+    const pageToLoad = keywordChanged ? 0 : historyPage
+    if (keywordChanged && historyPage !== 0) {
+      setHistoryPage(0)
+      return
+    }
+    void loadHistory(debouncedKeyword, pageToLoad)
+  }, [debouncedKeyword, historyPage])
+
   async function executeQuestion(trimmedQuestion: string) {
     const interactionId = latestInteractionId.current + 1
     latestInteractionId.current = interactionId
@@ -226,6 +321,7 @@ export function RagPage() {
     setDetailError(null)
     setSubmitting(true)
     setValidationError(null)
+    setCitationsExpanded(false)
     setUiState({ status: 'LOADING', question: trimmedQuestion })
 
     try {
@@ -244,7 +340,9 @@ export function RagPage() {
         }
       }
       setQuestion('')
-      await refreshHistory()
+      if (historyPage === 0) {
+        await loadHistory(debouncedKeyword, 0)
+      }
     } catch {
       if (interactionId === latestInteractionId.current) {
         setUiState({ status: 'ERROR', question: trimmedQuestion })
@@ -273,6 +371,7 @@ export function RagPage() {
     setSelectedQuestionId(item.questionId)
     setDetailLoading(true)
     setDetailError(null)
+    setCitationsExpanded(false)
 
     try {
       const detail = await fetchHistoryDetail(item.questionId)
@@ -286,6 +385,10 @@ export function RagPage() {
         setDetailLoading(false)
       }
     }
+  }
+
+  function handleHistoryKeywordChange(event: ChangeEvent<HTMLInputElement>) {
+    setHistoryKeyword(event.target.value)
   }
 
   return (
@@ -340,7 +443,12 @@ export function RagPage() {
                 {detailError}
               </p>
             ) : uiState.status === 'ANSWERED' ? (
-              <AnsweredResult question={uiState.question} result={uiState.result} />
+              <AnsweredResult
+                question={uiState.question}
+                result={uiState.result}
+                citationsExpanded={citationsExpanded}
+                onToggleCitations={() => setCitationsExpanded((expanded) => !expanded)}
+              />
             ) : uiState.status === 'INSUFFICIENT_EVIDENCE' ? (
               <InsufficientEvidence
                 question={uiState.question}
@@ -353,7 +461,11 @@ export function RagPage() {
                 }}
               />
             ) : uiState.status === 'HISTORY' ? (
-              <HistoryResult detail={uiState.detail} />
+              <HistoryResult
+                detail={uiState.detail}
+                citationsExpanded={citationsExpanded}
+                onToggleCitations={() => setCitationsExpanded((expanded) => !expanded)}
+              />
             ) : (
               <EmptyState
                 title="사내 문서를 기반으로 궁금한 내용을 질문해 보세요"
@@ -364,47 +476,77 @@ export function RagPage() {
         </div>
 
         <aside className={styles.historyPanel} aria-labelledby="history-title">
-          <h2 className={styles.sectionTitle} id="history-title">
-            이전 질문
-          </h2>
-          {historyLoading ? (
-            <div className={styles.historySkeleton}>
-              <Skeleton lines={3} />
-              <Skeleton lines={3} />
-              <Skeleton lines={3} />
-            </div>
-          ) : historyError ? (
-            <p className={styles.errorMessage} role="alert">
-              {historyError}
-            </p>
-          ) : history.length === 0 ? (
-            <EmptyState
-              title="질문 기록이 없습니다"
-              description="첫 질문을 남겨보세요."
-            />
-          ) : (
-            <ul className={styles.historyList}>
-              {history.map((item) => (
-                <li key={item.questionId}>
-                  <button
-                    type="button"
-                    className={styles.historyButton}
-                    aria-pressed={selectedQuestionId === item.questionId}
-                    onClick={() => {
-                      void handleHistorySelect(item)
-                    }}
-                  >
-                    <span className={styles.historyQuestion}>{item.question}</span>
-                    <span className={styles.historyMeta}>
-                      <Badge variant={getRagStatusVariant(item.status)}>
-                        {getRagStatusLabel(item.status)}
-                      </Badge>
-                      <time dateTime={item.askedAt}>{formatAskedAt(item.askedAt)}</time>
-                    </span>
-                  </button>
-                </li>
-              ))}
-            </ul>
+          <div className={styles.historyHeader}>
+            <h2 className={styles.sectionTitle} id="history-title">
+              이전 질문
+            </h2>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              aria-expanded={historyExpanded}
+              onClick={() => setHistoryExpanded((expanded) => !expanded)}
+            >
+              {historyExpanded ? '접기 ▲' : '펼치기 ▼'}
+            </Button>
+          </div>
+
+          {historyExpanded && (
+            <>
+              <Input
+                label={SEARCH_PLACEHOLDER}
+                hideLabel
+                placeholder={SEARCH_PLACEHOLDER}
+                value={historyKeyword}
+                onChange={handleHistoryKeywordChange}
+              />
+
+              {historyLoading ? (
+                <div className={styles.historySkeleton}>
+                  <Skeleton lines={3} />
+                  <Skeleton lines={3} />
+                  <Skeleton lines={3} />
+                </div>
+              ) : historyError ? (
+                <p className={styles.errorMessage} role="alert">
+                  {historyError}
+                </p>
+              ) : history.length === 0 ? (
+                <p className={styles.neutralMessage}>
+                  {debouncedKeyword ? NO_SEARCH_RESULTS_MESSAGE : NO_HISTORY_MESSAGE}
+                </p>
+              ) : (
+                <>
+                  <ul className={styles.historyList}>
+                    {history.map((item) => (
+                      <li key={item.questionId}>
+                        <button
+                          type="button"
+                          className={styles.historyButton}
+                          aria-pressed={selectedQuestionId === item.questionId}
+                          onClick={() => {
+                            void handleHistorySelect(item)
+                          }}
+                        >
+                          <span className={styles.historyQuestion}>{item.question}</span>
+                          <span className={styles.historyMeta}>
+                            <Badge variant={getRagStatusVariant(item.status)}>
+                              {getRagStatusLabel(item.status)}
+                            </Badge>
+                            <time dateTime={item.askedAt}>{formatAskedAt(item.askedAt)}</time>
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                  <HistoryPagination
+                    page={historyPage}
+                    totalPages={historyTotalPages}
+                    onPageChange={(nextPage) => setHistoryPage(nextPage)}
+                  />
+                </>
+              )}
+            </>
           )}
         </aside>
       </div>

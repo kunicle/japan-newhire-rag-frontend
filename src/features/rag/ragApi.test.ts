@@ -24,12 +24,28 @@ describe('ragApi', () => {
     })
   })
 
-  it('fetches the current user history', async () => {
-    requestMock.mockResolvedValueOnce([])
+  it('fetches the current user history with page and size', async () => {
+    requestMock.mockResolvedValueOnce({ content: [], page: 0, size: 10, totalElements: 0, totalPages: 0 })
 
-    await fetchHistory()
+    await fetchHistory({ page: 0, size: 10 })
 
-    expect(requestMock).toHaveBeenCalledWith('/rag/questions/me')
+    expect(requestMock).toHaveBeenCalledWith('/rag/questions/me?page=0&size=10')
+  })
+
+  it('includes a non-blank keyword in the history query', async () => {
+    requestMock.mockResolvedValueOnce({ content: [], page: 0, size: 10, totalElements: 0, totalPages: 0 })
+
+    await fetchHistory({ keyword: '연차', page: 0, size: 10 })
+
+    expect(requestMock).toHaveBeenCalledWith('/rag/questions/me?keyword=%EC%97%B0%EC%B0%A8&page=0&size=10')
+  })
+
+  it('omits the keyword query parameter when blank', async () => {
+    requestMock.mockResolvedValueOnce({ content: [], page: 0, size: 10, totalElements: 0, totalPages: 0 })
+
+    await fetchHistory({ keyword: '', page: 1, size: 10 })
+
+    expect(requestMock).toHaveBeenCalledWith('/rag/questions/me?page=1&size=10')
   })
 
   it('includes the question ID in the detail path', async () => {
