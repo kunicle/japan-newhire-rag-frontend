@@ -52,7 +52,13 @@ describe('RagPage', () => {
     ragApiMock.askQuestion.mockReset()
     ragApiMock.fetchHistory.mockReset()
     ragApiMock.fetchHistoryDetail.mockReset()
-    ragApiMock.fetchHistory.mockResolvedValue([])
+    ragApiMock.fetchHistory.mockResolvedValue({
+      content: [],
+      page: 0,
+      size: 10,
+      totalElements: 0,
+      totalPages: 0,
+    })
 
     container = document.createElement('div')
     document.body.append(container)
@@ -109,7 +115,12 @@ describe('RagPage', () => {
     await submitQuestion()
 
     expect(container.textContent).toContain(answeredResult.answer)
-    expect(container.textContent).toContain('근거 문서')
+    expect(container.textContent).toContain('근거 문서 1개 보기')
+
+    await act(async () => {
+      buttonWithText('근거 문서 1개 보기')?.click()
+    })
+
     expect(container.textContent).toContain('취업규칙')
     expect(container.textContent).toContain('2026년판')
     expect(container.textContent).toContain('제12조')
@@ -191,14 +202,20 @@ describe('RagPage', () => {
   })
 
   it('labels answered questions in history', async () => {
-    ragApiMock.fetchHistory.mockResolvedValue([
-      {
-        questionId: 1,
-        question: '연차 규정',
-        status: 'ANSWERED',
-        askedAt: '2026-09-04T10:00:00Z',
-      },
-    ])
+    ragApiMock.fetchHistory.mockResolvedValue({
+      content: [
+        {
+          questionId: 1,
+          question: '연차 규정',
+          status: 'ANSWERED',
+          askedAt: '2026-09-04T10:00:00Z',
+        },
+      ],
+      page: 0,
+      size: 10,
+      totalElements: 1,
+      totalPages: 1,
+    })
 
     await remountPage()
 
@@ -212,11 +229,19 @@ describe('RagPage', () => {
       status: 'REJECTED' as const,
       askedAt: '2026-09-04T10:00:00Z',
     }
-    ragApiMock.fetchHistory.mockResolvedValue([rejectedItem])
+    ragApiMock.fetchHistory.mockResolvedValue({
+      content: [rejectedItem],
+      page: 0,
+      size: 10,
+      totalElements: 1,
+      totalPages: 1,
+    })
     ragApiMock.fetchHistoryDetail.mockResolvedValue({
       ...rejectedItem,
       answer: null,
       citations: [],
+      failureType: null,
+      failureReason: null,
     })
 
     await remountPage()
@@ -231,6 +256,242 @@ describe('RagPage', () => {
       '이 질문에 답변할 충분한 근거를 찾지 못했습니다.',
     )
     expect(container.textContent).not.toContain('근거 문서')
+  })
+
+  it('renders a failed history detail using the recorded failure reason', async () => {
+    const failedItem = {
+      questionId: 54,
+      question: '신입사원 웰컴 포인트는 얼마인가요?',
+      status: 'FAILED' as const,
+      askedAt: '2026-09-14T11:47:02Z',
+    }
+    ragApiMock.fetchHistory.mockResolvedValue({
+      content: [failedItem],
+      page: 0,
+      size: 10,
+      totalElements: 1,
+      totalPages: 1,
+    })
+    ragApiMock.fetchHistoryDetail.mockResolvedValue({
+      ...failedItem,
+      answer: null,
+      citations: [],
+      failureType: 'API_ERROR',
+      failureReason: '외부 AI 서비스 호출에 실패했습니다.',
+    })
+
+    await remountPage()
+
+    await act(async () => {
+      buttonWithText('신입사원 웰컴 포인트는 얼마인가요?')?.click()
+    })
+
+    expect(container.textContent).toContain('외부 AI 서비스 호출에 실패했습니다.')
+  })
+
+  it('collapses evidence citations by default and toggles them open', async () => {
+    ragApiMock.askQuestion.mockResolvedValue(answeredResult)
+
+    await submitQuestion()
+
+    expect(container.textContent).not.toContain(
+      '연차 유급휴가는 입사일을 기준으로 산정합니다.',
+    )
+    const toggle = buttonWithText('근거 문서 1개 보기')
+    expect(toggle).not.toBeUndefined()
+
+    await act(async () => {
+      toggle?.click()
+    })
+
+    expect(container.textContent).toContain(
+      '연차 유급휴가는 입사일을 기준으로 산정합니다.',
+    )
+    expect(buttonWithText('근거 문서 접기')).not.toBeUndefined()
+  })
+
+  it('does not render a citation toggle when there are no citations', async () => {
+    ragApiMock.askQuestion.mockResolvedValue({
+      ...answeredResult,
+      citations: [],
+    })
+
+    await submitQuestion()
+
+    expect(buttonWithText('근거 문서')).toBeUndefined()
+  })
+
+  it('collapses and expands the previous-questions section', async () => {
+    ragApiMock.fetchHistory.mockResolvedValue({
+      content: [
+        {
+          questionId: 1,
+          question: '연차 규정',
+          status: 'ANSWERED',
+          askedAt: '2026-09-04T10:00:00Z',
+        },
+      ],
+      page: 0,
+      size: 10,
+      totalElements: 1,
+      totalPages: 1,
+    })
+
+    await remountPage()
+
+    expect(container.textContent).toContain('연차 규정')
+    expect(container.querySelector('input[placeholder="이전 질문 검색"]')).not.toBeNull()
+
+    await act(async () => {
+      buttonWithText('접기')?.click()
+    })
+
+    expect(container.textContent).not.toContain('연차 규정')
+    expect(container.querySelector('input[placeholder="이전 질문 검색"]')).toBeNull()
+
+    await act(async () => {
+      buttonWithText('펼치기')?.click()
+    })
+
+    expect(container.textContent).toContain('연차 규정')
+  })
+
+  it('searches previous questions server-side after debouncing input', async () => {
+    vi.useFakeTimers()
+    try {
+    ragApiMock.fetchHistory.mockResolvedValue({
+      content: [],
+      page: 0,
+      size: 10,
+      totalElements: 0,
+      totalPages: 0,
+    })
+
+    await remountPage()
+    ragApiMock.fetchHistory.mockClear()
+
+    const searchInput = container.querySelector<HTMLInputElement>(
+      'input[placeholder="이전 질문 검색"]',
+    )
+    if (!searchInput) throw new Error('Search input was not rendered')
+
+    await act(async () => {
+      const valueSetter = Object.getOwnPropertyDescriptor(
+        HTMLInputElement.prototype,
+        'value',
+      )?.set
+      valueSetter?.call(searchInput, '연차')
+      searchInput.dispatchEvent(new Event('input', { bubbles: true }))
+    })
+
+    expect(ragApiMock.fetchHistory).not.toHaveBeenCalled()
+
+    await act(async () => {
+      vi.advanceTimersByTime(400)
+    })
+    await act(async () => {
+      await Promise.resolve()
+    })
+
+    expect(ragApiMock.fetchHistory).toHaveBeenCalledWith({
+      keyword: '연차',
+      page: 0,
+      size: 10,
+    })
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('shows a no-results message when a search returns nothing', async () => {
+    vi.useFakeTimers()
+    try {
+    ragApiMock.fetchHistory.mockResolvedValueOnce({
+      content: [
+        {
+          questionId: 1,
+          question: '연차 규정',
+          status: 'ANSWERED',
+          askedAt: '2026-09-04T10:00:00Z',
+        },
+      ],
+      page: 0,
+      size: 10,
+      totalElements: 1,
+      totalPages: 1,
+    })
+    ragApiMock.fetchHistory.mockResolvedValueOnce({
+      content: [],
+      page: 0,
+      size: 10,
+      totalElements: 0,
+      totalPages: 0,
+    })
+
+    await remountPage()
+
+    const searchInput = container.querySelector<HTMLInputElement>(
+      'input[placeholder="이전 질문 검색"]',
+    )
+    if (!searchInput) throw new Error('Search input was not rendered')
+
+    await act(async () => {
+      const valueSetter = Object.getOwnPropertyDescriptor(
+        HTMLInputElement.prototype,
+        'value',
+      )?.set
+      valueSetter?.call(searchInput, '없는질문')
+      searchInput.dispatchEvent(new Event('input', { bubbles: true }))
+    })
+    await act(async () => {
+      vi.advanceTimersByTime(400)
+    })
+    await act(async () => {
+      await Promise.resolve()
+    })
+
+    expect(container.textContent).toContain('검색 결과가 없습니다.')
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('moves between pages without re-issuing a full list fetch on unrelated state changes', async () => {
+    ragApiMock.fetchHistory.mockImplementation(
+      async (params: { keyword?: string; page: number; size: number }) => ({
+        content: [
+          {
+            questionId: 1,
+            question: '연차 규정',
+            status: 'ANSWERED',
+            askedAt: '2026-09-04T10:00:00Z',
+          },
+        ],
+        page: params.page,
+        size: params.size,
+        totalElements: 25,
+        totalPages: 3,
+      }),
+    )
+
+    await remountPage()
+
+    expect(buttonWithText('이전')?.hasAttribute('disabled')).toBe(true)
+
+    const pageTwoButton = [...container.querySelectorAll('button')].find(
+      (button) => button.textContent === '2',
+    )
+    if (!pageTwoButton) throw new Error('Page 2 button was not rendered')
+
+    await act(async () => {
+      pageTwoButton.click()
+    })
+
+    expect(ragApiMock.fetchHistory).toHaveBeenLastCalledWith({
+      keyword: '',
+      page: 1,
+      size: 10,
+    })
   })
 
   function buttonWithText(text: string) {
