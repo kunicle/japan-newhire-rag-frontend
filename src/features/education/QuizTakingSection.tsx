@@ -173,7 +173,8 @@ export function QuizTakingSection({
               loading={loading && selectedQuizId === summary.quizId}
               onClick={() => void loadQuiz(summary.quizId)}
             >
-              {summary.quizTitle}
+              {summary.quizTitle} ·{' '}
+              {summary.required === false ? '선택' : '필수'}
             </Button>
           </li>
         ))}
@@ -214,6 +215,7 @@ export function QuizTakingSection({
                 {quiz.quizTitle}
               </h3>
               <p className={styles.quizMeta}>
+                {quiz.required === false ? '선택' : '필수'} ·{' '}
                 합격 기준 {quiz.passingScore}점 · 응시 횟수{' '}
                 {quiz.attemptsUsed}
                 {quiz.maxAttemptCount === null

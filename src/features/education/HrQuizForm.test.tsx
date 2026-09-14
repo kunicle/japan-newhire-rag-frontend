@@ -169,6 +169,7 @@ describe('HrQuizForm', () => {
       quizTitle: '정보보안 퀴즈',
       passingScore: 80,
       maxAttemptCount: 3,
+      required: true,
       questions: [
         {
           questionContent:

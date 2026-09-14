@@ -24,6 +24,7 @@ export interface QuizDetail {
   quizTitle: string
   passingScore: number
   maxAttemptCount: number | null
+  required?: boolean
   attemptsUsed: number
   questions: QuizQuestion[]
 }
