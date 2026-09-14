@@ -47,6 +47,7 @@ export interface MyCourseModule {
 export interface MyCourseQuizSummary {
   quizId: number
   quizTitle: string
+  required?: boolean
 }
 
 export interface MyCourseDetail {

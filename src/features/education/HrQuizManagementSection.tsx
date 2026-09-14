@@ -434,6 +434,16 @@ export function HrQuizManagementSection({
 
                   <Badge
                     variant={
+                      quiz.required === false
+                        ? 'neutral'
+                        : 'warning'
+                    }
+                  >
+                    {quiz.required === false ? '선택' : '필수'}
+                  </Badge>
+
+                  <Badge
+                    variant={
                       quiz.active
                         ? 'success'
                         : 'neutral'

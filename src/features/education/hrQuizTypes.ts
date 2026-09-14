@@ -14,6 +14,7 @@ export interface HrQuiz {
   quizTitle: string
   passingScore: number
   maxAttemptCount: number | null
+  required?: boolean
   active: boolean
   createdBy: number
   questions: HrQuizQuestion[]
@@ -29,5 +30,6 @@ export interface HrQuizCreateInput {
   quizTitle: string
   passingScore: number
   maxAttemptCount: number
+  required?: boolean
   questions: HrQuizQuestionInput[]
 }

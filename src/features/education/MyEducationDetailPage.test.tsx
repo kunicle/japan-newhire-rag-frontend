@@ -176,14 +176,18 @@ describe('MyEducationDetailPage', () => {
     expect(educationApiMock.fetchMyCourseDetail).toHaveBeenCalledWith(47)
   })
 
-  it('does not fetch for an invalid enrollment id and renders an error with a back link', async () => {
+  it('does not fetch for an invalid enrollment id and renders an error with a back button', async () => {
     await renderPage('/me/education/not-a-number')
 
     expect(educationApiMock.fetchMyCourseDetail).not.toHaveBeenCalled()
     expect(container.querySelector('[role="alert"]')?.textContent).toContain(
       '잘못된 교육 과정 정보입니다.',
     )
-    expect(container.querySelector('a')?.getAttribute('href')).toBe('/me/education')
+    const backButton = [...container.querySelectorAll('button')].find(
+      (button) =>
+        button.textContent?.includes('내 교육으로 돌아가기'),
+    )
+    expect(backButton).toBeDefined()
   })
 
   it('renders the course summary, enrollment period, status, and progress', async () => {

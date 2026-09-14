@@ -28,6 +28,7 @@ interface QuizDraft {
   quizTitle: string
   passingScore: number
   maxAttemptCount: number
+  required: boolean
   questions: QuestionDraft[]
 }
 
@@ -35,6 +36,7 @@ const INITIAL_VALUE: QuizDraft = {
   quizTitle: '',
   passingScore: 80,
   maxAttemptCount: 3,
+  required: true,
   questions: [
     {
       clientId: 1,
@@ -179,6 +181,7 @@ export function HrQuizForm({
       quizTitle: value.quizTitle.trim(),
       passingScore: value.passingScore,
       maxAttemptCount: value.maxAttemptCount,
+      required: value.required,
       questions: value.questions.map((question) => ({
         questionContent: question.questionContent.trim(),
         score: question.score,
@@ -250,6 +253,22 @@ export function HrQuizForm({
           }}
         />
       </div>
+
+      <label className={styles.requiredToggle}>
+        <input
+          id="quiz-required"
+          type="checkbox"
+          checked={value.required}
+          disabled={submitting}
+          onChange={(event) => {
+            setValue((current) => ({
+              ...current,
+              required: event.target.checked,
+            }))
+          }}
+        />
+        필수 퀴즈
+      </label>
 
       <section className={styles.questionSection}>
         <div className={styles.questionSectionHeader}>
