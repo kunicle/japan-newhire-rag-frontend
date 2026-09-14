@@ -3,7 +3,7 @@ import { buildOrganizationChart, CARD_HEIGHT, CARD_WIDTH, filterChartEmployees, 
 import type { OrganizationViewEmployee } from './organizationViewHelpers'
 
 function employee(id: number, level: number, manager: number | null = null, departmentId = 1): OrganizationViewEmployee {
-  return { employeeId: id, employeeNumber: 'hidden-' + id, employeeName: 'Employee ' + id, departmentId, departmentName: 'Department', jobGradeId: level, jobGradeName: 'Grade', jobGradeLevel: level, hireDate: '2024-01-01', managerEmployeeId: manager }
+  return { employeeId: id, employeeNumber: 'hidden-' + id, employeeName: 'Employee ' + id, departmentId, departmentName: 'Department', jobGradeId: level, jobGradeName: 'Grade', jobGradeLevel: level, employmentStatus: 'EMPLOYED' as const, hireDate: '2024-01-01', managerEmployeeId: manager }
 }
 describe('organization chart', () => {
   it('sorts independent roots by grade without inventing hierarchy', () => {

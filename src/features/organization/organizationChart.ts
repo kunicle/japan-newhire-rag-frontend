@@ -55,6 +55,14 @@ export function filterChartEmployees(employees: OrganizationViewEmployee[], depa
   return scoped.filter(employee => selected.has(employee.employeeId))
 }
 
+// A real reporting relationship is the only supported evidence of leadership.
+// Compute this from the full response so filtering/search does not reclassify managers.
+export function findUnassignedEmployeeIds(employees: OrganizationViewEmployee[]): ReadonlySet<number> {
+  const managers = new Set(employees.flatMap(employee => employee.managerEmployeeId == null ? [] : [employee.managerEmployeeId]))
+  return new Set(employees.filter(employee => employee.managerEmployeeId == null && !managers.has(employee.employeeId))
+    .map(employee => employee.employeeId))
+}
+
 export function buildOrganizationChart(employees: OrganizationViewEmployee[]): OrganizationChart {
   const unique = [...new Map(employees.map(employee => [employee.employeeId, employee])).values()].sort(compareEmployees)
   const byId = new Map(unique.map(employee => [employee.employeeId, employee]))

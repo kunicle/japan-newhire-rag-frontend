@@ -4,16 +4,17 @@ import { Badge, Button, Skeleton } from '../../shared/ui'
 import { fetchJobGrades, fetchOrganization } from '../organization/organizationApi'
 import { flattenDepartments, type FlatDepartment } from '../organization/organizationHelpers'
 import type { JobGradeReference } from '../organization/types'
-import { organizationDisplayLabel } from '../organization/organizationViewHelpers'
+import { flattenOrganizationViewEmployees, organizationDisplayLabel, type OrganizationViewEmployee } from '../organization/organizationViewHelpers'
 import { provisionNewHire } from './newHireApi'
 import { mapNewHireErrorMessage, validateNewHireForm } from './newHireHelpers'
 import type { NewHireFormValues, NewHireSuccessSummary } from './newHireTypes'
 import styles from './NewHireRegistrationPage.module.css'
 
-const EMPTY_FORM: NewHireFormValues = { employeeName: '', employeeNumber: '', email: '', password: '', departmentId: '', jobGradeId: '', hireDate: '' }
+const EMPTY_FORM: NewHireFormValues = { employeeName: '', employeeNumber: '', email: '', password: '', departmentId: '', jobGradeId: '', hireDate: '', managerEmployeeId: '' }
 
 export function NewHireRegistrationPage() {
   const [departments, setDepartments] = useState<FlatDepartment[]>([])
+  const [employees, setEmployees] = useState<OrganizationViewEmployee[]>([])
   const [jobGrades, setJobGrades] = useState<JobGradeReference[]>([])
   const [referenceLoading, setReferenceLoading] = useState(true)
   const [referenceError, setReferenceError] = useState<string | null>(null)
@@ -32,6 +33,7 @@ export function NewHireRegistrationPage() {
       const [organization, grades] = await Promise.all([fetchOrganization(), fetchJobGrades()])
       if (!mountedRef.current || requestId !== requestIdRef.current) return
       setDepartments(flattenDepartments(organization.departments)); setJobGrades(grades)
+      setEmployees(flattenOrganizationViewEmployees(organization.departments))
     } catch {
       if (mountedRef.current && requestId === requestIdRef.current) setReferenceError('등록에 필요한 조직 정보를 불러오지 못했습니다.')
     } finally {
@@ -45,17 +47,25 @@ export function NewHireRegistrationPage() {
     return () => { mountedRef.current = false; requestIdRef.current += 1 }
   }, [loadReferences])
 
+  const selectedGrade = jobGrades.find(grade => grade.jobGradeId === Number(form.jobGradeId))
+  const managerCandidates = employees.filter(employee => employee.employmentStatus !== 'RETIRED'
+    && selectedGrade != null && employee.jobGradeLevel != null && employee.jobGradeLevel <= selectedGrade.jobGradeLevel)
+
   async function submit(event: React.FormEvent) {
     event.preventDefault()
     if (submittingRef.current) return
     const validation = validateNewHireForm(form)
     if (validation) { setError(validation); return }
+    if (form.managerEmployeeId && !managerCandidates.some(employee => employee.employeeId === Number(form.managerEmployeeId))) {
+      setError('선택한 직급에 맞는 직속 상급자를 다시 선택해 주세요.'); return
+    }
     submittingRef.current = true; setSubmitting(true); setError(null); setResult(null)
     try {
       const response = await provisionNewHire({
         email: form.email, password: form.password, employeeNumber: form.employeeNumber,
         employeeName: form.employeeName, departmentId: Number(form.departmentId),
         jobGradeId: Number(form.jobGradeId), hireDate: form.hireDate,
+        managerEmployeeId: form.managerEmployeeId ? Number(form.managerEmployeeId) : null,
       })
       if (!mountedRef.current) return
       setResult({ ...response, email: form.email, employeeNumber: form.employeeNumber,
@@ -83,7 +93,11 @@ export function NewHireRegistrationPage() {
           <label>이메일<span>필수</span><input type="email" maxLength={100} autoComplete="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} /></label>
           <label>비밀번호<span>필수</span><input type="password" autoComplete="new-password" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} /></label>
           <label>부서<span>필수</span><select value={form.departmentId} onChange={(event) => setForm({ ...form, departmentId: event.target.value })}><option value="">부서를 선택하세요</option>{departments.map((item) => <option key={item.departmentId} value={item.departmentId}>{organizationDisplayLabel(item.departmentName)}</option>)}</select></label>
-          <label>직급<span>필수</span><select value={form.jobGradeId} onChange={(event) => setForm({ ...form, jobGradeId: event.target.value })}><option value="">직급을 선택하세요</option>{jobGrades.map((item) => <option key={item.jobGradeId} value={item.jobGradeId}>{organizationDisplayLabel(item.jobGradeName)}</option>)}</select></label>
+          <label>직급<span>필수</span><select value={form.jobGradeId} onChange={(event) => setForm({ ...form, jobGradeId: event.target.value, managerEmployeeId: '' })}><option value="">직급을 선택하세요</option>{jobGrades.map((item) => <option key={item.jobGradeId} value={item.jobGradeId}>{organizationDisplayLabel(item.jobGradeName)}</option>)}</select></label>
+          <label>직속 상급자 (선택)<select disabled={!selectedGrade || submitting} value={form.managerEmployeeId ?? ''} onChange={event => setForm({ ...form, managerEmployeeId: event.target.value })}>
+            <option value="">상급자 미지정</option>
+            {managerCandidates.map(employee => <option key={employee.employeeId} value={employee.employeeId}>{employee.employeeName} · {organizationDisplayLabel(employee.departmentName)} · {employee.jobGradeName}</option>)}
+          </select></label>
           <label>입사일<span>필수</span><input type="date" value={form.hireDate} onChange={(event) => setForm({ ...form, hireDate: event.target.value })} /></label>
         </div>{error && <p className={styles.error} role="alert">{error}</p>}<div className={styles.actions}><Button type="submit" loading={submitting}>신입사원 계정 생성</Button></div></form>}
     </section>

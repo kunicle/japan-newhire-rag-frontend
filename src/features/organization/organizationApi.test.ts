@@ -23,8 +23,8 @@ describe('organizationApi', () => {
 })
 
 describe('HR organization mutations', () => {
-  it('sends explicit null to remove a manager', async () => {
-    const body = { departmentId: 1, jobGradeId: 2, managerEmployeeId: null }
+  it.each(['EMPLOYED', 'LEAVE', 'RETIRED'] as const)('sends %s and explicit null to remove a manager', async employmentStatus => {
+    const body = { departmentId: 1, jobGradeId: 2, managerEmployeeId: null, employmentStatus }
     await updateEmployeeOrganization(10, body)
     expect(requestMock).toHaveBeenLastCalledWith('/hr/employees/10/organization', { method: 'PATCH', body: JSON.stringify(body) })
   })

@@ -6,7 +6,7 @@ import { fetchOrganization } from './organizationApi'
 import { flattenDepartments } from './organizationHelpers'
 import type { OrganizationDepartmentNode, OrganizationResponse } from './types'
 import { flattenOrganizationViewEmployees, organizationDisplayLabel, type OrganizationViewEmployee } from './organizationViewHelpers'
-import { buildOrganizationChart, filterChartEmployees } from './organizationChart'
+import { buildOrganizationChart, filterChartEmployees, findUnassignedEmployeeIds } from './organizationChart'
 import { DepartmentEditDialog, EmployeeEditDialog } from './OrganizationEditDialog'
 import { HeadquartersChart } from './HeadquartersChart'
 import { OrganizationSummary } from './OrganizationSummary'
@@ -57,6 +57,7 @@ export function OrganizationPage() {
   }, [loadOrganization])
   const departments = useMemo(() => flattenDepartments(organization?.departments ?? []), [organization])
   const employees = useMemo(() => flattenOrganizationViewEmployees(organization?.departments ?? []), [organization])
+  const unassignedEmployeeIds = useMemo(() => findUnassignedEmployeeIds(employees), [employees])
   const selectedDepartment = selectedDepartmentId == null ? undefined : findDepartment(organization?.departments ?? [], selectedDepartmentId)
   const selectedDepartmentIds = useMemo(() => selectedDepartment
     ? new Set(selectedDepartment.parentDepartmentId === null
@@ -133,7 +134,7 @@ export function OrganizationPage() {
         {loading && <p className={styles.meta} role="status">조직 정보를 다시 불러오는 중입니다.</p>}
         {chart.hasCycle && <p className={styles.error} role="alert">순환 보고 관계가 있어 일부 연결선을 표시하지 못했습니다. 인사 관리자에게 확인해주세요.</p>}
         {showSummary ? <OrganizationSummary departments={organization.departments} employees={employees} onSelect={selectSummaryDepartment} /> : chart.nodes.length === 0 ? <p className={styles.empty}>{employees.length ? '검색 결과가 없습니다.' : '등록된 직원이 없습니다.'}</p> :
-          <HeadquartersChart chart={chart} department={selectedDepartment} editing={canEdit && editing} busy={loading} onEdit={setEditingEmployee} />}
+          <HeadquartersChart unassignedEmployeeIds={unassignedEmployeeIds} chart={chart} department={selectedDepartment} editing={canEdit && editing} busy={loading} onEdit={setEditingEmployee} />}
       </section>
       </div>
     </div>}
