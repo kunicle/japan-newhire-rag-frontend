@@ -247,4 +247,46 @@ describe('HrOnboardingPage', () => {
     expect(buttonWithText(updatedTask.taskTitle)?.getAttribute('aria-pressed')).toBe('true')
     expect(buttonWithText(firstTask.taskTitle)).toBeUndefined()
   })
+
+  it('shows only new hires as assignment candidates', async () => {
+    organizationApiMock.fetchOrganization.mockResolvedValue({
+      departments: [
+        {
+          ...organization.departments[0],
+          employees: [
+            {
+              employeeId: 201,
+              employeeNumber: 'N201',
+              employeeName: '테스트 신입',
+              departmentId: 10,
+              jobGradeId: null,
+              jobGradeName: null,
+              jobGradeLevel: null,
+              hireDate: '2026-09-01',
+              employeeType: 'NEW_HIRE',
+              employmentStatus: 'EMPLOYED',
+            },
+            {
+              employeeId: 202,
+              employeeNumber: 'G202',
+              employeeName: '테스트 일반',
+              departmentId: 10,
+              jobGradeId: null,
+              jobGradeName: null,
+              jobGradeLevel: null,
+              hireDate: '2025-09-01',
+              employeeType: 'GENERAL',
+              employmentStatus: 'EMPLOYED',
+            },
+          ],
+        },
+      ],
+    })
+
+    await renderPage()
+
+    expect(container.textContent).toContain('테스트 신입')
+    expect(container.textContent).not.toContain('테스트 일반')
+    expect(container.textContent).not.toContain('신입사원만 보기')
+  })
 })
