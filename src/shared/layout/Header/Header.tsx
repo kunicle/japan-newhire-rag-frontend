@@ -53,15 +53,17 @@ export function Header({
           <Bell size={20} aria-hidden="true" />
         </Link>
         {user && (
-          <div
-            className={styles.profile}
-            role="group"
-            aria-label={`${user.employeeName}, ${user.departmentName}`}
-          >
-            <span className={styles.avatar} aria-hidden="true">
-              <UserRound size={18} aria-hidden="true" />
-            </span>
-            <span className={styles.profileText}>{user.employeeName}</span>
+          <div className={styles.profileGroup}>
+            <Link
+              className={styles.profile}
+              to="/me"
+              aria-label={`내 프로필: ${user.employeeName}`}
+            >
+              <span className={styles.avatar} aria-hidden="true">
+                <UserRound size={18} aria-hidden="true" />
+              </span>
+              <span className={styles.profileText}>{user.employeeName}</span>
+            </Link>
             <button
               type="button"
               className={styles.logoutButton}
