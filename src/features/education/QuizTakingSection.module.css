@@ -166,6 +166,80 @@
   font-weight: 700;
 }
 
+.review,
+.reviewQuestions {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.reviewTitle {
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.reviewQuestion {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  background: var(--color-background);
+}
+
+.reviewQuestionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.reviewQuestionHeader h5 {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.correctBadge,
+.incorrectBadge {
+  flex: none;
+  padding: 0.25rem 0.625rem;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.correctBadge {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.incorrectBadge {
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
+}
+
+.reviewAnswers {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.reviewAnswers div {
+  display: grid;
+  grid-template-columns: 8rem minmax(0, 1fr);
+  gap: 1rem;
+}
+
+.reviewAnswers dt {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+.reviewAnswers dd {
+  margin: 0;
+  font-weight: 600;
+}
+
 @media (max-width: 640px) {
   .section {
     padding: 1rem;
@@ -182,5 +256,16 @@
 
   .score {
     margin-left: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .reviewQuestionHeader {
+    flex-direction: column;
+  }
+
+  .reviewAnswers div {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
   }
 }
