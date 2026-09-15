@@ -14,6 +14,9 @@
 .field label { font-weight: var(--font-weight-semibold); }
 .field input, .field textarea { width: 100%; min-width: 0; padding: var(--space-3) var(--space-4); color: var(--color-text-primary); background-color: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-small); font: inherit; }
 .field input { max-width: 12rem; }
+.scoreInputRow { display: flex; align-items: center; gap: var(--space-2); }
+.scoreInputRow input { flex: 0 1 12rem; }
+.scoreInputRow span { color: var(--color-text-secondary); font-size: var(--font-size-caption); }
 .field textarea { min-height: 7rem; resize: vertical; }
 .field input:focus, .field textarea:focus { border-color: var(--color-primary); outline: var(--focus-ring-width) solid var(--focus-ring-color); outline-offset: 0; }
 .readOnlyValues { display: grid; min-width: 0; margin: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
@@ -28,6 +31,6 @@
 
 @media (max-width: 479px) {
   .readOnlyValues { grid-template-columns: minmax(0, 1fr); }
-  .field input { max-width: none; }
+  .field input, .scoreInputRow input { max-width: none; }
   .actions > *, .errorState > *, .refreshError > * { width: 100%; }
 }
