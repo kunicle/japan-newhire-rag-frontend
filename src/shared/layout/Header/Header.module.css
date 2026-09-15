@@ -78,8 +78,22 @@
   border-color: var(--color-border);
 }
 
+.profileGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
 .profile {
   gap: var(--space-2);
+  color: inherit;
+  text-decoration: none;
+  border-radius: var(--radius-small);
+}
+
+.profile:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
 }
 
 .avatar {
@@ -129,19 +143,11 @@
   .leading > .iconButton {
     display: none;
   }
-
-  .profile {
-    display: none;
-  }
 }
 
 @media (max-width: 767px) {
   .header {
     min-height: calc(var(--space-12) + var(--space-2));
     padding-inline: var(--space-3);
-  }
-
-  .profileText {
-    display: none;
   }
 }

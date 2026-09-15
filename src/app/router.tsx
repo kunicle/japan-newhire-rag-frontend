@@ -22,6 +22,7 @@ import { ManagerEvaluationListPage } from '../features/evaluation/ManagerEvaluat
 import { HrEvaluationCycleDetailPage } from '../features/evaluation/HrEvaluationCycleDetailPage'
 import { HrEvaluationListPage } from '../features/evaluation/HrEvaluationListPage'
 import { NotificationsPage } from '../features/notifications/NotificationsPage'
+import { MyProfilePage } from '../features/profile/MyProfilePage'
 import { NewHireRegistrationPage } from '../features/newHire/NewHireRegistrationPage'
 import { OrganizationPage } from '../features/organization/OrganizationPage'
 import { MyOnboardingPage } from '../features/onboarding/MyOnboardingPage'
@@ -48,6 +49,7 @@ export const router = createBrowserRouter([
         children: [
           { index: true, element: <Navigate to="/home" replace /> },
           { path: 'home', element: <HomePage /> },
+          { path: 'me', element: <MyProfilePage /> },
           { path: 'me/education', element: <MyEducationPage /> },
           { path: 'me/education/:enrollmentId', element: <MyEducationDetailPage /> },
           { path: 'me/onboarding', element: <MyOnboardingPage /> },
