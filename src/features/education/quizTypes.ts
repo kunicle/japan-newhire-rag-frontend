@@ -17,6 +17,29 @@ export interface QuizQuestion {
   options: QuizOption[]
 }
 
+export interface QuizQuestionReview {
+  questionId: number
+  questionContent: string
+  questionOrder: number
+  score: number
+  selectedOptionId: number
+  selectedOptionContent: string
+  correctOptionId: number
+  correctOptionContent: string
+  correct: boolean
+  earnedScore: number
+}
+
+export interface QuizAttemptReview {
+  attemptId: number
+  attemptNumber: number
+  totalScore: number
+  passed: boolean
+  remainingAttemptCount: number | null
+  submittedAt: string
+  questions: QuizQuestionReview[]
+}
+
 export interface QuizDetail {
   quizId: number
   courseId: number
@@ -27,6 +50,7 @@ export interface QuizDetail {
   required?: boolean
   attemptsUsed: number
   questions: QuizQuestion[]
+  latestAttemptReview?: QuizAttemptReview | null
 }
 
 export interface QuizAnswerInput {
