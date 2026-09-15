@@ -5,7 +5,7 @@ import { createDepartment, fetchJobGrades, updateDepartment, updateEmployeeOrgan
 import { flattenDepartments } from './organizationHelpers'
 import { compareEmployees, wouldCreateManagerCycle } from './organizationChart'
 import { organizationDisplayLabel, type OrganizationViewEmployee } from './organizationViewHelpers'
-import type { JobGradeReference, OrganizationDepartmentNode } from './types'
+import type { EmploymentStatus, JobGradeReference, OrganizationDepartmentNode } from './types'
 import styles from './OrganizationPage.module.css'
 
 function editError(error: unknown): string {
@@ -42,6 +42,9 @@ export function EmployeeEditDialog({ employee, employees, departments, onClose, 
   const [departmentId, setDepartmentId] = useState(String(employee.departmentId))
   const [gradeId, setGradeId] = useState(String(employee.jobGradeId ?? ''))
   const [managerId, setManagerId] = useState(String(employee.managerEmployeeId ?? ''))
+  const [employmentStatus, setEmploymentStatus] = useState<EmploymentStatus | ''>(employee.employmentStatus ?? '')
+  const [confirmRetirement, setConfirmRetirement] = useState(false)
+  const validStatus = employmentStatus === 'EMPLOYED' || employmentStatus === 'LEAVE' || employmentStatus === 'RETIRED'
   const [grades, setGrades] = useState<JobGradeReference[]>([])
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
@@ -64,13 +67,30 @@ export function EmployeeEditDialog({ employee, employees, departments, onClose, 
   const validManager = managerId === '' || candidates.some(candidate => candidate.employeeId === Number(managerId))
   async function submit(event: FormEvent) {
     event.preventDefault()
-    if (busy || loading || !grade || !validManager || !validDepartment) return
+    if (busy || loading || !grade || !validManager || !validDepartment || !validStatus) return
+    if (employmentStatus === 'RETIRED' && employee.employmentStatus !== 'RETIRED') {
+      setError('')
+      setConfirmRetirement(true)
+      return
+    }
+    await save()
+  }
+  async function save() {
+    if (busy || loading || !grade || !validManager || !validDepartment || !validStatus) return
     setBusy(true); setError('')
     try {
-      await updateEmployeeOrganization(employee.employeeId, { departmentId: Number(departmentId), jobGradeId: grade.jobGradeId, managerEmployeeId: managerId === '' ? null : Number(managerId) })
+      await updateEmployeeOrganization(employee.employeeId, { departmentId: Number(departmentId), jobGradeId: grade.jobGradeId, managerEmployeeId: managerId === '' ? null : Number(managerId), employmentStatus })
       await onSaved()
     } catch (saveError) { setError(editError(saveError)); setBusy(false) }
   }
+  if (confirmRetirement) return <EditDialog title="퇴사 처리" busy={busy} onClose={() => setConfirmRetirement(false)}>
+    <p>이 직원을 퇴사 처리하시겠습니까?<br />퇴사 처리 후 현재 조직도에서는 표시되지 않습니다.</p>
+    {error && <p className={styles.error} role="alert">{error}</p>}
+    <footer className={styles.actions}>
+      <Button variant="secondary" autoFocus disabled={busy} onClick={() => setConfirmRetirement(false)}>취소</Button>
+      <Button loading={busy} disabled={busy} onClick={() => void save()}>퇴사 처리</Button>
+    </footer>
+  </EditDialog>
   return <EditDialog title="직원 조직정보 수정" busy={busy} onClose={onClose}><form onSubmit={event => void submit(event)} className={styles.form}>
     <p className={styles.readOnlyName}>{employee.employeeName}</p>
     <fieldset disabled={busy}><label>부서<select required value={departmentId} onChange={event => setDepartmentId(event.target.value)}>{departmentOptions.map(department =>
@@ -81,12 +101,19 @@ export function EmployeeEditDialog({ employee, employees, departments, onClose, 
     <label>직속 상급자<select disabled={loading} value={managerId} onChange={event => setManagerId(event.target.value)}>
       <option value="">상급자 없음</option>{!validManager && managerId && <option value={managerId} disabled>현재 상급자 — 다시 선택해주세요</option>}
       {candidates.map(candidate => <option key={candidate.employeeId} value={candidate.employeeId}>{candidate.employeeName} · {organizationDisplayLabel(candidate.departmentName)} · {candidate.jobGradeName}</option>)}
+    </select></label>
+    <label>재직 상태<select required value={employmentStatus} onChange={event => {
+      const value = event.target.value
+      setEmploymentStatus(value === 'EMPLOYED' || value === 'LEAVE' || value === 'RETIRED' ? value : '')
+    }}>
+      <option value="" disabled>재직 상태 선택</option>
+      <option value="EMPLOYED">재직</option><option value="LEAVE">휴직</option><option value="RETIRED">퇴사</option>
     </select></label></fieldset>
     {!loading && !validManager && <p className={styles.error} role="alert">선택한 직급에 맞는 상급자를 다시 선택해주세요.</p>}
     {loading && <p role="status">직급 목록을 불러오는 중입니다.</p>}
     {error && <p className={styles.error} role="alert">{error}</p>}
     {!loading && grades.length === 0 && <Button variant="secondary" onClick={() => { setLoading(true); setError(''); setRetry(value => value + 1) }}>직급 다시 불러오기</Button>}
-    <footer className={styles.actions}><Button variant="secondary" disabled={busy} onClick={onClose}>취소</Button><Button type="submit" loading={busy} disabled={loading || !grade || !validManager || !validDepartment}>저장</Button></footer>
+    <footer className={styles.actions}><Button variant="secondary" disabled={busy} onClick={onClose}>취소</Button><Button type="submit" loading={busy} disabled={loading || !grade || !validManager || !validDepartment || !validStatus}>저장</Button></footer>
   </form></EditDialog>
 }
 

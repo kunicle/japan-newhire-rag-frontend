@@ -33,3 +33,11 @@ export interface OnboardingAssignmentCreateResult {
   successCount: number
   duplicateCount: number
 }
+
+export interface OnboardingAssignmentResponse {
+  onboardingAssignmentId: number
+  employeeId: number
+  assignedDate: string
+  dueDate: string
+  status: string
+}

@@ -1,3 +1,5 @@
+export type EmploymentStatus = 'EMPLOYED' | 'LEAVE' | 'RETIRED'
+
 export interface OrganizationEmployee {
   employeeId: number
   employeeNumber: string
@@ -7,6 +9,8 @@ export interface OrganizationEmployee {
   jobGradeName: string | null
   jobGradeLevel: number | null
   hireDate: string
+  employeeType: 'NEW_HIRE' | 'GENERAL'
+  employmentStatus: EmploymentStatus
   departmentName?: string
   managerEmployeeId?: number | null
 }

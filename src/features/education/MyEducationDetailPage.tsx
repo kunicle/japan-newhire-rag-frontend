@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Badge, Button, EmptyState, Skeleton } from '../../shared/ui'
-import { SelfCheckQuiz } from './SelfCheckQuiz'
-import { SELF_CHECK_QUESTIONS } from './selfCheckQuizData'
+import { QuizTakingSection } from './QuizTakingSection'
 import {
   completeLearningProgress,
   downloadCourseModuleAttachment,
@@ -50,6 +49,7 @@ function formatFileSize(bytes: number): string {
 }
 
 export function MyEducationDetailPage() {
+  const navigate = useNavigate()
   const { enrollmentId: enrollmentIdParam } = useParams()
   const enrollmentId = Number(enrollmentIdParam)
   const validEnrollmentId = Number.isInteger(enrollmentId) && enrollmentId > 0
@@ -196,14 +196,30 @@ export function MyEducationDetailPage() {
     return (
       <div className={styles.page}>
         <p className={styles.error} role="alert">잘못된 교육 과정 정보입니다.</p>
-        <Link className={styles.backLink} to="/me/education">내 교육으로 돌아가기</Link>
+        <div className={styles.backAction}>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => navigate('/me/education')}
+          >
+            내 교육으로 돌아가기
+          </Button>
+        </div>
       </div>
     )
   }
 
   return (
     <div className={styles.page}>
-      <Link className={styles.backLink} to="/me/education">내 교육으로 돌아가기</Link>
+      <div className={styles.backAction}>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => navigate('/me/education')}
+          >
+            내 교육으로 돌아가기
+          </Button>
+        </div>
       {detailLoading ? (
         <div className={styles.skeletons} role="status" aria-label="교육 과정 정보를 불러오는 중">
           <Skeleton lines={4} /><Skeleton lines={5} /><Skeleton lines={5} />
@@ -343,9 +359,10 @@ export function MyEducationDetailPage() {
             )}
           </section>
           {(detail.status === 'COMPLETED' || detail.progressRate >= 100) && (
-            <SelfCheckQuiz
+            <QuizTakingSection
               key={detail.enrollmentId}
-              questions={SELF_CHECK_QUESTIONS}
+              enrollmentId={detail.enrollmentId}
+              quizzes={detail.quizzes}
             />
           )}
         </>

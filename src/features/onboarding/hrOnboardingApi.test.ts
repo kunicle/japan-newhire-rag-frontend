@@ -4,6 +4,7 @@ import {
   assignOnboardingTask,
   changeOnboardingTaskActivation,
   createOnboardingTask,
+  fetchOnboardingAssignments,
   updateOnboardingTask,
   fetchOnboardingTask,
   fetchOnboardingTasks,
@@ -73,6 +74,16 @@ describe('hrOnboardingApi', () => {
       method: 'PATCH',
       body: JSON.stringify({ active: false }),
     })
+  })
+
+  it('fetches employees assigned to a task', async () => {
+    requestMock.mockResolvedValueOnce([])
+
+    await fetchOnboardingAssignments(10)
+
+    expect(requestMock).toHaveBeenCalledWith(
+      '/hr/onboarding-tasks/10/assignments',
+    )
   })
 
   it('assigns employees to a task', async () => {

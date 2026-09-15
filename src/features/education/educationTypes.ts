@@ -44,6 +44,12 @@ export interface MyCourseModule {
   completedAt: string | null
 }
 
+export interface MyCourseQuizSummary {
+  quizId: number
+  quizTitle: string
+  required?: boolean
+}
+
 export interface MyCourseDetail {
   enrollmentId: number
   courseId: number
@@ -57,6 +63,7 @@ export interface MyCourseDetail {
   status: EnrollmentStatus
   completedAt: string | null
   modules: MyCourseModule[]
+  quizzes: MyCourseQuizSummary[]
 }
 
 export interface LearningProgressUpdateResult {

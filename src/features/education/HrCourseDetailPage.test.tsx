@@ -23,6 +23,7 @@ vi.mock('./hrCourseApi', () => hrCourseApiMock)
 vi.mock('./CourseAssignmentSection', () => ({ CourseAssignmentSection: () => null }))
 vi.mock('./CourseForm', () => ({ CourseForm: () => null }))
 vi.mock('./ModuleForm', () => ({ ModuleForm: () => null }))
+vi.mock('./HrQuizManagementSection', () => ({ HrQuizManagementSection: () => null, }))
 
 ;(globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean })
   .IS_REACT_ACT_ENVIRONMENT = true

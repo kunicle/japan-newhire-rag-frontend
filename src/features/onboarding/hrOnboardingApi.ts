@@ -2,6 +2,7 @@ import { request } from '../../shared/api/httpClient'
 import type {
   HrOnboardingTask,
   OnboardingAssignmentCreateResult,
+  OnboardingAssignmentResponse,
   OnboardingTaskFormInput,
   HrOnboardingTaskPage,
 } from './hrOnboardingTypes'
@@ -48,6 +49,14 @@ export function changeOnboardingTaskActivation(
     method: 'PATCH',
     body: JSON.stringify({ active }),
   })
+}
+
+export function fetchOnboardingAssignments(
+  taskId: number,
+): Promise<OnboardingAssignmentResponse[]> {
+  return request<OnboardingAssignmentResponse[]>(
+    `/hr/onboarding-tasks/${taskId}/assignments`,
+  )
 }
 
 export function assignOnboardingTask(

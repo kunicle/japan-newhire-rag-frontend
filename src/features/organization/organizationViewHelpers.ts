@@ -1,4 +1,4 @@
-import type { OrganizationDepartmentNode } from './types'
+import type { EmploymentStatus, OrganizationDepartmentNode } from './types'
 
 const DEVELOPMENT_LABELS: Record<string, string> = {
   'Development Default Department': '개발 기본 부서',
@@ -19,6 +19,7 @@ export interface OrganizationViewEmployee {
   jobGradeName: string | null
   jobGradeLevel: number | null
   hireDate: string
+  employmentStatus: EmploymentStatus
   managerEmployeeId?: number | null
 }
 

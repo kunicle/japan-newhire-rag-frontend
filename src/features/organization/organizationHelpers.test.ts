@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { flattenDepartments, flattenEmployees } from './organizationHelpers'
-import type { OrganizationDepartmentNode, OrganizationEmployee } from './types'
+import type {
+  OrganizationDepartmentNode,
+  OrganizationEmployee,
+} from './types'
 
 function department(
   id: number,
@@ -23,16 +26,20 @@ describe('flattenDepartments', () => {
   it('preserves traversal order and calculates nested depths', () => {
     const nodes = [
       department(1, 'Root', [
-        department(2, 'Child', [department(3, 'Grandchild')]),
+        department(2, 'Child', [
+          department(3, 'Grandchild'),
+        ]),
         department(4, 'Second child'),
       ]),
       department(5, 'Second root'),
     ]
 
-    expect(flattenDepartments(nodes).map(({ departmentId, depth }) => ({
-      departmentId,
-      depth,
-    }))).toEqual([
+    expect(
+      flattenDepartments(nodes).map(({ departmentId, depth }) => ({
+        departmentId,
+        depth,
+      })),
+    ).toEqual([
       { departmentId: 1, depth: 0 },
       { departmentId: 2, depth: 1 },
       { departmentId: 3, depth: 2 },
@@ -42,16 +49,20 @@ describe('flattenDepartments', () => {
   })
 
   it('keeps only the first occurrence of a duplicate ID', () => {
-    expect(flattenDepartments([
-      department(1, 'First'),
-      department(1, 'Duplicate'),
-    ])).toEqual([{
-      departmentId: 1,
-      departmentCode: 'D1',
-      departmentName: 'First',
-      parentDepartmentId: null,
-      depth: 0,
-    }])
+    expect(
+      flattenDepartments([
+        department(1, 'First'),
+        department(1, 'Duplicate'),
+      ]),
+    ).toEqual([
+      {
+        departmentId: 1,
+        departmentCode: 'D1',
+        departmentName: 'First',
+        parentDepartmentId: null,
+        depth: 0,
+      },
+    ])
   })
 
   it('returns an empty array for an empty tree', () => {
@@ -75,18 +86,50 @@ describe('flattenEmployees', () => {
     jobGradeName,
     jobGradeLevel: jobGradeId,
     hireDate: '2026-01-01',
+    employeeType: 'GENERAL',
+    employmentStatus: 'EMPLOYED',
   })
 
   it('preserves root and nested traversal order with department names', () => {
-    const nodes = [department(1, '본사', [
-      department(2, '인사팀', [], [employee(2, '김인사', 2, null, null)]),
-    ], [employee(1, '홍길동', 1, 3, '선임')])]
+    const nodes = [
+      department(
+        1,
+        '본사',
+        [
+          department(
+            2,
+            '인사팀',
+            [],
+            [
+              employee(2, '김인사', 2, null, null),
+            ],
+          ),
+        ],
+        [
+          employee(1, '홍길동', 1, 3, '선임'),
+        ],
+      ),
+    ]
 
     expect(flattenEmployees(nodes)).toEqual([
-      { employeeId: 1, employeeName: '홍길동', departmentId: 1,
-        departmentName: '본사', jobGradeId: 3, jobGradeName: '선임' },
-      { employeeId: 2, employeeName: '김인사', departmentId: 2,
-        departmentName: '인사팀', jobGradeId: null, jobGradeName: null },
+      {
+        employeeId: 1,
+        employeeName: '홍길동',
+        departmentId: 1,
+        departmentName: '본사',
+        jobGradeId: 3,
+        jobGradeName: '선임',
+        employeeType: 'GENERAL',
+      },
+      {
+        employeeId: 2,
+        employeeName: '김인사',
+        departmentId: 2,
+        departmentName: '인사팀',
+        jobGradeId: null,
+        jobGradeName: null,
+        employeeType: 'GENERAL',
+      },
     ])
   })
 
@@ -95,7 +138,16 @@ describe('flattenEmployees', () => {
   })
 
   it('returns empty when departments have no employees', () => {
-    expect(flattenEmployees([department(1, '본사', [department(2, '인사팀')])]))
-      .toEqual([])
+    expect(
+      flattenEmployees([
+        department(
+          1,
+          '본사',
+          [
+            department(2, '인사팀'),
+          ],
+        ),
+      ]),
+    ).toEqual([])
   })
 })
