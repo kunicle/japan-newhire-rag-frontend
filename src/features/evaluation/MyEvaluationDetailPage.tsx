@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import { Badge, Button, Skeleton } from '../../shared/ui'
+import { EvaluationScoreGuide } from './EvaluationScoreGuide'
 import {
   fetchMyEvaluationResult,
   fetchMyEvaluations,
@@ -14,6 +15,7 @@ import {
   evaluationCycleStatusLabel,
   evaluationStatusBadgeVariant,
   evaluationStatusLabel,
+  EVALUATION_ITEM_FEEDBACK_PLACEHOLDER,
   isEvaluationWritable,
   mapEvaluationErrorMessage,
   validateEvaluationScoreInput,
@@ -352,21 +354,25 @@ function EvaluationDetailContent({
                   <>
                     <div className={styles.field}>
                       <label htmlFor={`evaluation-score-${item.evaluationItemId}`}>점수</label>
-                      <input
-                        id={`evaluation-score-${item.evaluationItemId}`}
-                        type="number"
-                        min={1}
-                        max={5}
-                        step={0.1}
-                        value={formItem.scoreInput}
-                        disabled={savingDraft || submitting}
-                        aria-invalid={itemError ? true : undefined}
-                        onChange={(event) => setFormItems((current) => current.map(
-                          (entry, entryIndex) => entryIndex === index
-                            ? { ...entry, scoreInput: event.target.value }
-                            : entry,
-                        ))}
-                      />
+                      <div className={styles.scoreInputRow}>
+                        <input
+                          id={`evaluation-score-${item.evaluationItemId}`}
+                          type="number"
+                          min={1}
+                          max={5}
+                          step={0.1}
+                          value={formItem.scoreInput}
+                          disabled={savingDraft || submitting}
+                          aria-invalid={itemError ? true : undefined}
+                          onChange={(event) => setFormItems((current) => current.map(
+                            (entry, entryIndex) => entryIndex === index
+                              ? { ...entry, scoreInput: event.target.value }
+                              : entry,
+                          ))}
+                        />
+                        <span>/ 5.0</span>
+                      </div>
+                      <EvaluationScoreGuide />
                     </div>
                     {itemError && <p className={styles.error} role="alert">{itemError}</p>}
                     <div className={styles.field}>
@@ -376,6 +382,7 @@ function EvaluationDetailContent({
                       <textarea
                         id={`evaluation-feedback-${item.evaluationItemId}`}
                         maxLength={1000}
+                        placeholder={EVALUATION_ITEM_FEEDBACK_PLACEHOLDER}
                         value={formItem.itemFeedback}
                         disabled={savingDraft || submitting}
                         onChange={(event) => setFormItems((current) => current.map(

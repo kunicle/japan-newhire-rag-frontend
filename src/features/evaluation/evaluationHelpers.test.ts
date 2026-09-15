@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest'
 import { AppError } from '../../shared/api/errors'
 import {
   buildSelfEvaluationDraftInput,
+  EVALUATION_ITEM_FEEDBACK_PLACEHOLDER,
+  EVALUATION_SCORE_DECIMAL_GUIDE,
+  EVALUATION_SCORE_GUIDE,
   evaluationCycleStatusBadgeVariant,
   evaluationCycleStatusLabel,
   evaluationStatusBadgeVariant,
@@ -52,6 +55,23 @@ describe('isEvaluationWritable', () => {
 })
 
 describe('score helpers', () => {
+  it('provides the shared score guide without changing decimal-score support', () => {
+    expect(EVALUATION_SCORE_GUIDE).toEqual([
+      { score: 1, label: '매우 부족' },
+      { score: 2, label: '부족' },
+      { score: 3, label: '보통' },
+      { score: 4, label: '우수' },
+      { score: 5, label: '매우 우수' },
+    ])
+    expect(EVALUATION_SCORE_DECIMAL_GUIDE).toBe(
+      '1~5점 사이에서 0.1점 단위로 입력할 수 있습니다.',
+    )
+    expect(EVALUATION_ITEM_FEEDBACK_PLACEHOLDER).toBe(
+      '이 점수를 선택한 이유나 구체적인 사례를 입력하세요.',
+    )
+    expect(validateEvaluationScoreInput('4.5')).toBeNull()
+  })
+
   it.each(['', '   '])('parses blank %j as null', (value) => {
     expect(parseEvaluationScore(value)).toBeNull()
     expect(validateEvaluationScoreInput(value)).toBeNull()

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { AppError } from '../../shared/api/errors'
 import { Badge, Button, Skeleton } from '../../shared/ui'
 import { fetchOrganization } from '../organization/organizationApi'
@@ -220,6 +220,7 @@ function HrEvaluationCycleDetailContent({ cycleId }: { cycleId: number }) {
   const editable = isCycleEditable(cycle.cycleStatus); const datesEditable = isCycleDatesEditable(cycle.cycleStatus); const setupWritable = isTemplateOrItemWritable(cycle.cycleStatus)
   return (
     <div className={styles.page}>
+      <Link className={styles.backLink} to="/hr/evaluations">평가 목록으로 돌아가기</Link>
       <header className={styles.header}><div className={styles.heading}><h1>{cycle.cycleName}</h1><Badge variant={evaluationCycleStatusBadgeVariant(cycle.cycleStatus)}>{evaluationCycleStatusLabel(cycle.cycleStatus)}</Badge></div></header>
       <section className={styles.panel} aria-labelledby="cycle-info-title"><h2 id="cycle-info-title">평가 주기 정보</h2>
         {editable ? <div className={styles.formGrid}>
@@ -232,6 +233,7 @@ function HrEvaluationCycleDetailContent({ cycleId }: { cycleId: number }) {
         {editable && <div className={styles.actions}><Button loading={cycleSaving} onClick={() => void saveCycle()}>주기 수정</Button></div>}
       </section>
       <section aria-labelledby="templates-title"><h2 id="templates-title" className={styles.sectionTitle}>평가 설정</h2>
+        {!setupWritable && <p className={styles.meta}>현재 평가 주기 상태에서는 평가 설정과 평가 질문을 수정할 수 없습니다. 평가 설정은 예정 상태에서만 수정할 수 있습니다.</p>}
         {templatesLoading && templates.length === 0 ? <div role="status" aria-label="평가 설정을 불러오는 중"><Skeleton lines={4} /></div> : templatesError ? <div className={styles.errorState}><p className={styles.error} role="alert">{templatesError}</p><Button variant="secondary" onClick={() => void loadTemplates()}>평가 설정 다시 불러오기</Button></div> : (
           <div className={styles.templateList}>{TEMPLATE_META.map(({ type, title }) => <TemplateSection key={type} title={title} type={type} template={templates.find((entry) => entry.evaluationType === type)} writable={setupWritable} itemsState={templates.find((entry) => entry.evaluationType === type) ? itemsByTemplate.get(templates.find((entry) => entry.evaluationType === type)!.evaluationTemplateId) : undefined} onWrite={writeTemplate} onRetryItems={loadItems} onCreateItem={createItem} onSaveItem={saveItem} />)}</div>
         )}

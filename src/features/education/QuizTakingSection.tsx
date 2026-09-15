@@ -2,6 +2,7 @@ import { useRef, useState, type FormEvent } from 'react'
 import { Button, EmptyState, Skeleton } from '../../shared/ui'
 import { mapEducationErrorMessage } from './educationHelpers'
 import { fetchQuiz, submitQuizAttempt } from './quizApi'
+import { QuizAttemptReview } from './QuizAttemptReview'
 import type { MyCourseQuizSummary } from './educationTypes'
 import type {
   QuizAttemptResult,
@@ -116,6 +117,27 @@ export function QuizTakingSection({
             }
           : current
       ))
+
+      const terminalAttempt =
+        response.passed
+        || response.remainingAttemptCount === 0
+
+      if (terminalAttempt) {
+        try {
+          const refreshedQuiz = await fetchQuiz(
+            quiz.quizId,
+            enrollmentId,
+          )
+
+          setQuiz(refreshedQuiz)
+
+          if (refreshedQuiz.latestAttemptReview) {
+            setResult(null)
+          }
+        } catch {
+          // 제출 결과를 유지하고 다음 조회에서 리뷰를 다시 불러옵니다.
+        }
+      }
     } catch (error) {
       setSubmitError(
         mapEducationErrorMessage(error, SUBMIT_ERROR_MESSAGE),
@@ -225,7 +247,12 @@ export function QuizTakingSection({
             </div>
           </div>
 
-          {quiz.questions.length === 0 ? (
+          {quiz.latestAttemptReview ? (
+            <QuizAttemptReview
+              review={quiz.latestAttemptReview}
+              attemptLimitReached={attemptLimitReached}
+            />
+          ) : quiz.questions.length === 0 ? (
             <EmptyState
               title="등록된 문제가 없습니다."
               description="담당자가 문제를 등록한 후 응시할 수 있습니다."
