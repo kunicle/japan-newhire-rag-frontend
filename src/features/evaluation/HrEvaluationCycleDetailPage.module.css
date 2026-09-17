@@ -1,6 +1,8 @@
 .page { width: 100%; max-width: 64rem; margin-inline: auto; min-width: 0; }
 .backLink { display: inline-flex; margin-block-end: var(--space-5); color: var(--color-primary); font-weight: var(--font-weight-semibold); }
-.header { margin-block-end: var(--space-6); }
+.header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); margin-block-end: var(--space-6); }
+.deleteButton { color: var(--color-danger); border-color: var(--color-danger); }
+.deleteButton:hover:not(:disabled) { background-color: color-mix(in srgb, var(--color-danger) 10%, var(--color-surface)); }
 .heading, .itemHeading, .actions { display: flex; min-width: 0; align-items: center; flex-wrap: wrap; gap: var(--space-3); }
 .heading h1, .panel h2, .panel h3, .panel h4, .panel h5 { margin: 0; overflow-wrap: anywhere; }
 .heading h1 { font-size: var(--font-size-page-title); line-height: var(--line-height-page-title); }
@@ -31,4 +33,4 @@
 .success { margin: 0; color: var(--color-success); font-weight: var(--font-weight-semibold); }
 .warning { margin: 0; color: var(--color-warning); font-weight: var(--font-weight-medium); }
 .publishPanel { min-width: 0; }
-@media (max-width: 479px) { .panel { padding: var(--space-4); } .formGrid, .readOnlyGrid { grid-template-columns: minmax(0, 1fr); } .actions > *, .errorState > * { width: 100%; } }
+@media (max-width: 479px) { .header { align-items: flex-start; flex-wrap: wrap; } .panel { padding: var(--space-4); } .formGrid, .readOnlyGrid { grid-template-columns: minmax(0, 1fr); } .actions > *, .errorState > * { width: 100%; } }

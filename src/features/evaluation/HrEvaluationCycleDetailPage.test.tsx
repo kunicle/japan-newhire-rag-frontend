@@ -9,6 +9,7 @@ const evaluationApiMock = vi.hoisted(() => ({
   fetchEvaluationCycle: vi.fn(), fetchEvaluationTemplates: vi.fn(), fetchEvaluationItems: vi.fn(),
   fetchEvaluationProgress: vi.fn(), createEvaluationItem: vi.fn(), createEvaluationTemplate: vi.fn(),
   updateEvaluationCycle: vi.fn(), updateEvaluationItem: vi.fn(), updateEvaluationTemplate: vi.fn(),
+  deleteEvaluationCycle: vi.fn(),
 }))
 const organizationApiMock = vi.hoisted(() => ({ fetchOrganization: vi.fn() }))
 
@@ -49,7 +50,7 @@ describe('HrEvaluationCycleDetailPage', () => {
   async function renderPage() {
     root = createRoot(container)
     await act(async () => {
-      root?.render(<MemoryRouter initialEntries={['/hr/evaluations/7']}><Routes><Route path="/hr/evaluations/:cycleId" element={<HrEvaluationCycleDetailPage />} /></Routes></MemoryRouter>)
+      root?.render(<MemoryRouter initialEntries={['/hr/evaluations/7']}><Routes><Route path="/hr/evaluations/:cycleId" element={<HrEvaluationCycleDetailPage />} /><Route path="/hr/evaluations" element={<p>평가 목록</p>} /></Routes></MemoryRouter>)
       await Promise.resolve()
     })
   }
@@ -72,5 +73,76 @@ describe('HrEvaluationCycleDetailPage', () => {
     expect(container.textContent).not.toContain('평가 질문 추가')
     const backLink = [...container.querySelectorAll('a')].find((link) => link.textContent === '평가 목록으로 돌아가기')
     expect(backLink?.getAttribute('href')).toBe('/hr/evaluations')
+  })
+
+  it.each(['OPEN', 'CLOSED'] as const)('hides deletion outside the planned state: %s', async (status) => {
+    evaluationApiMock.fetchEvaluationCycle.mockResolvedValue(cycle(status))
+    await renderPage()
+    expect(container.textContent).not.toContain('평가 삭제')
+  })
+
+  it('shows deletion for planned cycles and does not call the API when confirmation is cancelled', async () => {
+    evaluationApiMock.deleteEvaluationCycle.mockResolvedValue(undefined)
+    const confirm = vi.fn(() => false)
+    Object.defineProperty(window, 'confirm', { configurable: true, value: confirm })
+    await renderPage()
+    const button = [...container.querySelectorAll('button')].find((entry) => entry.textContent === '평가 삭제')
+    expect(button).not.toBeNull()
+    await act(async () => button?.dispatchEvent(new MouseEvent('click', { bubbles: true })))
+    expect(confirm).toHaveBeenCalled()
+    expect(evaluationApiMock.deleteEvaluationCycle).not.toHaveBeenCalled()
+  })
+
+  it('deletes once and navigates to the list after confirmation', async () => {
+    Object.defineProperty(window, 'confirm', { configurable: true, value: vi.fn(() => true) })
+    evaluationApiMock.deleteEvaluationCycle.mockResolvedValue(undefined)
+    await renderPage()
+    const button = [...container.querySelectorAll('button')].find((entry) => entry.textContent === '평가 삭제')
+    await act(async () => button?.dispatchEvent(new MouseEvent('click', { bubbles: true })))
+    expect(evaluationApiMock.deleteEvaluationCycle).toHaveBeenCalledTimes(1)
+    expect(container.textContent).toContain('평가 목록')
+  })
+
+  it('keeps the detail and shows an error when deletion fails', async () => {
+    Object.defineProperty(window, 'confirm', { configurable: true, value: vi.fn(() => true) })
+    evaluationApiMock.deleteEvaluationCycle.mockRejectedValue(new Error('failed'))
+    await renderPage()
+    const button = [...container.querySelectorAll('button')].find((entry) => entry.textContent === '평가 삭제')
+    await act(async () => {
+      button?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+      await Promise.resolve()
+    })
+    expect(evaluationApiMock.deleteEvaluationCycle).toHaveBeenCalledTimes(1)
+    expect(container.textContent).toContain('평가를 삭제하지 못했습니다.')
+  })
+
+  it('prevents a duplicate deletion request while deletion is pending', async () => {
+    Object.defineProperty(window, 'confirm', { configurable: true, value: vi.fn(() => true) })
+    let completeDeletion: (() => void) | undefined
+    const pendingDeletion = new Promise<void>((resolve) => {
+      completeDeletion = resolve
+    })
+    evaluationApiMock.deleteEvaluationCycle.mockReturnValue(pendingDeletion)
+    await renderPage()
+
+    const button = [...container.querySelectorAll('button')].find((entry) => entry.textContent === '평가 삭제')
+    expect(button).not.toBeNull()
+
+    await act(async () => {
+      button?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+      await Promise.resolve()
+    })
+    expect(evaluationApiMock.deleteEvaluationCycle).toHaveBeenCalledTimes(1)
+
+    await act(async () => {
+      button?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+      await Promise.resolve()
+    })
+    expect(evaluationApiMock.deleteEvaluationCycle).toHaveBeenCalledTimes(1)
+
+    await act(async () => {
+      completeDeletion?.()
+      await pendingDeletion
+    })
   })
 })

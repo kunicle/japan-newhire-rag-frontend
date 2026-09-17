@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { AppError } from '../../shared/api/errors'
 import { Badge, Button, Skeleton } from '../../shared/ui'
 import { fetchOrganization } from '../organization/organizationApi'
 import { flattenEmployees, type FlatEmployee } from '../organization/organizationHelpers'
 import { evaluationCycleStatusBadgeVariant, evaluationCycleStatusLabel } from './evaluationHelpers'
 import {
-  createEvaluationItem, createEvaluationTemplate, fetchEvaluationCycle, fetchEvaluationProgress,
+  createEvaluationItem, createEvaluationTemplate, deleteEvaluationCycle, fetchEvaluationCycle, fetchEvaluationProgress,
   fetchEvaluationItems, fetchEvaluationTemplates, updateEvaluationCycle,
   updateEvaluationItem, updateEvaluationTemplate,
 } from './hrEvaluationApi'
@@ -82,6 +82,7 @@ function Field({ label, id, wide, children }: { label: string; id: string; wide?
 }
 
 function HrEvaluationCycleDetailContent({ cycleId }: { cycleId: number }) {
+  const navigate = useNavigate()
   const [cycle, setCycle] = useState<EvaluationCycle | null>(null)
   const [cycleLoading, setCycleLoading] = useState(true)
   const [cycleError, setCycleError] = useState<string | null>(null)
@@ -96,6 +97,8 @@ function HrEvaluationCycleDetailContent({ cycleId }: { cycleId: number }) {
   const [cycleSaveError, setCycleSaveError] = useState<string | null>(null)
   const [cycleSaveSuccess, setCycleSaveSuccess] = useState<string | null>(null)
   const [cycleSaving, setCycleSaving] = useState(false)
+  const [cycleDeleting, setCycleDeleting] = useState(false)
+  const [cycleDeleteError, setCycleDeleteError] = useState<string | null>(null)
   const [employees, setEmployees] = useState<FlatEmployee[]>([])
   const [organizationLoading, setOrganizationLoading] = useState(true)
   const [organizationError, setOrganizationError] = useState<string | null>(null)
@@ -111,6 +114,7 @@ function HrEvaluationCycleDetailContent({ cycleId }: { cycleId: number }) {
   const latestProgressFetchIdRef = useRef(0)
   const itemsRequestIdsRef = useRef<Map<number, number>>(new Map())
   const cycleSaveRef = useRef(false)
+  const cycleDeleteRef = useRef(false)
   const templateWriteRefs = useRef<Map<EvaluationType, boolean>>(new Map())
   const itemCreateRefs = useRef<Map<number, boolean>>(new Map())
   const itemUpdateRefs = useRef<Set<number>>(new Set())
@@ -172,6 +176,13 @@ function HrEvaluationCycleDetailContent({ cycleId }: { cycleId: number }) {
     catch (error) { if (mountedRef.current) setCycleSaveError(mapHrEvaluationErrorMessage(error, '평가 주기를 수정하지 못했습니다.', '현재 평가 주기는 수정할 수 없습니다.')) }
     finally { cycleSaveRef.current = false; if (mountedRef.current) setCycleSaving(false) }
   }
+  async function deleteCycle() {
+    if (!cycle || cycleDeleteRef.current || !window.confirm('이 평가를 삭제하시겠습니까?\n삭제한 평가는 복구할 수 없습니다.')) return
+    cycleDeleteRef.current = true; setCycleDeleting(true); setCycleDeleteError(null)
+    try { await deleteEvaluationCycle(cycleId); if (mountedRef.current) navigate('/hr/evaluations') }
+    catch (error) { if (mountedRef.current) setCycleDeleteError(mapHrEvaluationErrorMessage(error, '평가를 삭제하지 못했습니다.', '현재 평가 주기는 삭제할 수 없습니다.')) }
+    finally { cycleDeleteRef.current = false; if (mountedRef.current) setCycleDeleting(false) }
+  }
 
   async function writeTemplate(type: EvaluationType, existing: EvaluationTemplate | undefined, name: string, description: string, active: boolean) {
     if (templateWriteRefs.current.get(type)) return
@@ -221,7 +232,7 @@ function HrEvaluationCycleDetailContent({ cycleId }: { cycleId: number }) {
   return (
     <div className={styles.page}>
       <Link className={styles.backLink} to="/hr/evaluations">평가 목록으로 돌아가기</Link>
-      <header className={styles.header}><div className={styles.heading}><h1>{cycle.cycleName}</h1><Badge variant={evaluationCycleStatusBadgeVariant(cycle.cycleStatus)}>{evaluationCycleStatusLabel(cycle.cycleStatus)}</Badge></div></header>
+      <header className={styles.header}><div className={styles.heading}><h1>{cycle.cycleName}</h1><Badge variant={evaluationCycleStatusBadgeVariant(cycle.cycleStatus)}>{evaluationCycleStatusLabel(cycle.cycleStatus)}</Badge></div>{setupWritable && <Button className={styles.deleteButton} variant="secondary" loading={cycleDeleting} disabled={cycleSaving || cycleDeleting} onClick={() => void deleteCycle()}>평가 삭제</Button>}</header>
       <section className={styles.panel} aria-labelledby="cycle-info-title"><h2 id="cycle-info-title">평가 주기 정보</h2>
         {editable ? <div className={styles.formGrid}>
           <Field label="평가 주기명" id="detail-cycle-name" wide><input id="detail-cycle-name" disabled={!editable} maxLength={100} value={cycleName} onChange={(e) => setCycleName(e.target.value)} /></Field>
@@ -229,8 +240,8 @@ function HrEvaluationCycleDetailContent({ cycleId }: { cycleId: number }) {
           <Field label="종료일" id="detail-cycle-end"><input id="detail-cycle-end" type="date" disabled={!datesEditable} value={endDate} onChange={(e) => setEndDate(e.target.value)} /></Field>
           <Field label="발행 예정일" id="detail-cycle-publish"><input id="detail-cycle-publish" type="date" disabled={!editable} value={publishDate} onChange={(e) => setPublishDate(e.target.value)} /></Field>
         </div> : <dl className={styles.readOnlyGrid}><div><dt>평가 주기명</dt><dd>{cycle.cycleName}</dd></div><div><dt>시작일</dt><dd>{cycle.startDate}</dd></div><div><dt>종료일</dt><dd>{cycle.endDate}</dd></div><div><dt>발행 예정일</dt><dd>{cycle.plannedPublishDate}</dd></div></dl>}
-        {cycleSaveError && <p className={styles.error} role="alert">{cycleSaveError}</p>}{cycleSaveSuccess && <p className={styles.success} role="status">{cycleSaveSuccess}</p>}
-        {editable && <div className={styles.actions}><Button loading={cycleSaving} onClick={() => void saveCycle()}>주기 수정</Button></div>}
+        {cycleSaveError && <p className={styles.error} role="alert">{cycleSaveError}</p>}{cycleDeleteError && <p className={styles.error} role="alert">{cycleDeleteError}</p>}{cycleSaveSuccess && <p className={styles.success} role="status">{cycleSaveSuccess}</p>}
+        {editable && <div className={styles.actions}><Button loading={cycleSaving} disabled={cycleDeleting} onClick={() => void saveCycle()}>주기 수정</Button></div>}
       </section>
       <section aria-labelledby="templates-title"><h2 id="templates-title" className={styles.sectionTitle}>평가 설정</h2>
         {!setupWritable && <p className={styles.meta}>현재 평가 주기 상태에서는 평가 설정과 평가 질문을 수정할 수 없습니다. 평가 설정은 예정 상태에서만 수정할 수 있습니다.</p>}
