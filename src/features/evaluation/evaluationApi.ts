@@ -10,6 +10,22 @@ export function fetchMyEvaluations(): Promise<MyEvaluationSummary[]> {
   return request<MyEvaluationSummary[]>('/me/evaluations')
 }
 
+export function getMyUpwardEvaluations(): Promise<MyEvaluationSummary[]> {
+  return request<MyEvaluationSummary[]>('/me/evaluations/upward')
+}
+
+export function getMyUpwardEvaluation(evaluationId: number): Promise<SelfEvaluationDetail> {
+  return request<SelfEvaluationDetail>(`/me/evaluations/${evaluationId}/upward`)
+}
+
+export function saveMyUpwardEvaluationDraft(evaluationId: number, input: SelfEvaluationDraftInput): Promise<SelfEvaluationDetail> {
+  return request<SelfEvaluationDetail>(`/me/evaluations/${evaluationId}/upward/draft`, { method: 'PUT', body: JSON.stringify(input) })
+}
+
+export function submitMyUpwardEvaluation(evaluationId: number): Promise<void> {
+  return request<void>(`/me/evaluations/${evaluationId}/upward/submission`, { method: 'POST' })
+}
+
 export function fetchSelfEvaluation(
   evaluationId: number,
 ): Promise<SelfEvaluationDetail> {

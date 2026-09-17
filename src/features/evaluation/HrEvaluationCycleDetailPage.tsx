@@ -6,7 +6,7 @@ import { fetchOrganization } from '../organization/organizationApi'
 import { flattenEmployees, type FlatEmployee } from '../organization/organizationHelpers'
 import { evaluationCycleStatusBadgeVariant, evaluationCycleStatusLabel } from './evaluationHelpers'
 import {
-  createEvaluationItem, createEvaluationTemplate, deleteEvaluationCycle, fetchEvaluationCycle, fetchEvaluationProgress,
+  closeEvaluationCycle, createEvaluationItem, createEvaluationTemplate, deleteEvaluationCycle, fetchEvaluationCycle, fetchEvaluationProgress,
   fetchEvaluationItems, fetchEvaluationTemplates, updateEvaluationCycle,
   updateEvaluationItem, updateEvaluationTemplate,
 } from './hrEvaluationApi'
@@ -99,6 +99,8 @@ function HrEvaluationCycleDetailContent({ cycleId }: { cycleId: number }) {
   const [cycleSaving, setCycleSaving] = useState(false)
   const [cycleDeleting, setCycleDeleting] = useState(false)
   const [cycleDeleteError, setCycleDeleteError] = useState<string | null>(null)
+  const [cycleClosing, setCycleClosing] = useState(false)
+  const [cycleCloseError, setCycleCloseError] = useState<string | null>(null)
   const [employees, setEmployees] = useState<FlatEmployee[]>([])
   const [organizationLoading, setOrganizationLoading] = useState(true)
   const [organizationError, setOrganizationError] = useState<string | null>(null)
@@ -115,6 +117,7 @@ function HrEvaluationCycleDetailContent({ cycleId }: { cycleId: number }) {
   const itemsRequestIdsRef = useRef<Map<number, number>>(new Map())
   const cycleSaveRef = useRef(false)
   const cycleDeleteRef = useRef(false)
+  const cycleCloseRef = useRef(false)
   const templateWriteRefs = useRef<Map<EvaluationType, boolean>>(new Map())
   const itemCreateRefs = useRef<Map<number, boolean>>(new Map())
   const itemUpdateRefs = useRef<Set<number>>(new Set())
@@ -183,6 +186,13 @@ function HrEvaluationCycleDetailContent({ cycleId }: { cycleId: number }) {
     catch (error) { if (mountedRef.current) setCycleDeleteError(mapHrEvaluationErrorMessage(error, '평가를 삭제하지 못했습니다.', '현재 평가 주기는 삭제할 수 없습니다.')) }
     finally { cycleDeleteRef.current = false; if (mountedRef.current) setCycleDeleting(false) }
   }
+  async function closeCycle() {
+    if (!cycle || cycleCloseRef.current || !window.confirm('평가를 마감하시겠습니까?\n마감 후에는 더 이상 평가를 작성하거나 제출할 수 없습니다.')) return
+    cycleCloseRef.current = true; setCycleClosing(true); setCycleCloseError(null)
+    try { const response = await closeEvaluationCycle(cycleId); if (mountedRef.current) applyCycle(response) }
+    catch (error) { if (mountedRef.current) setCycleCloseError(mapHrEvaluationErrorMessage(error, '평가를 마감하지 못했습니다.', '현재 평가 주기는 마감할 수 없습니다.')) }
+    finally { cycleCloseRef.current = false; if (mountedRef.current) setCycleClosing(false) }
+  }
 
   async function writeTemplate(type: EvaluationType, existing: EvaluationTemplate | undefined, name: string, description: string, active: boolean) {
     if (templateWriteRefs.current.get(type)) return
@@ -228,11 +238,11 @@ function HrEvaluationCycleDetailContent({ cycleId }: { cycleId: number }) {
   if (cycleLoading && !cycle) return <div role="status" aria-label="평가 주기를 불러오는 중"><Skeleton lines={6} /></div>
   if (cycleError && !cycle) return <div className={styles.errorState}><p className={styles.error} role="alert">{cycleError}</p><Button variant="secondary" onClick={() => void loadCycle()}>다시 시도</Button></div>
   if (!cycle) return null
-  const editable = isCycleEditable(cycle.cycleStatus); const datesEditable = isCycleDatesEditable(cycle.cycleStatus); const setupWritable = isTemplateOrItemWritable(cycle.cycleStatus)
+  const editable = isCycleEditable(cycle.cycleStatus); const datesEditable = isCycleDatesEditable(cycle.cycleStatus); const setupWritable = isTemplateOrItemWritable(cycle.cycleStatus); const closable = cycle.cycleStatus === 'OPEN'
   return (
     <div className={styles.page}>
       <Link className={styles.backLink} to="/hr/evaluations">평가 목록으로 돌아가기</Link>
-      <header className={styles.header}><div className={styles.heading}><h1>{cycle.cycleName}</h1><Badge variant={evaluationCycleStatusBadgeVariant(cycle.cycleStatus)}>{evaluationCycleStatusLabel(cycle.cycleStatus)}</Badge></div>{setupWritable && <Button className={styles.deleteButton} variant="secondary" loading={cycleDeleting} disabled={cycleSaving || cycleDeleting} onClick={() => void deleteCycle()}>평가 삭제</Button>}</header>
+      <header className={styles.header}><div className={styles.heading}><h1>{cycle.cycleName}</h1><Badge variant={evaluationCycleStatusBadgeVariant(cycle.cycleStatus)}>{evaluationCycleStatusLabel(cycle.cycleStatus)}</Badge></div>{setupWritable && <Button className={styles.deleteButton} variant="secondary" loading={cycleDeleting} disabled={cycleSaving || cycleDeleting || cycleClosing} onClick={() => void deleteCycle()}>평가 삭제</Button>}{closable && <Button variant="secondary" loading={cycleClosing} disabled={cycleSaving || cycleDeleting || cycleClosing} onClick={() => void closeCycle()}>평가 마감</Button>}</header>
       <section className={styles.panel} aria-labelledby="cycle-info-title"><h2 id="cycle-info-title">평가 주기 정보</h2>
         {editable ? <div className={styles.formGrid}>
           <Field label="평가 주기명" id="detail-cycle-name" wide><input id="detail-cycle-name" disabled={!editable} maxLength={100} value={cycleName} onChange={(e) => setCycleName(e.target.value)} /></Field>
@@ -240,7 +250,7 @@ function HrEvaluationCycleDetailContent({ cycleId }: { cycleId: number }) {
           <Field label="종료일" id="detail-cycle-end"><input id="detail-cycle-end" type="date" disabled={!datesEditable} value={endDate} onChange={(e) => setEndDate(e.target.value)} /></Field>
           <Field label="발행 예정일" id="detail-cycle-publish"><input id="detail-cycle-publish" type="date" disabled={!editable} value={publishDate} onChange={(e) => setPublishDate(e.target.value)} /></Field>
         </div> : <dl className={styles.readOnlyGrid}><div><dt>평가 주기명</dt><dd>{cycle.cycleName}</dd></div><div><dt>시작일</dt><dd>{cycle.startDate}</dd></div><div><dt>종료일</dt><dd>{cycle.endDate}</dd></div><div><dt>발행 예정일</dt><dd>{cycle.plannedPublishDate}</dd></div></dl>}
-        {cycleSaveError && <p className={styles.error} role="alert">{cycleSaveError}</p>}{cycleDeleteError && <p className={styles.error} role="alert">{cycleDeleteError}</p>}{cycleSaveSuccess && <p className={styles.success} role="status">{cycleSaveSuccess}</p>}
+        {cycleSaveError && <p className={styles.error} role="alert">{cycleSaveError}</p>}{cycleDeleteError && <p className={styles.error} role="alert">{cycleDeleteError}</p>}{cycleCloseError && <p className={styles.error} role="alert">{cycleCloseError}</p>}{cycleSaveSuccess && <p className={styles.success} role="status">{cycleSaveSuccess}</p>}
         {editable && <div className={styles.actions}><Button loading={cycleSaving} disabled={cycleDeleting} onClick={() => void saveCycle()}>주기 수정</Button></div>}
       </section>
       <section aria-labelledby="templates-title"><h2 id="templates-title" className={styles.sectionTitle}>평가 설정</h2>

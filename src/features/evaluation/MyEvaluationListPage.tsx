@@ -57,6 +57,7 @@ export function MyEvaluationListPage() {
 
   return (
     <div className={styles.page}>
+      <Link to="/me/evaluations/upward">상사 평가</Link>
       <header className={styles.header}>
         <h1 className={styles.title}>내 평가</h1>
         <p className={styles.description}>배정된 평가를 확인하고 자기 평가를 작성합니다.</p>

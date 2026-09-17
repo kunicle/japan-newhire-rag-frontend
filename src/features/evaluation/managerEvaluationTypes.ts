@@ -1,4 +1,4 @@
-import type { EvaluationCycleStatus, EvaluationStatus } from './evaluationTypes'
+import type { EvaluationCycleStatus, EvaluationResultItem, EvaluationStatus } from './evaluationTypes'
 
 export interface EvaluationEmployeeSummary {
   employeeId: number
@@ -75,4 +75,14 @@ export interface ManagerEvaluationProgress {
   selfCompletedCount: number
   managerCompletedCount: number
   employees: ManagerEvaluationProgressEmployee[]
+}
+
+export interface ReceivedUpwardEvaluationResult {
+  evaluationId: number
+  evaluationStatus: EvaluationStatus
+  totalScore: number | null
+  items: EvaluationResultItem[]
+  overallFeedback: string | null
+  evaluatorEmployeeId: number
+  evaluatorName: string | null
 }

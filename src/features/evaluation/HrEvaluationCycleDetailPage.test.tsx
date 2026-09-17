@@ -9,7 +9,7 @@ const evaluationApiMock = vi.hoisted(() => ({
   fetchEvaluationCycle: vi.fn(), fetchEvaluationTemplates: vi.fn(), fetchEvaluationItems: vi.fn(),
   fetchEvaluationProgress: vi.fn(), createEvaluationItem: vi.fn(), createEvaluationTemplate: vi.fn(),
   updateEvaluationCycle: vi.fn(), updateEvaluationItem: vi.fn(), updateEvaluationTemplate: vi.fn(),
-  deleteEvaluationCycle: vi.fn(),
+  deleteEvaluationCycle: vi.fn(), closeEvaluationCycle: vi.fn(),
 }))
 const organizationApiMock = vi.hoisted(() => ({ fetchOrganization: vi.fn() }))
 
@@ -144,5 +144,79 @@ describe('HrEvaluationCycleDetailPage', () => {
       completeDeletion?.()
       await pendingDeletion
     })
+  })
+
+  it('does not show early close for a planned cycle', async () => {
+    await renderPage()
+    expect([...container.querySelectorAll('button')].some((button) => button.textContent === '평가 마감')).toBe(false)
+  })
+
+  it('shows early close only for an open cycle', async () => {
+    evaluationApiMock.fetchEvaluationCycle.mockResolvedValue(cycle('OPEN'))
+    await renderPage()
+    expect([...container.querySelectorAll('button')].some((button) => button.textContent === '평가 마감')).toBe(true)
+    expect(container.textContent).not.toContain('평가 삭제')
+  })
+
+  it('does not show early close for a closed cycle', async () => {
+    evaluationApiMock.fetchEvaluationCycle.mockResolvedValue(cycle('CLOSED'))
+    await renderPage()
+    expect([...container.querySelectorAll('button')].some((button) => button.textContent === '평가 마감')).toBe(false)
+  })
+
+  it('does not close when early-close confirmation is cancelled', async () => {
+    evaluationApiMock.fetchEvaluationCycle.mockResolvedValue(cycle('OPEN'))
+    Object.defineProperty(window, 'confirm', { configurable: true, value: vi.fn(() => false) })
+    await renderPage()
+    const button = [...container.querySelectorAll('button')].find((entry) => entry.textContent === '평가 마감')
+    await act(async () => button?.dispatchEvent(new MouseEvent('click', { bubbles: true })))
+    expect(evaluationApiMock.closeEvaluationCycle).not.toHaveBeenCalled()
+  })
+
+  it('calls early-close API after confirmation', async () => {
+    evaluationApiMock.fetchEvaluationCycle.mockResolvedValue(cycle('OPEN'))
+    evaluationApiMock.closeEvaluationCycle.mockResolvedValue(cycle('CLOSED'))
+    Object.defineProperty(window, 'confirm', { configurable: true, value: vi.fn(() => true) })
+    await renderPage()
+    const button = [...container.querySelectorAll('button')].find((entry) => entry.textContent === '평가 마감')
+    await act(async () => { button?.dispatchEvent(new MouseEvent('click', { bubbles: true })); await Promise.resolve() })
+    expect(evaluationApiMock.closeEvaluationCycle).toHaveBeenCalledWith(7)
+  })
+
+  it('reflects CLOSED after successful early close', async () => {
+    evaluationApiMock.fetchEvaluationCycle.mockResolvedValue(cycle('OPEN'))
+    evaluationApiMock.closeEvaluationCycle.mockResolvedValue(cycle('CLOSED'))
+    Object.defineProperty(window, 'confirm', { configurable: true, value: vi.fn(() => true) })
+    await renderPage()
+    const button = [...container.querySelectorAll('button')].find((entry) => entry.textContent === '평가 마감')
+    await act(async () => { button?.dispatchEvent(new MouseEvent('click', { bubbles: true })); await Promise.resolve() })
+    expect(container.textContent).toContain('마감')
+    expect(container.textContent).not.toContain('평가 마감')
+  })
+
+  it('keeps open detail and shows an error when early close fails', async () => {
+    evaluationApiMock.fetchEvaluationCycle.mockResolvedValue(cycle('OPEN'))
+    evaluationApiMock.closeEvaluationCycle.mockRejectedValue(new Error('failed'))
+    Object.defineProperty(window, 'confirm', { configurable: true, value: vi.fn(() => true) })
+    await renderPage()
+    const button = [...container.querySelectorAll('button')].find((entry) => entry.textContent === '평가 마감')
+    await act(async () => { button?.dispatchEvent(new MouseEvent('click', { bubbles: true })); await Promise.resolve() })
+    expect(container.textContent).toContain('평가를 마감하지 못했습니다.')
+    expect([...container.querySelectorAll('button')].some((entry) => entry.textContent === '평가 마감')).toBe(true)
+  })
+
+  it('prevents duplicate early-close requests while pending', async () => {
+    evaluationApiMock.fetchEvaluationCycle.mockResolvedValue(cycle('OPEN'))
+    Object.defineProperty(window, 'confirm', { configurable: true, value: vi.fn(() => true) })
+    let complete: (() => void) | undefined
+    const pending = new Promise<EvaluationCycle>((resolve) => { complete = () => resolve(cycle('CLOSED')) })
+    evaluationApiMock.closeEvaluationCycle.mockReturnValue(pending)
+    await renderPage()
+    const button = [...container.querySelectorAll('button')].find((entry) => entry.textContent === '평가 마감') as HTMLButtonElement
+    await act(async () => { button.click(); await Promise.resolve() })
+    expect(button.disabled).toBe(true)
+    await act(async () => { button.click(); await Promise.resolve() })
+    expect(evaluationApiMock.closeEvaluationCycle).toHaveBeenCalledTimes(1)
+    await act(async () => { complete?.(); await pending })
   })
 })

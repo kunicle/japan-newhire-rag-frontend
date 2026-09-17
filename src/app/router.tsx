@@ -17,6 +17,10 @@ import { HrCourseDetailPage } from '../features/education/HrCourseDetailPage'
 import { HrCourseListPage } from '../features/education/HrCourseListPage'
 import { MyEvaluationDetailPage } from '../features/evaluation/MyEvaluationDetailPage'
 import { MyEvaluationListPage } from '../features/evaluation/MyEvaluationListPage'
+import { MyUpwardEvaluationListPage } from '../features/evaluation/MyUpwardEvaluationListPage'
+import { MyUpwardEvaluationDetailPage } from '../features/evaluation/MyUpwardEvaluationDetailPage'
+import { ManagerReceivedUpwardEvaluationListPage } from '../features/evaluation/ManagerReceivedUpwardEvaluationListPage'
+import { ManagerReceivedUpwardEvaluationDetailPage } from '../features/evaluation/ManagerReceivedUpwardEvaluationDetailPage'
 import { ManagerEvaluationDetailPage } from '../features/evaluation/ManagerEvaluationDetailPage'
 import { ManagerEvaluationListPage } from '../features/evaluation/ManagerEvaluationListPage'
 import { HrEvaluationCycleDetailPage } from '../features/evaluation/HrEvaluationCycleDetailPage'
@@ -54,6 +58,8 @@ export const router = createBrowserRouter([
           { path: 'me/education/:enrollmentId', element: <MyEducationDetailPage /> },
           { path: 'me/onboarding', element: <MyOnboardingPage /> },
           { path: 'me/evaluations', element: <MyEvaluationListPage /> },
+          { path: 'me/evaluations/upward', element: <MyUpwardEvaluationListPage /> },
+          { path: 'me/evaluations/upward/:evaluationId', element: <MyUpwardEvaluationDetailPage /> },
           { path: 'me/evaluations/:evaluationId', element: <MyEvaluationDetailPage /> },
           { path: 'rag', element: <RagPage /> },
           { path: 'notifications', element: <NotificationsPage /> },
@@ -78,6 +84,8 @@ export const router = createBrowserRouter([
               { path: 'manager/education', element: <ManagerEducationPage /> },
               { path: 'manager/education/:employeeId', element: <ManagerEmployeeEducationPage /> },
               { path: 'manager/evaluations', element: <ManagerEvaluationListPage /> },
+              { path: 'manager/evaluations/received/upward', element: <ManagerReceivedUpwardEvaluationListPage /> },
+              { path: 'manager/evaluations/received/upward/:evaluationId', element: <ManagerReceivedUpwardEvaluationDetailPage /> },
               { path: 'manager/evaluations/:evaluationId', element: <ManagerEvaluationDetailPage /> },
             ],
           },

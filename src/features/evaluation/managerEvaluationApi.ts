@@ -4,7 +4,11 @@ import type {
   ManagerEvaluationDraftInput,
   ManagerEvaluationProgress,
   ManagerEvaluationSummary,
+  ReceivedUpwardEvaluationResult,
 } from './managerEvaluationTypes'
+
+export const getReceivedUpwardEvaluations = (): Promise<ReceivedUpwardEvaluationResult[]> => request<ReceivedUpwardEvaluationResult[]>('/manager/evaluations/received/upward')
+export const getReceivedUpwardEvaluation = (evaluationId: number): Promise<ReceivedUpwardEvaluationResult> => request<ReceivedUpwardEvaluationResult>(`/manager/evaluations/received/upward/${evaluationId}`)
 
 export function fetchManagerEvaluations(): Promise<ManagerEvaluationSummary[]> {
   return request<ManagerEvaluationSummary[]>('/manager/evaluations')

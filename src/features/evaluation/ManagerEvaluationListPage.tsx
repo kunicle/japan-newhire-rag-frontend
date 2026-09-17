@@ -116,6 +116,7 @@ export function ManagerEvaluationListPage() {
 
   return (
     <div className={styles.page}>
+      <Link className={styles.backLink} to="/manager/evaluations/received/upward">받은 상사 평가</Link>
       <header className={styles.header}>
         <h1 className={styles.title}>팀 평가</h1>
         <p className={styles.description}>담당 팀원의 평가 진행 현황을 확인하고 평가를 작성합니다.</p>

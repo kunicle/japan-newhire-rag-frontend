@@ -58,6 +58,10 @@ export function deleteEvaluationCycle(cycleId: number): Promise<void> {
   return request<void>(`/hr/evaluation-cycles/${cycleId}`, { method: 'DELETE' })
 }
 
+export function closeEvaluationCycle(cycleId: number): Promise<EvaluationCycle> {
+  return request<EvaluationCycle>(`/hr/evaluation-cycles/${cycleId}/close`, { method: 'POST' })
+}
+
 export function fetchEvaluationTemplates(cycleId: number): Promise<EvaluationTemplate[]> {
   return request<EvaluationTemplate[]>(`/hr/evaluation-cycles/${cycleId}/templates`)
 }
